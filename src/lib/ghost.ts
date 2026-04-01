@@ -8,6 +8,7 @@ async function ghostFetch(endpoint: string, params: Record<string, string> = {})
     url.searchParams.set(k, v);
   }
   const res = await fetch(url.toString());
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Ghost API error: ${res.status} ${endpoint}`);
   return res.json();
 }
@@ -47,7 +48,7 @@ export async function getTag(slug: string) {
   const data = await ghostFetch(`tags/slug/${slug}`, {
     include: 'count.posts',
   });
-  return data.tags?.[0] ?? null;
+  return data?.tags?.[0] ?? null;
 }
 
 export async function getSettings() {
