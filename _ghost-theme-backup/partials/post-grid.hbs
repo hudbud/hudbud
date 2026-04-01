@@ -1,0 +1,18 @@
+<section class="post-grid-section">
+    <div class="post-grid">
+        {{#get "posts" limit="50" include="tags"}}
+            {{#foreach posts}}
+            <a href="{{url}}" class="card" data-categories="{{#foreach tags}}{{slug}} {{/foreach}}">
+                {{#if feature_image}}
+                <div class="card-image">
+                    <img src="{{img_url feature_image size="card"}}" loading="lazy" alt="{{title}}">
+                </div>
+                {{else}}
+                <div class="card-image card-image-placeholder"></div>
+                {{/if}}
+                <h3 class="card-title">{{title}}</h3>
+            </a>
+            {{/foreach}}
+        {{/get}}
+    </div>
+</section>

@@ -1,0 +1,25 @@
+---
+interface Props {
+  posts: any[];
+}
+const { posts } = Astro.props;
+---
+<section class="post-grid-section">
+  <div class="post-grid">
+    {posts.map((post: any) => {
+      const tagSlugs = (post.tags || []).map((t: any) => t.slug).join(' ');
+      return (
+        <a href={`/${post.slug}/`} class="card" data-categories={tagSlugs}>
+          {post.feature_image ? (
+            <div class="card-image">
+              <img src={post.feature_image} loading="lazy" alt={post.title}>
+            </div>
+          ) : (
+            <div class="card-image card-image-placeholder"></div>
+          )}
+          <h3 class="card-title">{post.title}</h3>
+        </a>
+      );
+    })}
+  </div>
+</section>

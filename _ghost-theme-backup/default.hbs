@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{meta_title}}</title>
+    {{ghost_head}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Jacquard+12&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{asset "css/style.css"}}">
+</head>
+<body class="{{body_class}}" data-category="stories">
+    <div class="global-controls">
+        <div class="theme-selector">
+            <button class="theme-selector-btn" aria-label="Select color theme">
+                <span class="theme-selector-preview"></span>
+                <span class="theme-selector-name">Default</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="theme-dropdown" hidden>
+                <input class="theme-search" type="text" placeholder="Search themes..." autocomplete="off">
+                <div class="theme-list"></div>
+            </div>
+        </div>
+    </div>
+    {{{body}}}
+    {{ghost_foot}}
+    <script src="{{asset "js/themes.js"}}"></script>
+    <script src="{{asset "js/main.js"}}"></script>
+</body>
+</html>

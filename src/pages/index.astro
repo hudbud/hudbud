@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import CategoryNav from '../components/CategoryNav.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import PostGrid from '../components/PostGrid.astro';
+import { getAllPosts, getTag, getSettings } from '../lib/ghost';
+
+const [posts, storiesTag, productsTag, settings] = await Promise.all([
+  getAllPosts(),
+  getTag('stories'),
+  getTag('products'),
+  getSettings().catch(() => null),
+]);
+
+const siteIcon = settings?.icon || '';
+---
+<Layout title="Hudson Paine">
+  <main class="site-main">
+    <Hero
+      storiesImage={storiesTag?.feature_image}
+      productsImage={productsTag?.feature_image}
+    />
+    <CategoryNav />
+    <CtaBanner siteIcon={siteIcon} />
+    <PostGrid posts={posts} />
+  </main>
+</Layout>
