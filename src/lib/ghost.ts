@@ -22,26 +22,12 @@ export async function getAllPosts() {
   return data.posts;
 }
 
-export async function getPostBySlug(slug: string) {
-  const data = await ghostFetch(`posts/slug/${slug}`, {
-    include: 'tags',
-  });
-  return data.posts?.[0] ?? null;
-}
-
 export async function getAllPages() {
   const data = await ghostFetch('pages', {
     limit: 'all',
     include: 'tags',
   });
   return data.pages;
-}
-
-export async function getPageBySlug(slug: string) {
-  const data = await ghostFetch(`pages/slug/${slug}`, {
-    include: 'tags',
-  });
-  return data.pages?.[0] ?? null;
 }
 
 export async function getTag(slug: string) {

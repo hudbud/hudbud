@@ -14,7 +14,6 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^5.7.10",
-    "@ts-ghost/content-api": "^4.0.12"
+    "astro": "^5.7.10"
   }
 }
