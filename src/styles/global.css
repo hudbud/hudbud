@@ -18,8 +18,8 @@
     --transition: 0.3s ease;
 }
 
-/* ---------- Theme fallback: Stories (blue) ---------- */
-[data-category="stories"] {
+/* ---------- Theme fallback: Writing (blue) ---------- */
+[data-category="writing"] {
     --bg: #e8e9ec;
     --bg-hero: #2d539e;
     --text: #1a1a2e;
@@ -30,15 +30,14 @@
     --segment-bg: #2d539e;
     --segment-text: #ffffff;
     --segment-inactive: #1a1a2e;
-    --cta-bg: transparent;
-    --cta-text: transparent;
     --nav-home: #2d539e;
     --post-title-font: var(--font-stories);
     --post-nav-font: var(--font-stories);
 }
 
-/* ---------- Theme fallback: Products / Work (neutral) ---------- */
-[data-category="products"] {
+/* ---------- Theme fallback: Photos / Misc (neutral) ---------- */
+[data-category="photos"],
+[data-category="misc"] {
     --bg: #e1e1e3;
     --bg-hero: #e1e1e3;
     --text: #1a1a1a;
@@ -49,8 +48,6 @@
     --segment-bg: #1a1a1a;
     --segment-text: #e1e1e3;
     --segment-inactive: #1a1a1a;
-    --cta-bg: #1a1a1a;
-    --cta-text: #ffffff;
     --nav-home: #e2b714;
     --post-title-font: var(--font-sans);
     --post-nav-font: var(--font-sans);
@@ -234,13 +231,13 @@ img { max-width: 100%; height: auto; display: block; }
     margin-bottom: 16px;
 }
 
-[data-category="stories"] .hero-name,
-[data-post-category="stories"] .post-nav-home {
+[data-category="writing"] .hero-name,
+[data-post-category="writing"] .post-nav-home {
     font-family: var(--font-stories);
 }
 
-[data-category="stories"],
-[data-post-category="stories"] .post-content {
+[data-category="writing"],
+[data-post-category="writing"] .post-content {
     font-family: var(--font-stories-body);
 }
 
@@ -276,46 +273,33 @@ img { max-width: 100%; height: auto; display: block; }
     object-fit: cover;
 }
 
-/* ---------- Category Nav / Segmented Control ---------- */
-.category-nav {
+/* ---------- Chip Nav ---------- */
+.chip-nav {
     display: flex;
     justify-content: center;
+    gap: 8px;
     padding: 48px 0 32px;
 }
 
-.segmented-control {
-    display: inline-flex;
-    position: relative;
-    border-radius: 100px;
-    gap: 0;
-}
-
-.segment {
-    background: none;
+.chip {
+    background: var(--card-bg, #e0e0e0);
     border: none;
-    font-family: var(--font-sans);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    padding: 8px 20px;
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 1.25rem;
     cursor: pointer;
-    color: var(--segment-inactive);
-    position: relative;
-    z-index: 1;
-    transition: color var(--transition);
-    border-radius: 100px;
+    transition: background var(--transition), transform 0.15s ease;
+    line-height: 1;
 }
 
-.segment.active {
-    color: var(--segment-text);
+.chip:hover {
+    transform: scale(1.1);
 }
 
-.segment-indicator {
-    position: absolute;
-    height: 100%;
-    border-radius: 100px;
-    background: var(--segment-bg);
-    transition: left var(--transition), width var(--transition), background var(--transition);
-    z-index: 0;
+.chip.active {
+    background: var(--segment-bg, #1a1a1a);
+    outline: 2px solid var(--segment-bg, #1a1a1a);
+    outline-offset: 2px;
 }
 
 /* ---------- CTA Banner ---------- */
@@ -374,8 +358,8 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .post-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: var(--grid-gap);
 }
 
@@ -555,10 +539,6 @@ img { max-width: 100%; height: auto; display: block; }
         height: 200px;
     }
 
-    .post-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
     .related-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -570,10 +550,6 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 @media (max-width: 480px) {
-    .post-grid {
-        grid-template-columns: 1fr;
-    }
-
     .hero { padding: 48px 0 64px; }
     .hero-name { font-size: 2rem; }
     .post-title { font-size: 1.75rem; }

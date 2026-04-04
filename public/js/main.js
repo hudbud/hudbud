@@ -1,15 +1,16 @@
 /**
  * Hudson Paine - Theme JS
- * Handles: category switching, segmented control, content filtering, MT themes
+ * Handles: category switching, chip filtering, MT themes
  */
 
 (function () {
     'use strict';
 
-    // --- Category-to-theme mapping (single theme per category, no dark mode) ---
+    // --- Category-to-theme mapping ---
     var CATEGORY_THEMES = {
-        stories:  'iceberg_light',
-        products: 'serika'
+        writing: 'iceberg_light',
+        photos:  'iceberg_light',
+        misc:    'serika'
     };
 
     // --- Rotating taglines ---
@@ -62,19 +63,18 @@
     ];
 
     // --- State ---
-    var currentCategory = localStorage.getItem('hud-category') || 'stories';
+    var validCategories = ['writing', 'photos', 'misc'];
+    var savedCategory = localStorage.getItem('hud-category') || 'writing';
+    var currentCategory = validCategories.indexOf(savedCategory) !== -1 ? savedCategory : 'writing';
     var currentTheme = localStorage.getItem('hud-theme') || null;
     var manualOverride = localStorage.getItem('hud-theme-manual') === 'true';
 
     // --- DOM refs ---
     var body = document.body;
     var html = document.documentElement;
-    var segments = document.querySelectorAll('.segment');
-    var indicator = document.querySelector('.segment-indicator');
+    var chips = document.querySelectorAll('.chip[data-category]');
     var cards = document.querySelectorAll('.card[data-categories]');
     var heroTagline = document.querySelector('.hero-tagline');
-    var ctaBanner = document.querySelector('.cta-banner');
-    var ctaText = document.querySelector('.cta-text');
     var themeBtn = document.querySelector('.theme-selector-btn');
     var themeDropdown = document.querySelector('.theme-dropdown');
     var themeList = document.querySelector('.theme-list');
@@ -128,56 +128,32 @@
         }
     }
 
-    // --- Segmented control ---
-    function updateIndicator() {
-        if (!indicator) return;
-        var activeBtn = document.querySelector('.segment.active');
-        if (!activeBtn) return;
-        indicator.style.left = activeBtn.offsetLeft + 'px';
-        indicator.style.width = activeBtn.offsetWidth + 'px';
-    }
-
+    // --- Chip filtering ---
     function setCategory(cat) {
         currentCategory = cat;
         localStorage.setItem('hud-category', cat);
         body.setAttribute('data-category', cat);
 
-        // Update segments
-        segments.forEach(function (s) {
-            s.classList.toggle('active', s.dataset.category === cat);
+        // Update active chip
+        chips.forEach(function (chip) {
+            chip.classList.toggle('active', chip.dataset.category === cat);
         });
-        updateIndicator();
 
-        // Update hero tagline (random on each switch)
+        // Update hero tagline
         if (heroTagline) {
             heroTagline.textContent = getRandomTagline();
         }
 
-        // Update hero images
-        document.querySelectorAll('.hero-img').forEach(function (img) {
-            img.style.display = img.classList.contains('hero-img-' + cat) ? '' : 'none';
-        });
-
-        // Update CTA
-        if (ctaBanner) {
-            if (cat === 'stories') {
-                ctaBanner.classList.remove('visible');
-            } else {
-                ctaBanner.classList.add('visible');
-                if (ctaText) {
-                    ctaText.textContent = ctaBanner.dataset['cta' + cat.charAt(0).toUpperCase() + cat.slice(1)] || '';
-                }
-            }
-        }
-
-        // Filter cards — stories category also shows projects-tagged posts
+        // Filter cards
         cards.forEach(function (card) {
-            var cats = card.dataset.categories || '';
+            var catArr = (card.dataset.categories || '').split(' ');
             var show;
-            if (cat === 'stories') {
-                show = cats.indexOf('stories') !== -1 || cats.indexOf('projects') !== -1;
+            if (cat === 'writing') {
+                show = catArr.some(function (c) { return c === 'writing' || c === 'stories'; });
+            } else if (cat === 'photos') {
+                show = catArr.some(function (c) { return c === 'photos' || c === 'photography'; });
             } else {
-                show = cats.indexOf(cat) !== -1;
+                show = catArr.some(function (c) { return c === 'misc' || c === 'experiments' || c === 'projects'; });
             }
             card.classList.toggle('hidden', !show);
         });
@@ -188,9 +164,9 @@
         }
     }
 
-    segments.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            setCategory(btn.dataset.category);
+    chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            setCategory(chip.dataset.category);
         });
     });
 
@@ -279,16 +255,10 @@
 
     // --- Init ---
     if (manualOverride && currentTheme) {
-        // Restore manual theme
         applyMtTheme(currentTheme);
-    } else if (segments.length) {
-        // Homepage: setCategory handles theme
+    } else if (chips.length) {
         setCategory(currentCategory);
     } else {
-        // Post/other pages: apply category default
         applyCategoryTheme();
     }
-
-    // Recalculate indicator on resize
-    window.addEventListener('resize', updateIndicator);
 })();

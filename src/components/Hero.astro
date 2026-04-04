@@ -1,9 +1,4 @@
 ---
-interface Props {
-  storiesImage?: string;
-  productsImage?: string;
-}
-const { storiesImage, productsImage } = Astro.props;
 ---
 <section class="hero">
   <div class="hero-inner">
@@ -11,10 +6,6 @@ const { storiesImage, productsImage } = Astro.props;
       <h1 class="hero-name">Hudson Paine</h1>
       <p class="hero-tagline"></p>
       <a href="/about" class="hero-link">More about me</a>
-    </div>
-    <div class="hero-image">
-      {storiesImage && <img class="hero-img hero-img-stories" src={storiesImage} alt="Hudson Paine" style="display:none;">}
-      {productsImage && <img class="hero-img hero-img-products" src={productsImage} alt="Hudson Paine" style="display:none;">}
     </div>
   </div>
 </section>
