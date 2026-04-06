@@ -7,7 +7,7 @@ export async function getStaticPaths() {
 
   const postPaths = posts.map((post: any) => {
     const primarySlug = post.tags?.[0]?.slug || '';
-    const category = (primarySlug === 'stories' || primarySlug === 'projects') ? 'stories' : 'products';
+    const category = (primarySlug === 'writing' || primarySlug === 'stories') ? 'writing' : (primarySlug === 'photos' || primarySlug === 'photography') ? 'photos' : 'misc';
     return {
       params: { slug: post.slug },
       props: { item: post, type: 'post' as const, category },

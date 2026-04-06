@@ -302,53 +302,6 @@ img { max-width: 100%; height: auto; display: block; }
     outline-offset: 2px;
 }
 
-/* ---------- CTA Banner ---------- */
-.cta-banner {
-    max-width: var(--max-width);
-    margin: 0 auto 32px;
-    padding: 0 32px;
-    display: none;
-}
-
-.cta-banner.visible { display: block; }
-
-.cta-inner {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: var(--cta-bg);
-    color: var(--cta-text);
-    border-radius: 100px;
-    padding: 12px 24px 12px 12px;
-    transition: background var(--transition), color var(--transition);
-}
-
-.cta-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-.cta-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.cta-text {
-    flex: 1;
-    font-size: 0.9375rem;
-}
-
-.cta-link {
-    font-weight: 600;
-    font-size: 0.9375rem;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    flex-shrink: 0;
-}
 
 /* ---------- Post Grid ---------- */
 .post-grid-section {

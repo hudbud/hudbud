@@ -65,7 +65,7 @@
     // --- State ---
     var validCategories = ['writing', 'photos', 'misc'];
     var savedCategory = localStorage.getItem('hud-category') || 'writing';
-    var currentCategory = validCategories.indexOf(savedCategory) !== -1 ? savedCategory : 'writing';
+    var currentCategory = validCategories.includes(savedCategory) ? savedCategory : 'writing';
     var currentTheme = localStorage.getItem('hud-theme') || null;
     var manualOverride = localStorage.getItem('hud-theme-manual') === 'true';
 
