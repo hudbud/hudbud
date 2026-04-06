@@ -17,7 +17,7 @@ export async function getAllPosts() {
   const data = await ghostFetch('posts', {
     limit: 'all',
     include: 'tags',
-    fields: 'id,slug,title,feature_image,feature_image_alt,html,primary_tag',
+    fields: 'id,slug,title,feature_image,feature_image_alt,html,primary_tag,custom_excerpt,excerpt',
   });
   return data.posts;
 }

@@ -64,8 +64,8 @@
 
     // --- State ---
     var validCategories = ['writing', 'photos', 'misc'];
-    var savedCategory = localStorage.getItem('hud-category') || 'writing';
-    var currentCategory = validCategories.includes(savedCategory) ? savedCategory : 'writing';
+    var savedCategory = localStorage.getItem('hud-category');
+    var currentCategory = validCategories.includes(savedCategory) ? savedCategory : null;
     var currentTheme = localStorage.getItem('hud-theme') || null;
     var manualOverride = localStorage.getItem('hud-theme-manual') === 'true';
 
@@ -129,23 +129,9 @@
     }
 
     // --- Chip filtering ---
-    function setCategory(cat) {
-        currentCategory = cat;
-        localStorage.setItem('hud-category', cat);
-        body.setAttribute('data-category', cat);
-
-        // Update active chip
-        chips.forEach(function (chip) {
-            chip.classList.toggle('active', chip.dataset.category === cat);
-        });
-
-        // Update hero tagline
-        if (heroTagline) {
-            heroTagline.textContent = getRandomTagline();
-        }
-
-        // Filter cards
+    function filterCards(cat) {
         cards.forEach(function (card) {
+            if (!cat) { card.classList.remove('hidden'); return; }
             var catArr = (card.dataset.categories || '').split(' ');
             var show;
             if (cat === 'writing') {
@@ -157,12 +143,23 @@
             }
             card.classList.toggle('hidden', !show);
         });
+    }
 
+    function setCategory(cat) {
+        currentCategory = cat;
+        if (cat) { localStorage.setItem('hud-category', cat); }
+        else { localStorage.removeItem('hud-category'); }
+        body.setAttribute('data-category', cat || 'writing');
+        chips.forEach(function (chip) {
+            chip.classList.toggle('active', chip.dataset.category === cat);
+        });
+        if (heroTagline) { heroTagline.textContent = getRandomTagline(); }
+        filterCards(cat);
     }
 
     chips.forEach(function (chip) {
         chip.addEventListener('click', function () {
-            setCategory(chip.dataset.category);
+            setCategory(currentCategory === chip.dataset.category ? null : chip.dataset.category);
         });
     });
 
@@ -275,9 +272,8 @@
     // --- Init ---
     if (manualOverride && currentTheme) {
         applyMtTheme(currentTheme);
-    } else if (chips.length) {
+    }
+    if (chips.length) {
         setCategory(currentCategory);
-    } else {
-        applyCategoryTheme();
     }
 })();
