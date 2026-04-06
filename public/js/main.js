@@ -158,10 +158,6 @@
             card.classList.toggle('hidden', !show);
         });
 
-        // Apply category default theme unless manual override
-        if (!manualOverride) {
-            applyCategoryTheme();
-        }
     }
 
     chips.forEach(function (chip) {
@@ -169,6 +165,29 @@
             setCategory(chip.dataset.category);
         });
     });
+
+    // --- View toggle ---
+    var viewBtns = document.querySelectorAll('.view-btn[data-view]');
+    var postGridSection = document.querySelector('.post-grid-section');
+    var savedView = localStorage.getItem('hud-view') || 'list';
+
+    function setView(view) {
+        if (!postGridSection) return;
+        postGridSection.classList.toggle('view-list', view === 'list');
+        postGridSection.classList.toggle('view-cards', view === 'cards');
+        viewBtns.forEach(function (btn) {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        localStorage.setItem('hud-view', view);
+    }
+
+    viewBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            setView(btn.dataset.view);
+        });
+    });
+
+    setView(savedView);
 
     // --- Theme selector dropdown ---
     function buildThemeList(filter) {
