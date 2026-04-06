@@ -211,8 +211,7 @@ img { max-width: 100%; height: auto; display: block; }
 .site-name {
     font-family: var(--font-serif);
     font-size: 4.5rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 400;
     line-height: 1;
     margin-bottom: 12px;
     color: var(--text);
