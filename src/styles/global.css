@@ -191,7 +191,7 @@ html {
 }
 
 body {
-    font-family: var(--font-sans);
+    font-family: var(--font-serif);
     background: var(--bg);
     color: var(--text);
     transition: background var(--transition), color var(--transition);
@@ -220,7 +220,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .hero-tagline {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 400;
     color: var(--text);
     opacity: 0.55;
@@ -260,6 +260,7 @@ img { max-width: 100%; height: auto; display: block; }
     border-radius: 100px;
     padding: 6px 14px;
     font-size: 1.1rem;
+    font-family: var(--font-sans);
     cursor: pointer;
     transition: background var(--transition), transform 0.15s ease;
     line-height: 1;
@@ -283,6 +284,7 @@ img { max-width: 100%; height: auto; display: block; }
     border: none;
     padding: 6px 10px;
     font-size: 1.1rem;
+    font-family: var(--font-sans);
     cursor: pointer;
     color: var(--text);
     opacity: 0.35;
@@ -343,7 +345,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .card-title {
-    font-size: 0.9375rem;
+    font-size: 1.125rem;
     font-weight: 500;
     margin-top: 10px;
     color: var(--card-title);
@@ -367,6 +369,15 @@ img { max-width: 100%; height: auto; display: block; }
 
 .post-grid-section.view-list .card-title {
     margin-top: 0;
+}
+
+.post-grid-section.view-list .card:hover {
+    background: var(--card-bg, #e0e0e0);
+    margin-left: -12px;
+    margin-right: -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: var(--radius);
 }
 
 .post-grid-section.view-cards .card-image {
