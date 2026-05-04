@@ -1,43 +1,54 @@
+import type { Post } from '../data/posts';
+
 const ghostUrl = import.meta.env.GHOST_URL;
 const ghostKey = import.meta.env.GHOST_CONTENT_API_KEY;
 
+interface GhostPost {
+  id: string;
+  slug: string;
+  title: string;
+  feature_image: string | null;
+  html: string | null;
+  custom_excerpt: string | null;
+  excerpt: string | null;
+  published_at: string | null;
+}
+
 async function ghostFetch(endpoint: string, params: Record<string, string> = {}) {
+  if (!ghostUrl || !ghostKey) return null;
   const url = new URL(`/ghost/api/content/${endpoint}/`, ghostUrl);
   url.searchParams.set('key', ghostKey);
-  for (const [k, v] of Object.entries(params)) {
-    url.searchParams.set(k, v);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  try {
+    const res = await fetch(url.toString());
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
   }
-  const res = await fetch(url.toString());
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Ghost API error: ${res.status} ${endpoint}`);
-  return res.json();
 }
 
-export async function getAllPosts() {
+function formatDate(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${mm}.${dd}.${d.getFullYear()}`;
+}
+
+export async function fetchByTag(slug: string): Promise<Post[]> {
   const data = await ghostFetch('posts', {
+    filter: `tag:${slug}`,
     limit: 'all',
-    include: 'tags',
-    fields: 'id,slug,title,feature_image,feature_image_alt,html,primary_tag,custom_excerpt,excerpt',
+    fields: 'id,slug,title,feature_image,html,custom_excerpt,excerpt,published_at',
   });
-  return data.posts;
-}
-
-export async function getAllPages() {
-  const data = await ghostFetch('pages', {
-    limit: 'all',
-    include: 'tags',
-  });
-  return data.pages;
-}
-
-export async function getTag(slug: string) {
-  const data = await ghostFetch(`tags/slug/${slug}`, {
-    include: 'count.posts',
-  });
-  return data?.tags?.[0] ?? null;
-}
-
-export async function getSettings() {
-  const data = await ghostFetch('settings');
-  return data.settings;
+  if (!data?.posts) return [];
+  return (data.posts as GhostPost[]).map((p) => ({
+    title: p.title,
+    date: formatDate(p.published_at),
+    excerpt: p.custom_excerpt || p.excerpt || '',
+    html: p.html || undefined,
+    slug: p.slug,
+    feature_image: p.feature_image || undefined,
+  }));
 }
