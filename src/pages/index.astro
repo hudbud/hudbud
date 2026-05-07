@@ -1,16 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Hero from '../components/Hero.astro';
-import CategoryNav from '../components/CategoryNav.astro';
-import PostGrid from '../components/PostGrid.astro';
-import { getAllPosts } from '../lib/ghost';
+import Portfolio from '../components/Portfolio.tsx';
+import { fetchByTag } from '../lib/ghost';
 
-const posts = await getAllPosts();
+const [thoughts, life] = await Promise.all([
+  fetchByTag('thoughts'),
+  fetchByTag('life'),
+]);
 ---
-<Layout title="Hudson Paine">
-  <main class="site-main">
-    <Hero />
-    <CategoryNav />
-    <PostGrid posts={posts} />
-  </main>
+<Layout title="paine.design — Hudson Paine">
+  <Portfolio client:only="react" thoughts={thoughts} life={life} />
 </Layout>

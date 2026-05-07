@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://hudsonpaine.com',
+  site: 'https://paine.design',
+  integrations: [react()],
 });
