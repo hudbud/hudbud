@@ -25,3 +25,16 @@ export const LINKS: ResumeLink[] = [
   { label: 'studio', href: 'https://cosmostud.io' },
   { label: 'resume', href: 'https://drive.google.com/uc?export=download&id=12XqXfrcCHy-cvV-HCnX75iahV_n5QDSg' },
 ];
+
+export const SELECT_CLIENTS: string[] = [
+  'Carvana',
+  "Dave & Buster's",
+  'Red Robin',
+  'QDOBA',
+  'Dutch Bros',
+  "Denny's",
+  'Blaze Pizza',
+  'Panda Express',
+  "Arby's",
+  'Pieology',
+];

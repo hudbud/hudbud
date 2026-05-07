@@ -122,6 +122,12 @@ const cellLabel: CSSProperties = {
   marginBottom: 8,
 };
 
+const cellLabelEmbed: CSSProperties = {
+  fontSize: 11,
+  color: 'var(--fg-dim)',
+  marginBottom: 8,
+};
+
 const segBtn = (active: boolean): CSSProperties => ({
   padding: '5px 10px',
   background: active ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.04)',
@@ -136,6 +142,18 @@ const segBtn = (active: boolean): CSSProperties => ({
   WebkitBackdropFilter: 'blur(8px)',
 });
 
+const segBtnEmbed = (active: boolean): CSSProperties => ({
+  padding: '5px 10px',
+  background: active ? 'var(--fg)' : 'var(--tile)',
+  color: active ? 'var(--bg)' : 'var(--fg-dim)',
+  border: `1px solid ${active ? 'var(--fg)' : 'var(--rule)'}`,
+  borderRadius: 999,
+  fontSize: 11,
+  fontVariantNumeric: 'tabular-nums',
+  cursor: 'pointer',
+  transition: 'all 0.15s',
+});
+
 const inputBase: CSSProperties = {
   background: 'rgba(255,255,255,0.04)',
   color: 'rgba(255,255,255,0.95)',
@@ -148,7 +166,17 @@ const inputBase: CSSProperties = {
   WebkitBackdropFilter: 'blur(8px)',
 };
 
-function TogglePill({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
+const inputBaseEmbed: CSSProperties = {
+  background: 'var(--tile)',
+  color: 'var(--fg)',
+  border: '1px solid var(--rule)',
+  borderRadius: 6,
+  fontFamily: 'inherit',
+  fontVariantNumeric: 'tabular-nums',
+  outline: 'none',
+};
+
+function TogglePill({ on, onClick, label, embedded = false }: { on: boolean; onClick: () => void; label: string; embedded?: boolean }) {
   return (
     <button
       onClick={onClick}
@@ -157,10 +185,10 @@ function TogglePill({ on, onClick, label }: { on: boolean; onClick: () => void; 
         alignItems: 'center',
         gap: 8,
         padding: '4px 10px 4px 8px',
-        background: on ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        background: embedded ? (on ? 'var(--tile)' : 'transparent') : (on ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'),
+        border: `1px solid ${embedded ? 'var(--rule)' : 'rgba(255,255,255,0.1)'}`,
         borderRadius: 999,
-        color: 'rgba(255,255,255,0.7)',
+        color: embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.7)',
         fontSize: 11,
         cursor: 'pointer',
       }}
@@ -171,7 +199,7 @@ function TogglePill({ on, onClick, label }: { on: boolean; onClick: () => void; 
           width: 22,
           height: 12,
           borderRadius: 999,
-          background: on ? 'rgba(180,210,255,0.55)' : 'rgba(255,255,255,0.12)',
+          background: embedded ? (on ? 'var(--accent)' : 'var(--rule)') : (on ? 'rgba(180,210,255,0.55)' : 'rgba(255,255,255,0.12)'),
           position: 'relative',
           transition: 'background 0.15s',
         }}
@@ -184,7 +212,7 @@ function TogglePill({ on, onClick, label }: { on: boolean; onClick: () => void; 
             width: 10,
             height: 10,
             borderRadius: '50%',
-            background: on ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.7)',
+            background: embedded ? (on ? 'var(--bg)' : 'var(--fg-dim)') : (on ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.7)'),
             transition: 'left 0.15s',
           }}
         />
@@ -194,7 +222,7 @@ function TogglePill({ on, onClick, label }: { on: boolean; onClick: () => void; 
   );
 }
 
-export default function FreezerMartini() {
+export default function FreezerMartini({ embedded = false }: { embedded?: boolean } = {}) {
   const [ratio, setRatio] = useState<number>(5);
   const [ratioInput, setRatioInput] = useState<string>('5');
   const [waterPct, setWaterPct] = useState<number>(15);
@@ -363,6 +391,159 @@ export default function FreezerMartini() {
   const tooLow = currentAbv > 0 && currentAbv < ABV_TARGET.min;
   const abvVisible = showAbv || tooLow;
 
+  const _cellLabel = embedded ? cellLabelEmbed : cellLabel;
+  const _segBtn = embedded ? segBtnEmbed : segBtn;
+  const _inputBase = embedded ? inputBaseEmbed : inputBase;
+
+  const content = (
+    <>
+      {!embedded && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18 }}>
+          <a
+            href="/"
+            style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.9)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
+          >
+            ← paine.design
+          </a>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>idea · 01</span>
+        </div>
+      )}
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 6,
+          }}
+        >
+          <div style={{ fontSize: 13, letterSpacing: '0.01em', color: embedded ? 'var(--accent)' : 'rgba(220,235,255,0.95)' }}>
+            freezer martini calculator
+          </div>
+          <TogglePill embedded={embedded} on={mode === 'expert'} onClick={() => onModeChange(mode === 'expert' ? 'simple' : 'expert')} label="expert mode" />
+        </div>
+        <p style={{ color: embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.55)', fontSize: 12, lineHeight: 1.55, margin: 0, maxWidth: '50ch' }}>
+          {mode === 'simple'
+            ? 'Pick a ratio, set dilution, type any volume into any field — the rest follows.'
+            : 'Add each ingredient with its ABV. Solve for the water that hits your target ABV, or plug in water to see the resulting ABV.'}
+        </p>
+
+        {mode === 'simple' ? (
+          <SimpleControls
+            ratio={ratio}
+            ratioInput={ratioInput}
+            ratioMatchesPreset={ratioMatchesPreset}
+            onRatioPreset={onRatioPreset}
+            onRatioInput={onRatioInput}
+            waterInput={waterInput}
+            onWaterInput={onWaterInput}
+            unit={unit}
+            visibleUnits={visibleUnits}
+            onUnitChange={onUnitChange}
+            embedded={embedded}
+          />
+        ) : (
+          <ExpertControls
+            unit={unit}
+            visibleUnits={visibleUnits}
+            onUnitChange={onUnitChange}
+            ingredients={ingredients}
+            onIngredientField={onIngredientField}
+            removeIngredient={removeIngredient}
+            addIngredient={addIngredient}
+            solveFor={solveFor}
+            setSolveFor={setSolveFor}
+            targetAbv={targetAbv}
+            onTargetAbvChange={onTargetAbvChange}
+            expertWater={expertWater}
+            onExpertWaterChange={onExpertWaterChange}
+            expert={expert}
+            embedded={embedded}
+          />
+        )}
+
+        {mode === 'simple' && (
+          <div style={{ marginTop: 22, borderTop: `1px solid ${embedded ? 'var(--rule)' : 'rgba(255,255,255,0.08)'}` }}>
+            {fields.map((f, i) => {
+              const isTotal = f.id === 'total';
+              return (
+                <div
+                  key={f.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto auto',
+                    gap: 12,
+                    padding: '12px 0',
+                    alignItems: 'center',
+                    borderBottom: i < fields.length - 1 ? `1px solid ${embedded ? 'var(--rule)' : 'rgba(255,255,255,0.06)'}` : 'none',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: embedded ? (isTotal ? 'var(--accent)' : 'var(--fg)') : (isTotal ? 'rgba(220,235,255,0.95)' : 'rgba(255,255,255,0.85)'),
+                      fontWeight: isTotal ? 500 : 400,
+                    }}
+                  >
+                    {f.label}
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={valueFor(f.id)}
+                    onChange={onFieldChange(f.id)}
+                    onFocus={(e) => e.target.select()}
+                    style={{
+                      ..._inputBase,
+                      width: 100,
+                      padding: '8px 10px',
+                      fontSize: 14,
+                      textAlign: 'right',
+                    }}
+                  />
+                  <span style={{ fontSize: 12, color: embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.5)', minWidth: 16, textAlign: 'left' }}>
+                    {unit}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <TogglePill embedded={embedded} on={showAbv} onClick={() => setShowAbv((v) => !v)} label="show abv" />
+          {abvVisible && (
+            <span
+              style={{
+                fontSize: 13,
+                color: tooLow ? 'rgba(255,170,170,0.95)' : (embedded ? 'var(--accent)' : 'rgba(220,235,255,0.95)'),
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {currentAbv.toFixed(1)}%
+              {tooLow && (
+                <span style={{ marginLeft: 8, fontSize: 11, color: 'rgba(255,170,170,0.85)' }}>
+                  below {ABV_TARGET.min}% — may freeze
+                </span>
+              )}
+            </span>
+          )}
+        </div>
+
+        <div style={{ marginTop: 14, fontSize: 11, color: embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.45)', lineHeight: 1.55 }}>
+          Batch the gin + vermouth in a bottle, add the water, freeze. Water lowers the freezing point so the whole
+          bottle pours cold and just-diluted.
+        </div>
+    </>
+  );
+
+  if (embedded) {
+    return <div style={{ color: 'var(--fg)', fontFamily: 'inherit' }}>{content}</div>;
+  }
+
   return (
     <div
       style={{
@@ -388,142 +569,7 @@ export default function FreezerMartini() {
             '0 1px 0 rgba(255,255,255,0.06) inset, 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18 }}>
-          <a
-            href="/"
-            style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.9)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
-          >
-            ← paine.design
-          </a>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>idea · 01</span>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 12,
-            marginBottom: 6,
-          }}
-        >
-          <div style={{ fontSize: 13, letterSpacing: '0.01em', color: 'rgba(220,235,255,0.95)' }}>
-            freezer martini calculator
-          </div>
-          <TogglePill on={mode === 'expert'} onClick={() => onModeChange(mode === 'expert' ? 'simple' : 'expert')} label="expert mode" />
-        </div>
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, lineHeight: 1.55, margin: 0, maxWidth: '50ch' }}>
-          {mode === 'simple'
-            ? 'Pick a ratio, set dilution, type any volume into any field — the rest follows.'
-            : 'Add each ingredient with its ABV. Solve for the water that hits your target ABV, or plug in water to see the resulting ABV.'}
-        </p>
-
-        {mode === 'simple' ? (
-          <SimpleControls
-            ratio={ratio}
-            ratioInput={ratioInput}
-            ratioMatchesPreset={ratioMatchesPreset}
-            onRatioPreset={onRatioPreset}
-            onRatioInput={onRatioInput}
-            waterInput={waterInput}
-            onWaterInput={onWaterInput}
-            unit={unit}
-            visibleUnits={visibleUnits}
-            onUnitChange={onUnitChange}
-          />
-        ) : (
-          <ExpertControls
-            unit={unit}
-            visibleUnits={visibleUnits}
-            onUnitChange={onUnitChange}
-            ingredients={ingredients}
-            onIngredientField={onIngredientField}
-            removeIngredient={removeIngredient}
-            addIngredient={addIngredient}
-            solveFor={solveFor}
-            setSolveFor={setSolveFor}
-            targetAbv={targetAbv}
-            onTargetAbvChange={onTargetAbvChange}
-            expertWater={expertWater}
-            onExpertWaterChange={onExpertWaterChange}
-            expert={expert}
-          />
-        )}
-
-        {mode === 'simple' && (
-          <div style={{ marginTop: 22, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            {fields.map((f, i) => {
-              const isTotal = f.id === 'total';
-              return (
-                <div
-                  key={f.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto auto',
-                    gap: 12,
-                    padding: '12px 0',
-                    alignItems: 'center',
-                    borderBottom: i < fields.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: isTotal ? 'rgba(220,235,255,0.95)' : 'rgba(255,255,255,0.85)',
-                      fontWeight: isTotal ? 500 : 400,
-                    }}
-                  >
-                    {f.label}
-                  </div>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={valueFor(f.id)}
-                    onChange={onFieldChange(f.id)}
-                    onFocus={(e) => e.target.select()}
-                    style={{
-                      ...inputBase,
-                      width: 100,
-                      padding: '8px 10px',
-                      fontSize: 14,
-                      textAlign: 'right',
-                    }}
-                  />
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 16, textAlign: 'left' }}>
-                    {unit}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-          <TogglePill on={showAbv} onClick={() => setShowAbv((v) => !v)} label="show abv" />
-          {abvVisible && (
-            <span
-              style={{
-                fontSize: 13,
-                color: tooLow ? 'rgba(255,170,170,0.95)' : 'rgba(220,235,255,0.95)',
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {currentAbv.toFixed(1)}%
-              {tooLow && (
-                <span style={{ marginLeft: 8, fontSize: 11, color: 'rgba(255,170,170,0.85)' }}>
-                  below {ABV_TARGET.min}% — may freeze
-                </span>
-              )}
-            </span>
-          )}
-        </div>
-
-        <div style={{ marginTop: 14, fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.55 }}>
-          Batch the gin + vermouth in a bottle, add the water, freeze. Water lowers the freezing point so the whole
-          bottle pours cold and just-diluted.
-        </div>
+        {content}
       </div>
     </div>
   );
@@ -540,6 +586,7 @@ function SimpleControls({
   unit,
   visibleUnits,
   onUnitChange,
+  embedded = false,
 }: {
   ratio: number;
   ratioInput: string;
@@ -551,14 +598,18 @@ function SimpleControls({
   unit: Unit;
   visibleUnits: { id: Unit; label: string }[];
   onUnitChange: (u: Unit) => void;
+  embedded?: boolean;
 }) {
+  const _cellLabel = embedded ? cellLabelEmbed : cellLabel;
+  const _segBtn = embedded ? segBtnEmbed : segBtn;
+  const _inputBase = embedded ? inputBaseEmbed : inputBase;
   return (
     <div style={{ marginTop: 22, display: 'grid', gap: 16 }}>
       <div>
-        <div style={cellLabel}>gin : vermouth</div>
+        <div style={_cellLabel}>gin : vermouth</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           {RATIO_PRESETS.map((p) => (
-            <button key={p.value} onClick={() => onRatioPreset(p.value)} style={segBtn(ratio === p.value && ratioMatchesPreset)}>
+            <button key={p.value} onClick={() => onRatioPreset(p.value)} style={_segBtn(ratio === p.value && ratioMatchesPreset)}>
               {p.label}
             </button>
           ))}
@@ -568,33 +619,33 @@ function SimpleControls({
             value={ratioInput}
             onChange={onRatioInput}
             aria-label="custom ratio"
-            style={{ ...inputBase, width: 50, padding: '5px 8px', fontSize: 11, textAlign: 'right', marginLeft: 4 }}
+            style={{ ..._inputBase, width: 50, padding: '5px 8px', fontSize: 11, textAlign: 'right', marginLeft: 4 }}
           />
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>: 1</span>
+          <span style={{ fontSize: 12, color: embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.5)' }}>: 1</span>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
-          <div style={cellLabel}>water</div>
+          <div style={_cellLabel}>water</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <input
               type="text"
               inputMode="decimal"
               value={waterInput}
               onChange={onWaterInput}
-              style={{ ...inputBase, width: 56, padding: '5px 8px', fontSize: 11, textAlign: 'right' }}
+              style={{ ..._inputBase, width: 56, padding: '5px 8px', fontSize: 11, textAlign: 'right' }}
             />
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>%</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>(15% recommended)</span>
+            <span style={{ fontSize: 12, color: embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.5)' }}>%</span>
+            <span style={{ fontSize: 11, color: embedded ? 'var(--fg-faint)' : 'rgba(255,255,255,0.4)', marginLeft: 4 }}>(15% recommended)</span>
           </div>
         </div>
 
         <div>
-          <div style={cellLabel}>units</div>
+          <div style={_cellLabel}>units</div>
           <div style={{ display: 'flex', gap: 4 }}>
             {visibleUnits.map((u) => (
-              <button key={u.id} onClick={() => onUnitChange(u.id)} style={segBtn(unit === u.id)}>
+              <button key={u.id} onClick={() => onUnitChange(u.id)} style={_segBtn(unit === u.id)}>
                 {u.label}
               </button>
             ))}
@@ -628,6 +679,7 @@ function ExpertControls({
   expertWater,
   onExpertWaterChange,
   expert,
+  embedded = false,
 }: {
   unit: Unit;
   visibleUnits: { id: Unit; label: string }[];
@@ -643,14 +695,23 @@ function ExpertControls({
   expertWater: string;
   onExpertWaterChange: (e: ChangeEvent<HTMLInputElement>) => void;
   expert: ExpertResult;
+  embedded?: boolean;
 }) {
+  const _cellLabel = embedded ? cellLabelEmbed : cellLabel;
+  const _segBtn = embedded ? segBtnEmbed : segBtn;
+  const _inputBase = embedded ? inputBaseEmbed : inputBase;
+  const dimColor = embedded ? 'var(--fg-dim)' : 'rgba(255,255,255,0.5)';
+  const faintColor = embedded ? 'var(--fg-faint)' : 'rgba(255,255,255,0.4)';
+  const fgColor = embedded ? 'var(--fg)' : 'rgba(255,255,255,0.85)';
+  const accentColor = embedded ? 'var(--accent)' : 'rgba(220,235,255,0.95)';
+  const ruleColor = embedded ? 'var(--rule)' : 'rgba(255,255,255,0.08)';
   return (
     <div style={{ marginTop: 22, display: 'grid', gap: 18 }}>
       <div>
-        <div style={cellLabel}>units</div>
+        <div style={_cellLabel}>units</div>
         <div style={{ display: 'flex', gap: 4 }}>
           {visibleUnits.map((u) => (
-            <button key={u.id} onClick={() => onUnitChange(u.id)} style={segBtn(unit === u.id)}>
+            <button key={u.id} onClick={() => onUnitChange(u.id)} style={_segBtn(unit === u.id)}>
               {u.label}
             </button>
           ))}
@@ -659,17 +720,17 @@ function ExpertControls({
 
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-          <div style={cellLabel}>ingredients</div>
-          <button onClick={addIngredient} style={{ ...segBtn(false), padding: '4px 10px' }}>+ add</button>
+          <div style={_cellLabel}>ingredients</div>
+          <button onClick={addIngredient} style={{ ..._segBtn(false), padding: '4px 10px' }}>+ add</button>
         </div>
         {ingredients.length === 0 ? (
           <div
             style={{
               padding: '14px 12px',
-              border: '1px dashed rgba(255,255,255,0.12)',
+              border: `1px dashed ${ruleColor}`,
               borderRadius: 8,
               fontSize: 12,
-              color: 'rgba(255,255,255,0.45)',
+              color: faintColor,
               textAlign: 'center',
             }}
           >
@@ -683,7 +744,7 @@ function ExpertControls({
                 gridTemplateColumns: '1fr 80px 64px 22px',
                 gap: 8,
                 fontSize: 10,
-                color: 'rgba(255,255,255,0.4)',
+                color: faintColor,
                 padding: '0 4px',
               }}
             >
@@ -702,21 +763,21 @@ function ExpertControls({
                   value={row.name}
                   placeholder="e.g. Beefeater"
                   onChange={onIngredientField(row.id, 'name')}
-                  style={{ ...inputBase, padding: '7px 10px', fontSize: 12 }}
+                  style={{ ..._inputBase, padding: '7px 10px', fontSize: 12 }}
                 />
                 <input
                   type="text"
                   inputMode="decimal"
                   value={row.volume}
                   onChange={onIngredientField(row.id, 'volume')}
-                  style={{ ...inputBase, padding: '7px 10px', fontSize: 12, textAlign: 'right' }}
+                  style={{ ..._inputBase, padding: '7px 10px', fontSize: 12, textAlign: 'right' }}
                 />
                 <input
                   type="text"
                   inputMode="decimal"
                   value={row.abv}
                   onChange={onIngredientField(row.id, 'abv')}
-                  style={{ ...inputBase, padding: '7px 10px', fontSize: 12, textAlign: 'right' }}
+                  style={{ ..._inputBase, padding: '7px 10px', fontSize: 12, textAlign: 'right' }}
                 />
                 <button
                   onClick={() => removeIngredient(row.id)}
@@ -726,13 +787,13 @@ function ExpertControls({
                     height: 22,
                     background: 'transparent',
                     border: 'none',
-                    color: 'rgba(255,255,255,0.4)',
+                    color: faintColor,
                     fontSize: 14,
                     cursor: 'pointer',
                     padding: 0,
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,170,170,0.9)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = faintColor)}
                 >
                   ×
                 </button>
@@ -743,59 +804,59 @@ function ExpertControls({
       </div>
 
       <div>
-        <div style={cellLabel}>solve for</div>
+        <div style={_cellLabel}>solve for</div>
         <div style={{ display: 'flex', gap: 4 }}>
-          <button onClick={() => setSolveFor('water')} style={segBtn(solveFor === 'water')}>water</button>
-          <button onClick={() => setSolveFor('abv')} style={segBtn(solveFor === 'abv')}>abv</button>
+          <button onClick={() => setSolveFor('water')} style={_segBtn(solveFor === 'water')}>water</button>
+          <button onClick={() => setSolveFor('abv')} style={_segBtn(solveFor === 'abv')}>abv</button>
         </div>
       </div>
 
       <div
         style={{
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderTop: `1px solid ${ruleColor}`,
           paddingTop: 14,
           display: 'grid',
           gap: 10,
         }}
       >
         {solveFor === 'water' ? (
-          <ResultRow label="target abv">
+          <ResultRow label="target abv" embedded={embedded}>
             <input
               type="text"
               inputMode="decimal"
               value={targetAbv}
               onChange={onTargetAbvChange}
-              style={{ ...inputBase, width: 70, padding: '6px 10px', fontSize: 13, textAlign: 'right' }}
+              style={{ ..._inputBase, width: 70, padding: '6px 10px', fontSize: 13, textAlign: 'right' }}
             />
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 16 }}>%</span>
+            <span style={{ fontSize: 12, color: dimColor, minWidth: 16 }}>%</span>
           </ResultRow>
         ) : (
-          <ResultRow label="water">
+          <ResultRow label="water" embedded={embedded}>
             <input
               type="text"
               inputMode="decimal"
               value={expertWater}
               onChange={onExpertWaterChange}
-              style={{ ...inputBase, width: 80, padding: '6px 10px', fontSize: 13, textAlign: 'right' }}
+              style={{ ..._inputBase, width: 80, padding: '6px 10px', fontSize: 13, textAlign: 'right' }}
             />
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 16 }}>{unit}</span>
+            <span style={{ fontSize: 12, color: dimColor, minWidth: 16 }}>{unit}</span>
           </ResultRow>
         )}
 
         {solveFor === 'water' && (
-          <ResultRow label="water">
-            <span style={{ fontSize: 14, color: 'rgba(220,235,255,0.95)', fontVariantNumeric: 'tabular-nums' }}>
+          <ResultRow label="water" embedded={embedded}>
+            <span style={{ fontSize: 14, color: accentColor, fontVariantNumeric: 'tabular-nums' }}>
               {fmt(expert.water, unit)}
             </span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 16 }}>{unit}</span>
+            <span style={{ fontSize: 12, color: dimColor, minWidth: 16 }}>{unit}</span>
           </ResultRow>
         )}
 
-        <ResultRow label="total">
-          <span style={{ fontSize: 14, color: 'rgba(220,235,255,0.95)', fontVariantNumeric: 'tabular-nums' }}>
+        <ResultRow label="total" embedded={embedded}>
+          <span style={{ fontSize: 14, color: accentColor, fontVariantNumeric: 'tabular-nums' }}>
             {fmt(expert.total, unit)}
           </span>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 16 }}>{unit}</span>
+          <span style={{ fontSize: 12, color: dimColor, minWidth: 16 }}>{unit}</span>
         </ResultRow>
 
         {expert.unreachable && (
@@ -808,10 +869,10 @@ function ExpertControls({
   );
 }
 
-function ResultRow({ label, children }: { label: string; children: React.ReactNode }) {
+function ResultRow({ label, children, embedded = false }: { label: string; children: React.ReactNode; embedded?: boolean }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 12, alignItems: 'center' }}>
-      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>{label}</span>
+      <span style={{ fontSize: 13, color: embedded ? 'var(--fg)' : 'rgba(255,255,255,0.85)' }}>{label}</span>
       {children}
     </div>
   );

@@ -18,7 +18,7 @@ export interface Idea {
 export const IDEAS: Idea[] = [
   {
     title: 'freezer martini calculator',
-    href: '/freezer-martini',
+    href: '#freezer-martini',
     desc: 'Pick a ratio, dial in dilution, scale by any volume. For when you batch-prep and stash the bottle in the freezer.',
     status: 'new',
     internal: true,
@@ -71,5 +71,13 @@ export const IDEAS: Idea[] = [
     href: 'https://locoll.co',
     desc: 'Sticker and clothing brand. Small runs, hand-picked drops, mostly for friends.',
     status: 'retired',
+  },
+  {
+    title: 'split keyboard',
+    href: '#split-keyboard',
+    desc: 'Custom ergonomic split mechanical keyboard — PCB layout, 3D-printed case, QMK firmware.',
+    status: 'new',
+    statusNote: 'completed',
+    internal: true,
   },
 ];

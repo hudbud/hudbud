@@ -88,7 +88,8 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   transition: background 0.3s ease, color 0.3s ease;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 * { font-family: var(--font) !important; }
@@ -109,3 +110,35 @@ button {
 
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
+
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+/* ---------- Project image layouts ---------- */
+.kb-fig {
+  margin: 18px 0;
+}
+
+.kb-fig img {
+  width: 100%;
+  border-radius: 3px;
+}
+
+.kb-fig-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.kb-fig-row.kb-fig-multi {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.kb-fig-half img,
+.kb-fig-third img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+}
