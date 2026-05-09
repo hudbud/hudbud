@@ -1,0 +1,122 @@
+---
+title: "Wild Rainbows"
+date: "2025-05-13T20:07-07:00"
+tag: "life"
+excerpt: "Somewhere secret"
+feature_image: "/posts/26/30A8F49D-DBF1-41C8-B57C-6235B751D0D0_1_105_c.jpeg"
+---
+Somewhere secret
+
+![](/posts/26/4316071C-EBCE-47EC-8AA4-33E9727E02DA_1_105_c.jpeg)
+
+Other camp with bridge
+![](/posts/26/1629B3B3-026F-4D8D-A65D-1AA90E083A58_1_105_c.jpeg)
+
+First look at the hatch
+![](/posts/26/416DFBEB-C6BF-41ED-A2F9-266F857C6FA2_1_105_c.jpeg)
+
+Getting in the water
+![](/posts/26/730BE4E2-1B79-4350-816E-4A44442D8FF0_1_105_c.jpeg)
+
+A look back at camp
+![](/posts/26/89C64D20-11E5-4E50-A1A9-3A3F82699F3D_1_105_c.jpeg)
+![](/posts/26/64946AEA-5AAB-4F6A-ACEB-47D3160BE235_1_105_c.jpeg)
+![](/posts/26/C812540A-0682-44E2-8D07-13C586AAE3AA_1_105_c.jpeg)
+![](/posts/26/8191E0A9-9640-4AD9-A568-DEB36707CF60_1_105_c.jpeg)
+
+Making our way
+![](/posts/26/98BC4D09-FDAB-4722-B201-8E8A4D68AE5E_1_105_c.jpeg)
+![](/posts/26/1540FC0F-8F12-4AAC-8784-8BD4A5F8989A_1_105_c.jpeg)
+
+green
+![](/posts/26/A2088817-1959-413D-97C4-1F7D68A9B75E_1_105_c.jpeg)
+![](/posts/26/9D6B9B4F-6F49-4ABE-8E6D-07D5E5DF4BB0_1_105_c.jpeg)
+![](/posts/26/17822575-2B81-45E5-AC1C-3FF55888C11E_1_105_c.jpeg)
+
+First one
+![](/posts/26/98C94B16-E6D5-4252-BC72-0A2B5C053309_1_105_c.jpeg)
+![](/posts/26/AA022CA7-45DB-4637-89D3-8879F0E293BA_1_105_c.jpeg)
+![](/posts/26/C15E1B8C-DCF4-4D2D-AB22-BCF980ED91A0_1_105_c.jpeg)
+
+Another fish on
+![](/posts/26/6DD4881F-A495-4827-B38B-F08602B6EC0E_1_105_c.jpeg)
+![](/posts/26/2FF36F05-1A11-4B8E-8682-541594E0BEC7_1_105_c.jpeg)
+![](/posts/26/8919FE55-8B9C-49D9-834F-4805A4ADC95C_1_105_c.jpeg)
+![](/posts/26/8E939EC7-7931-446E-979E-597FAEB5166E_1_105_c.jpeg)
+![](/posts/26/B8C1D380-FBE4-4CCF-9867-EB59B54D72E3_1_105_c.jpeg)
+![](/posts/26/90B8A6DB-6A2C-478B-8D65-7DCC8DE8967F_1_105_c.jpeg)
+![](/posts/26/5B62C64F-6FDA-483A-90F2-AE7F8F065D04_1_105_c.jpeg)
+![](/posts/26/66B58C85-929A-4183-B788-0D5D9E67EBCA_1_105_c.jpeg)
+
+Hud's first bow-ever!
+![](/posts/26/30A8F49D-DBF1-41C8-B57C-6235B751D0D0_1_105_c.jpeg)
+
+The thrill!
+![](/posts/26/2169238B-C422-436F-9676-88EB10A25071_1_105_c.jpeg)
+![](/posts/26/34766F91-F748-4302-A5C5-61EC3FF6D86E_1_105_c.jpeg)
+![](/posts/26/E0062836-1EB7-4FAC-9F1B-E0BA0EF47E4B_1_105_c.jpeg)
+
+The drift
+![](/posts/26/56A0916C-40BE-4702-92E4-04C933B4DEC0_1_105_c.jpeg)
+
+Another banger
+![](/posts/26/A73F34F4-51C4-4B52-BB5A-5E873DDCEF64_1_105_c.jpeg)
+
+All smiles
+![](/posts/26/FCBB1D76-C09B-4691-A056-81C7DF07848A_1_105_c.jpeg)
+
+Gotta get the fish in focus
+![](/posts/26/BE1AAFE1-5D83-4FEF-AEC1-BD34D79AD278_1_105_c.jpeg)
+
+More bushwacking
+![](/posts/26/7117EFCB-0AEE-4D4D-9513-68313B8A82E7_1_105_c.jpeg)
+
+Caddis
+![](/posts/26/1D1A9C73-70EA-40D2-8A2E-007B4918863E_1_105_c.jpeg)
+
+Onward
+![](/posts/26/AE906BE6-E982-4FE9-8755-DDC20AF29CC4_1_105_c.jpeg)
+
+foliage
+![](/posts/26/B572CF79-F15A-4E9D-A5FE-074EC91D1527_1_105_c.jpeg)
+
+waterfall
+![](/posts/26/643CD38C-3092-45A0-8050-15E3C13A94BE_1_105_c.jpeg)
+![](/posts/26/A98482D6-35E6-4E00-86E8-BA3E4116B67B_1_105_c.jpeg)
+
+waterfall 2
+![](/posts/26/E7D2977F-264C-4A5A-9AEB-C43303038AA4_1_105_c.jpeg)
+
+lunch spot
+![](/posts/26/049C20B6-62B4-4E22-93D7-AEDEC32F3A6B_1_105_c.jpeg)
+
+waders off for lunch
+![](/posts/26/A5453921-AAF5-4009-B69A-ED7B562A5D1F_1_105_c.jpeg)
+
+attempted underwater photo during lunch plunge
+![](/posts/26/5BFAFC0A-21C0-42C2-B33F-89F2D1CE7182_1_105_c.jpeg)
+
+snek
+![](/posts/26/DEAA61FE-98C6-48AA-857C-E336CA6D59DC_1_105_c.jpeg)
+
+shot thru glasses
+![](/posts/26/3DAAA044-80EC-4DDB-9807-AAD2BD2DFF99_1_105_c.jpeg)
+![](/posts/26/CB3A856F-E41E-4629-A972-EAA1D54E21C3_1_105_c.jpeg)
+
+wading sticks became necessary. forunately there were endless perfect sticks along the shore
+![](/posts/26/79DF74C7-E6CF-40DB-BB9C-4C47BEB4059F_1_105_c.jpeg)
+![](/posts/26/3975115C-0EC1-4750-A2C7-D858A562DA88_1_105_c.jpeg)
+![](/posts/26/08C5169B-A444-4C55-9DFB-D5D7C53FD118_1_105_c.jpeg)
+
+another score
+![](/posts/26/A2A02A92-94C6-4510-BD19-2E3188ADC129_1_105_c.jpeg)
+![](/posts/26/DAEA8C78-BB21-4CCF-8476-693A80CD2F41_1_105_c.jpeg)
+![](/posts/26/5FFC1408-9417-4396-9278-09303ACF9F38_1_105_c.jpeg)
+![](/posts/26/3937130B-FF40-44A1-8451-8BC6FA726EC2_1_105_c.jpeg)
+![](/posts/26/FB1B2737-E65D-40B6-8B64-F216CA7B700C_1_105_c.jpeg)
+
+match the hach
+![](/posts/26/1E25C9AD-BDD4-4258-A223-9DB84B15F2B6_1_105_c.jpeg)
+![](/posts/26/D9B09336-CEDD-4172-AA4F-CE1FD05B22A2_1_105_c.jpeg)
+
+pretty deep

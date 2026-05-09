@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Portfolio from '../components/Portfolio.tsx';
-import { fetchByTag } from '../lib/ghost';
+import { loadPosts } from '../lib/posts';
 
 const [thoughts, life] = await Promise.all([
-  fetchByTag('thoughts'),
-  fetchByTag('life'),
+  loadPosts('thoughts'),
+  loadPosts('life'),
 ]);
 ---
 <Layout title="paine.design — Hudson Paine">

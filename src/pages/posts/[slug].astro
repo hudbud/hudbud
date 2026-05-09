@@ -1,0 +1,89 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', (e) => !e.data.draft);
+  return posts.map((p) => ({ params: { slug: p.id }, props: { entry: p } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const dateLabel = entry.data.date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+<Layout title={`${entry.data.title} — Hudson Paine`}>
+  <main class="post-page">
+    <a class="back" href="/">← back</a>
+    <header>
+      <div class="meta">[{entry.data.tag}] · {dateLabel}</div>
+      <h1>{entry.data.title}</h1>
+    </header>
+    {entry.data.feature_image && (
+      <img class="hero" src={entry.data.feature_image} alt="" />
+    )}
+    <article class="prose">
+      <Content />
+    </article>
+  </main>
+</Layout>
+
+<style>
+  .post-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 24px 120px;
+    color: var(--fg);
+  }
+  .back {
+    color: var(--fg-dim);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .back:hover { color: var(--accent); }
+  header { margin: 32px 0 28px; }
+  .meta {
+    color: var(--fg-faint);
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--accent);
+    letter-spacing: -0.005em;
+    font-weight: 500;
+    margin: 0;
+  }
+  .hero {
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol) {
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0 0 1em;
+  }
+  .prose :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+    margin: 12px 0;
+  }
+  .prose :global(h2),
+  .prose :global(h3) {
+    color: var(--fg);
+    margin: 1.6em 0 0.6em;
+  }
+  .prose :global(a) {
+    color: var(--accent);
+  }
+</style>
