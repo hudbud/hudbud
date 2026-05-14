@@ -1,0 +1,72 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const entries = await getCollection('posts', (e) => e.data.tag === 'resources' && !e.data.draft);
+entries.sort((a, b) => +b.data.date - +a.data.date);
+
+const rendered = await Promise.all(
+  entries.map(async (e) => ({ entry: e, ...(await render(e)) }))
+);
+---
+<Layout title="Resources — Hudson Paine">
+  <main class="resources-page">
+    <a class="back" href="/">← back</a>
+    <header><h1>Resources</h1></header>
+    {rendered.map(({ entry, Content }) => (
+      <section>
+        <h2><a href={`/posts/${entry.id}`}>{entry.data.title}</a></h2>
+        <div class="prose"><Content /></div>
+      </section>
+    ))}
+  </main>
+</Layout>
+
+<style>
+  .resources-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 24px 120px;
+    color: var(--fg);
+  }
+  .back {
+    color: var(--fg-dim);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .back:hover { color: var(--accent); }
+  header { margin: 32px 0 28px; }
+  h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--accent);
+    letter-spacing: -0.005em;
+    font-weight: 500;
+    margin: 0;
+  }
+  section {
+    margin: 40px 0;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+  section h2 {
+    font-size: 18px;
+    margin: 0 0 12px;
+    font-weight: 500;
+  }
+  section h2 a {
+    color: var(--fg);
+    text-decoration: none;
+  }
+  section h2 a:hover { color: var(--accent); }
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol) {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 0 0.8em;
+  }
+  .prose :global(a) {
+    color: var(--accent);
+  }
+</style>

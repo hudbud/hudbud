@@ -4,7 +4,7 @@ import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type IdeaStatus } from '../data/ideas';
 import { TILES, type Tile } from '../data/tiles';
 import { MT_THEMES, THEME_PAIRS } from '../data/themes';
-import { THOUGHTS_FALLBACK, LIFE_FALLBACK, type Post } from '../data/posts';
+import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
 import { Lock, LockOpen, Shuffle, Moon, Sun } from '@phosphor-icons/react';
@@ -287,6 +287,7 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <span style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
         <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
+        <a href="/resources" style={{ color: 'var(--fg-dim)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>resources</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -1106,6 +1107,8 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
   const [showSpritz, setShowSpritz] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
   const postHtml = post.html || `<p>${post.excerpt}</p>`;
+  const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.round(wordCount / 230));
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -1159,9 +1162,19 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
 
       <div className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: postHtml }} />
 
-      <p className="prose" style={{ color: 'var(--fg-dim)', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)', fontSize: 11 }}>
-        <em>Posted via Ghost · ~4 min read</em>
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)', fontSize: 11, color: 'var(--fg-dim)' }}>
+        <em>~{minutes} min read</em>
+        {post.slug && (
+          <a
+            href={`/posts/${post.slug}`}
+            style={{ color: 'var(--fg-dim)', textDecoration: 'none' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+          >
+            Read full post →
+          </a>
+        )}
+      </div>
 
       <div style={{ position: 'sticky', bottom: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
         <button
@@ -1278,8 +1291,8 @@ interface PortfolioProps {
 }
 
 export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp }: PortfolioProps) {
-  const thoughts = thoughtsProp && thoughtsProp.length > 0 ? thoughtsProp : THOUGHTS_FALLBACK;
-  const life = lifeProp && lifeProp.length > 0 ? lifeProp : LIFE_FALLBACK;
+  const thoughts = thoughtsProp ?? [];
+  const life = lifeProp ?? [];
 
   const [theme, setThemeRaw] = useState(getInitialTheme);
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
