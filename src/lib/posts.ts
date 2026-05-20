@@ -2,7 +2,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import type { Post } from '../data/posts';
 
-type Tag = 'thoughts' | 'life' | 'resources';
+type Tag = 'thoughts' | 'life' | 'resources' | 'archive';
 
 let cachedContainer: Promise<AstroContainer> | null = null;
 function getContainer() {

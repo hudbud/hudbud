@@ -9,10 +9,10 @@ import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
 import { Lock, LockOpen, Shuffle, Moon, Sun } from '@phosphor-icons/react';
 
-type TabId = 'ideas' | 'life' | 'thoughts' | 'work';
+type TabId = 'ideas' | 'life' | 'thoughts' | 'work' | 'archive';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel';
 
-const TAGS: TabId[] = ['ideas', 'life', 'thoughts', 'work'];
+const TAGS: TabId[] = ['ideas', 'life', 'thoughts', 'work', 'archive'];
 
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel'];
 
@@ -635,7 +635,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, thoughts, life }: {
+function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, thoughts, life, archive }: {
   activeTab: TabId;
   setActiveTab: (t: TabId) => void;
   activePost: Post | null;
@@ -644,6 +644,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
   onOpenBioModal: (id: string) => void;
   thoughts: Post[];
   life: Post[];
+  archive: Post[];
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', height: '100%', overflowY: 'auto' }}>
@@ -657,10 +658,9 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           I'm a <BioLink label="tinkerer and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
           I <BioLink label="love computers" modalId="computers" onOpenModal={onOpenBioModal} />,{' '}
           I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
-          and I have strong opinions on just about everything.
+          and I have strong opinions on just about everything, just reach out.
         </p>
         <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_4}</p>
         <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
           <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
         </p>
@@ -679,6 +679,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
         {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
         {activeTab === 'thoughts' && <PostList posts={thoughts} activePost={activePost} setActivePost={setActivePost} />}
         {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
+        {activeTab === 'archive' && <PostList posts={archive} activePost={activePost} setActivePost={setActivePost} />}
       </div>
 
     </div>
@@ -1422,13 +1423,23 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
 interface PortfolioProps {
   thoughts?: Post[];
   life?: Post[];
+  archive?: Post[];
   galleryImages?: string[];
 }
 
-export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, galleryImages: galleryImagesProp }: PortfolioProps) {
+export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, galleryImages: galleryImagesProp }: PortfolioProps) {
   const thoughts = thoughtsProp ?? [];
   const life = lifeProp ?? [];
+  const archive = archiveProp ?? [];
   const galleryImages = galleryImagesProp ?? [];
+
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const [theme, setThemeRaw] = useState(getInitialTheme);
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
@@ -1479,6 +1490,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, gall
     document.body.dataset.font = font;
   }, [font]);
 
+  const hasActiveRight = !!(activePost || activeProject);
   const rightContent = activePost
     ? <PostPanel post={activePost} onClose={closeRightPanel} />
     : activeProject
@@ -1486,30 +1498,35 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, gall
       : <ImageGallery images={galleryImages} />;
 
   return (
-    <div style={{ height: '100vh', padding: 20, background: 'var(--bg)', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden' }}>
       <div
         style={{
-          height: 'calc(100vh - 40px)',
+          height: isMobile ? '100vh' : 'calc(100vh - 40px)',
           background: 'var(--bg-inner)',
-          borderRadius: 4,
+          borderRadius: isMobile ? 0 : 4,
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        <LeftColumn
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          activePost={activePost}
-          setActivePost={setActivePost}
-          onOpenProject={openProject}
-          onOpenBioModal={setBioModal}
-          thoughts={thoughts}
-          life={life}
-        />
+        {(!isMobile || !hasActiveRight) && (
+          <LeftColumn
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            activePost={activePost}
+            setActivePost={setActivePost}
+            onOpenProject={openProject}
+            onOpenBioModal={setBioModal}
+            thoughts={thoughts}
+            life={life}
+            archive={archive}
+          />
+        )}
 
-        <div style={{ height: '100%', overflow: 'hidden' }}>{rightContent}</div>
+        {(!isMobile || hasActiveRight) && (
+          <div style={{ height: '100%', overflow: 'hidden' }}>{rightContent}</div>
+        )}
       </div>
 
       <BottomChrome theme={theme} setTheme={setTheme} font={font} setFont={setFont} onTimeTravel={setTimeTravelUrl} themeLocked={themeLocked} fontLocked={fontLocked} onToggleThemeLock={toggleThemeLock} onToggleFontLock={toggleFontLock} />

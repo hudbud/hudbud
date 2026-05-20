@@ -1,4 +1,4 @@
-export const BIO_INTRO = `Hey. Welcome to Hudson Land.`;
+export const BIO_INTRO = `Howdy!`;
 
 export const BIO_BODY = `This used to be a serious portfolio. Now it's experiments, weird projects, and the occasional eccentric blog post. The internet is supposed to be fun.`;
 
@@ -6,7 +6,7 @@ export const BIO_BODY_2 = `I like to`;
 
 export const BIO_BODY_3 = `Imposter syndrome is forever, and I think that's a good thing.`;
 
-export const BIO_BODY_4 = `If you want my opinion on anything, reach out.`;
+export const BIO_BODY_4 = ``;
 
 export const BIO_ORIGIN = `Hudson Land is older than it looks`;
 
