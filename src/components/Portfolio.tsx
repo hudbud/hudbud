@@ -1457,6 +1457,8 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const proseRef = useRef<HTMLDivElement | null>(null);
   const postHtml = post.html || `<p>${post.excerpt}</p>`;
+  const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.round(wordCount / 230));
 
   const postImages = useMemo(() => {
     const srcs: string[] = [];
@@ -1546,6 +1548,7 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
       {lightboxIdx !== null && (
         <Lightbox images={postImages} index={lightboxIdx} onClose={() => setLightboxIdx(null)} onChange={setLightboxIdx} />
       )}
+
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)', fontSize: 11, color: 'var(--fg-dim)' }}>
         <em>~{minutes} min read</em>
