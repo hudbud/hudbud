@@ -1,0 +1,38 @@
+---
+export const prerender = false;
+import PostCreator from '../../components/admin/PostCreator.tsx';
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>New Post — Admin</title>
+  <style>
+    :root {
+      --bg: #36312c;
+      --bg-inner: #2e2a25;
+      --fg: #d4c4a8;
+      --fg-dim: #8a7e6e;
+      --fg-faint: #5a5048;
+      --accent: #d08770;
+      --rule: #4a4238;
+      --tile: #3e3830;
+      --font: 'Geist Mono', ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--accent); color: var(--bg); }
+  </style>
+</head>
+<body>
+  <PostCreator client:load />
+</body>
+</html>

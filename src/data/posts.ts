@@ -6,4 +6,7 @@ export interface Post {
   slug?: string;
   feature_image?: string;
   img?: string;
+  roles?: string;
+  tools?: string;
+  agency?: string;
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { BIO_INTRO, BIO_BODY, BIO_BODY_2, BIO_BODY_3, BIO_BODY_4, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type IdeaStatus } from '../data/ideas';
@@ -7,25 +7,27 @@ import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import { Lock, LockOpen, Shuffle, Moon, Sun } from '@phosphor-icons/react';
+import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp } from '@phosphor-icons/react';
 
-type TabId = 'ideas' | 'life' | 'thoughts' | 'work';
+type TabId = 'ideas' | 'life' | 'thoughts' | 'work' | 'archive';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel';
 
-const TAGS: TabId[] = ['ideas', 'life', 'thoughts', 'work'];
+const TAGS: TabId[] = ['ideas', 'life', 'thoughts', 'work', 'archive'];
 
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel'];
 
 const DEFAULTS = {
-  theme: 'bushido',
+  theme: 'earthsong',
   density: '3x5',
-  font: 'mono' as FontId,
+  font: 'apfel' as FontId,
 };
 
 function getInitialTheme(): string {
   if (typeof window === 'undefined') return DEFAULTS.theme;
   const locked = localStorage.getItem('hp-lock-theme');
   if (locked) return localStorage.getItem('hp-theme') || DEFAULTS.theme;
+  const saved = localStorage.getItem('hp-theme');
+  if (!saved) return DEFAULTS.theme;
   return MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)].name;
 }
 
@@ -33,6 +35,8 @@ function getInitialFont(): FontId {
   if (typeof window === 'undefined') return DEFAULTS.font;
   const locked = localStorage.getItem('hp-lock-font');
   if (locked) return (localStorage.getItem('hp-font') as FontId) || DEFAULTS.font;
+  const saved = localStorage.getItem('hp-font');
+  if (!saved) return DEFAULTS.font;
   return FONT_IDS[Math.floor(Math.random() * FONT_IDS.length)];
 }
 
@@ -152,7 +156,7 @@ function ThemeChrome({ theme, setTheme }: { theme: string; setTheme: (t: string)
           <span style={dot(cur.accent)} />
         </span>
         <span style={{ letterSpacing: '0.02em' }}>{cur.name.replace(/_/g, ' ')}</span>
-        <span style={{ fontSize: 9, opacity: 0.6 }}>▴</span>
+        <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
       {open && (
         <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', right: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 220, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)', maxHeight: '70vh', display: 'flex', flexDirection: 'column' }}>
@@ -248,12 +252,12 @@ function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
     <div style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        style={{ fontSize: 11, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4 }}
+        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
         onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
         onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
       >
         <span>time machine</span>
-        <span style={{ fontSize: 9, opacity: 0.6 }}>▴</span>
+        <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
       {open && (
         <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 160, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
@@ -261,11 +265,79 @@ function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
             <button
               key={v.label}
               onClick={() => { if (v.url) onSelect(v.url); setOpen(false); }}
-              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', borderRadius: 2, fontSize: 11, color: v.url ? 'var(--fg-dim)' : 'var(--accent)' }}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: v.url ? 'var(--fg-dim)' : 'var(--accent)' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = v.url ? 'var(--fg-dim)' : 'var(--accent)')}
             >
               {v.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const RESOURCES = [
+  { label: 'Design Resources', href: '/posts/design-resources-list' },
+  { label: 'Outdoor Resources', href: '/posts/outdoors-resources-list' },
+];
+
+function ResourcesDropup() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+      >
+        <span>resources</span>
+        <CaretUp size={10} style={{ opacity: 0.6 }} />
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 180, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
+          {RESOURCES.map((r) => (
+            <a
+              key={r.label}
+              href={r.href}
+              onClick={() => setOpen(false)}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: 'var(--fg-dim)', textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+            >
+              {r.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: FontId) => void; labels: Record<FontId, string> }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg)', fontSize: 13, cursor: 'pointer' }}
+      >
+        <span>{labels[font]}</span>
+        <CaretUp size={10} style={{ opacity: 0.6 }} />
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 180, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
+          {(Object.keys(labels) as FontId[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => { setFont(f); setOpen(false); }}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', borderRadius: 2, background: f === font ? 'var(--tile)' : 'transparent', color: f === font ? 'var(--fg)' : 'var(--fg-dim)', fontSize: 12 }}
+              onMouseEnter={(e) => { if (f !== font) e.currentTarget.style.color = 'var(--fg)'; }}
+              onMouseLeave={(e) => { if (f !== font) e.currentTarget.style.color = 'var(--fg-dim)'; }}
+            >
+              {labels[f]}
             </button>
           ))}
         </div>
@@ -283,64 +355,56 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
     apfel: 'Apfel Grotezk',
   };
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', padding: '8px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
+    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', padding: '12px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <span style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
-        <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
-        <a href="/resources" style={{ color: 'var(--fg-dim)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>resources</a>
+        <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
+        <ResourcesDropup />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--fg-dim)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--fg-dim)' }}>
           <span>type set in:</span>
-          <select
-            value={font}
-            onChange={(e) => setFont(e.target.value as FontId)}
-            style={{ background: 'transparent', border: 'none', color: 'var(--fg)', fontSize: 11, cursor: 'pointer', padding: '2px 4px' }}
-          >
-            {(Object.keys(FONT_LABELS) as FontId[]).map((f) => (
-              <option key={f} value={f}>{FONT_LABELS[f]}</option>
-            ))}
-          </select>
+          <FontDropup font={font} setFont={setFont} labels={FONT_LABELS} />
           <button
             onClick={onToggleFontLock}
             title={fontLocked ? 'font locked (click to unlock)' : 'font randomizes on reload (click to lock)'}
-            style={{ color: fontLocked ? 'var(--accent)' : 'var(--fg-faint)', fontSize: 11, lineHeight: 1 }}
+            style={{ color: fontLocked ? 'var(--accent)' : 'var(--fg-faint)', padding: '4px', lineHeight: 1 }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = fontLocked ? 'var(--accent)' : 'var(--fg-faint)')}
           >
-            {fontLocked ? <Lock size={12} weight="fill" /> : <LockOpen size={12} weight="fill" />}
+            {fontLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
           </button>
         </div>
         {THEME_PAIRS[theme] && (
           <button
             onClick={() => setTheme(THEME_PAIRS[theme])}
             title={THEME_PAIRS[theme].includes('dark') ? 'switch to dark' : 'switch to light'}
-            style={{ color: 'var(--fg-dim)', fontSize: 13, lineHeight: 1 }}
+            style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
           >
-            {THEME_PAIRS[theme].includes('dark') ? <Moon size={13} weight="fill" /> : <Sun size={13} weight="fill" />}
+            {THEME_PAIRS[theme].includes('dark') ? <Moon size={16} weight="fill" /> : <Sun size={16} weight="fill" />}
           </button>
         )}
         <button
           onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }}
           title="random theme"
-          style={{ color: 'var(--fg-dim)', fontSize: 13, lineHeight: 1 }}
+          style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
           onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
         >
-          <Shuffle size={13} weight="fill" />
+          <Shuffle size={16} weight="fill" />
         </button>
         <ThemeChrome theme={theme} setTheme={setTheme} />
         <button
           onClick={onToggleThemeLock}
           title={themeLocked ? 'theme locked (click to unlock)' : 'theme randomizes on reload (click to lock)'}
-          style={{ color: themeLocked ? 'var(--accent)' : 'var(--fg-faint)', fontSize: 11, lineHeight: 1 }}
+          style={{ color: themeLocked ? 'var(--accent)' : 'var(--fg-faint)', padding: '4px', lineHeight: 1 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
           onMouseLeave={(e) => (e.currentTarget.style.color = themeLocked ? 'var(--accent)' : 'var(--fg-faint)')}
         >
-          {themeLocked ? <Lock size={12} weight="fill" /> : <LockOpen size={12} weight="fill" />}
+          {themeLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
         </button>
       </div>
     </div>
@@ -387,6 +451,42 @@ function ResumeList() {
           <a key={l.label} href={l.href} style={{ color: 'var(--fg-dim)', borderBottom: '1px dashed var(--fg-faint)', paddingBottom: 1 }}>↗ {l.label}</a>
         ))}
       </div>
+    </div>
+  );
+}
+
+function WorkSection({ work, activePost, setActivePost }: { work: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
+  return (
+    <div>
+      <ResumeList />
+      {work.length > 0 && (
+        <div style={{ marginTop: 28, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--fg-faint)', marginBottom: 12 }}>Case Studies</div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {work.map((p) => {
+              const isActive = activePost && activePost.title === p.title;
+              return (
+                <button
+                  key={p.title}
+                  onClick={() => setActivePost(isActive ? null : { ...p, tag: 'work' } as Post)}
+                  style={{ display: 'block', padding: '12px 12px', textAlign: 'left', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
+                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
+                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = isActive ? 'var(--accent)' : 'var(--fg)'; }}
+                >
+                  <div style={{ fontSize: 13 }}>{p.title}</div>
+                  {(p.agency || p.roles) && (
+                    <div style={{ fontSize: 11, color: 'var(--fg-dim)', marginTop: 3 }}>
+                      {p.agency && <span>{p.agency}</span>}
+                      {p.agency && p.roles && <span> · </span>}
+                      {p.roles && <span>{p.roles.split(',')[0]}</span>}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -453,13 +553,63 @@ function IdeasList({ onOpenProject }: { onOpenProject?: (id: string) => void }) 
             onMouseLeave={(isLinkable || isInternalProject) ? (e: any) => (e.currentTarget.style.color = dim ? 'var(--fg-dim)' : 'var(--fg)') : undefined}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16 }}>
-              <span style={{ fontSize: 13 }}>{idea.title}</span>
+              <span style={{ fontSize: 13 }}>{idea.title}{external && isLinkable && <span style={{ marginLeft: 5, fontSize: 10, opacity: 0.5 }}>↗</span>}</span>
               <StatusTag status={idea.status} note={idea.statusNote} />
             </div>
             {idea.desc && (
               <div style={{ fontSize: 12, color: 'var(--fg-dim)', marginTop: 4, lineHeight: 1.5 }}>{idea.desc}</div>
             )}
           </Wrapper>
+        );
+      })}
+    </div>
+  );
+}
+
+const ARCHIVE_CATEGORIES: Record<string, string> = {
+  bigsur: 'photo', 'travel-video': 'film', 'film-1': 'film', naps: 'motion', 'video_art': 'motion', vjloops: 'motion',
+  doodles: 'illustration', doodles2: 'illustration', everything: 'illustration',
+  d4design: 'branding', locoll: 'branding', painepacificgallery: 'branding', 'thrill-1': 'branding', 'zeroidea-1': 'branding',
+  'buildform': 'branding', 'country-gentlemen': 'branding', 'papercut-films': 'branding', 'savasana-sound': 'branding', tunein: 'branding', 'ugly-boys': 'branding',
+  thevault: 'product', 'playlight-1': 'product', 'trew-gear': 'product', pellowski: 'motion',
+};
+const ARCHIVE_CHIPS = ['all', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
+
+function ArchiveList({ posts, activePost, setActivePost }: { posts: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
+  const [filter, setFilter] = useState<string>('all');
+  const filtered = filter === 'all' ? posts : posts.filter((p) => ARCHIVE_CATEGORIES[p.slug || ''] === filter);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+        {ARCHIVE_CHIPS.map((chip) => (
+          <button
+            key={chip}
+            onClick={() => setFilter(chip)}
+            style={{
+              fontSize: 11, padding: '3px 10px', borderRadius: 12,
+              background: filter === chip ? 'var(--accent)' : 'var(--tile)',
+              color: filter === chip ? 'var(--bg)' : 'var(--fg-dim)',
+              transition: 'all 0.15s',
+            }}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+      {filtered.map((p) => {
+        const isActive = activePost && activePost.title === p.title;
+        return (
+          <button
+            key={p.title}
+            onClick={() => setActivePost(isActive ? null : { ...p, tag: 'archive' } as Post)}
+            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
+            onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
+            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
+          >
+            <span style={{ fontSize: 13 }}>{p.title}</span>
+            <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{p.date}</span>
+          </button>
         );
       })}
     </div>
@@ -475,7 +625,7 @@ function PostList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'thoughts' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 0', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -498,7 +648,7 @@ function LifeList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'life' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 0', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 12px', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -543,6 +693,7 @@ function BioModal({ modalId, onClose }: { modalId: string; onClose: () => void }
           close ×
         </button>
         <div style={{ fontSize: 18, color: 'var(--accent)', marginBottom: 18, lineHeight: 1.3 }}>{content.title}</div>
+        {content.image && <img src={content.image} alt="" style={{ width: '100%', borderRadius: 2, marginBottom: 18 }} />}
         {content.body.split('\n\n').map((para, i) => (
           <p key={i} className="prose" style={{ color: 'var(--fg)', marginBottom: 14, fontSize: 13, lineHeight: 1.65 }}>{para}</p>
         ))}
@@ -556,6 +707,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
   const [show, setShow] = useState(false);
   const timeoutRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLSpanElement | null>(null);
+  const popoverRef = useRef<HTMLDivElement | null>(null);
 
   const content = MODAL_CONTENT[modalId];
 
@@ -571,6 +723,29 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
     onOpenModal?.(modalId);
   };
 
+  useEffect(() => {
+    if (!show || !popoverRef.current || !containerRef.current) return;
+    const pop = popoverRef.current;
+    pop.style.left = '50%';
+    pop.style.right = '';
+    pop.style.transform = 'translateX(-50%)';
+    const rect = pop.getBoundingClientRect();
+    let el: HTMLElement | null = containerRef.current.parentElement;
+    while (el && getComputedStyle(el).overflowY !== 'auto' && getComputedStyle(el).overflowY !== 'scroll') {
+      el = el.parentElement;
+    }
+    const rightEdge = el ? el.getBoundingClientRect().right : window.innerWidth;
+    const leftEdge = el ? el.getBoundingClientRect().left : 0;
+    if (rect.left < leftEdge + 8) {
+      pop.style.left = '0';
+      pop.style.transform = 'translateX(0)';
+    } else if (rect.right > rightEdge - 8) {
+      pop.style.left = 'auto';
+      pop.style.right = '0';
+      pop.style.transform = 'translateX(0)';
+    }
+  }, [show]);
+
   return (
     <span ref={containerRef} style={{ position: 'relative', display: 'inline' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
       <button
@@ -581,10 +756,12 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
       </button>
       {show && content && (
         <div
+          ref={popoverRef}
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
           style={{ position: 'absolute', top: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', width: 320, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: '16px 18px', boxShadow: '0 12px 40px rgba(0,0,0,0.5)', zIndex: 150, animation: 'hpFade 0.15s ease' }}
         >
+          {content.image && <img src={content.image} alt="" style={{ width: '100%', borderRadius: 2, marginBottom: 10 }} />}
           <p style={{ color: 'var(--fg)', fontSize: 12, lineHeight: 1.6, margin: 0 }}>{content.preview}</p>
         </div>
       )}
@@ -593,7 +770,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, thoughts, life }: {
+function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, thoughts, life, archive, work }: {
   activeTab: TabId;
   setActiveTab: (t: TabId) => void;
   activePost: Post | null;
@@ -602,6 +779,8 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
   onOpenBioModal: (id: string) => void;
   thoughts: Post[];
   life: Post[];
+  archive: Post[];
+  work: Post[];
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', height: '100%', overflowY: 'auto' }}>
@@ -615,10 +794,9 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           I'm a <BioLink label="tinkerer and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
           I <BioLink label="love computers" modalId="computers" onOpenModal={onOpenBioModal} />,{' '}
           I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
-          and I have strong opinions on just about everything.
+          and I have strong opinions on just about everything, just reach out.
         </p>
         <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_4}</p>
         <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
           <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
         </p>
@@ -633,12 +811,113 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           ))}
         </div>
 
-        {activeTab === 'work' && <ResumeList />}
+        {activeTab === 'work' && <WorkSection work={work} activePost={activePost} setActivePost={setActivePost} />}
         {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
         {activeTab === 'thoughts' && <PostList posts={thoughts} activePost={activePost} setActivePost={setActivePost} />}
         {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
+        {activeTab === 'archive' && <ArchiveList posts={archive} activePost={activePost} setActivePost={setActivePost} />}
       </div>
 
+    </div>
+  );
+}
+
+// ---------- Image gallery (MVP default right panel) ----------
+function ImageGallery({ images, onImageClick }: { images: GalleryImage[]; onImageClick?: (slug: string) => void }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const velocityRef = useRef(0);
+  const targetVelRef = useRef(0.2);
+  const rafRef = useRef<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 150);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(48, now - last);
+      last = now;
+      const k = targetVelRef.current === 0 ? 0.03 : 0.06;
+      velocityRef.current += (targetVelRef.current - velocityRef.current) * k;
+      if (Math.abs(velocityRef.current) > 0.002) {
+        const max = el.scrollHeight - el.clientHeight;
+        let next = el.scrollTop + velocityRef.current * (dt / 16.67);
+        if (max > 0) {
+          if (next >= max - 0.5) next = 0;
+          else if (next < 0) next = max;
+        }
+        el.scrollTop = next;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let timer: number | null = null;
+    const pause = () => {
+      targetVelRef.current = 0;
+      if (timer !== null) clearTimeout(timer);
+      timer = window.setTimeout(() => { if (hoveredIdx === null) targetVelRef.current = 0.2; }, 2000);
+    };
+    el.addEventListener('wheel', pause, { passive: true });
+    el.addEventListener('touchmove', pause, { passive: true });
+    return () => { el.removeEventListener('wheel', pause); el.removeEventListener('touchmove', pause); if (timer !== null) clearTimeout(timer); };
+  }, [hoveredIdx]);
+
+  if (!images.length) return null;
+
+  return (
+    <div style={{ position: 'relative', height: '100%', opacity: ready ? 1 : 0, transition: 'opacity 0.5s ease' }}>
+      <div
+        ref={containerRef}
+        className="hp-scroll"
+        style={{
+          position: 'relative',
+          height: '100%',
+          overflowY: 'auto',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
+          padding: '32px 64px 80px 56px',
+        }}
+      >
+        <style>{`.hp-scroll::-webkit-scrollbar { display: none; } .hp-scroll { scrollbar-width: none; }`}</style>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          {images.map((img, i) => {
+            const isHovered = hoveredIdx === i;
+            const anyHovered = hoveredIdx !== null;
+            return (
+              <div
+                key={i}
+                onMouseEnter={() => { setHoveredIdx(i); targetVelRef.current = 0; }}
+                onMouseLeave={() => { setHoveredIdx(null); targetVelRef.current = 0.2; }}
+                onClick={() => onImageClick?.(img.slug)}
+                style={{
+                  aspectRatio: '4 / 3',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  opacity: anyHovered ? (isHovered ? 1 : 0.4) : 0.88,
+                  boxShadow: isHovered ? '0 0 16px rgba(255,255,255,0.12)' : 'none',
+                  transition: 'opacity 0.4s ease, box-shadow 0.3s ease',
+                  background: 'var(--tile)',
+                }}
+              >
+                <img src={img.src} alt="" loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1103,21 +1382,111 @@ function TypingTest({ html, onClose }: { html: string; onClose: () => void }) {
 }
 
 // ---------- Post panel (replaces lightbox) ----------
+function Lightbox({ images, index, onClose, onChange }: { images: string[]; index: number; onClose: () => void; onChange: (i: number) => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') onChange((index + 1) % images.length);
+      if (e.key === 'ArrowLeft') onChange((index - 1 + images.length) % images.length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [index, images.length, onClose, onChange]);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'hpFade 0.2s ease' }}
+    >
+      <img
+        src={images[index]}
+        alt=""
+        onClick={(e) => { e.stopPropagation(); onChange((index + 1) % images.length); }}
+        style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', cursor: images.length > 1 ? 'pointer' : 'default', borderRadius: 2 }}
+      />
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); onChange((index - 1 + images.length) % images.length); }}
+            style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', fontSize: 28, color: '#fff', opacity: 0.7, background: 'none', cursor: 'pointer' }}
+          >‹</button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onChange((index + 1) % images.length); }}
+            style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', fontSize: 28, color: '#fff', opacity: 0.7, background: 'none', cursor: 'pointer' }}
+          >›</button>
+          <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+            {index + 1} / {images.length}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function groupConsecutiveImages(html: string): string {
+  const imgParagraph = /^<p>\s*<img\s[^>]*>\s*<\/p>$/;
+  const lines = html.split('\n');
+  const result: string[] = [];
+  let group: string[] = [];
+
+  const flushGroup = () => {
+    if (group.length >= 2) {
+      result.push(`<div style="display:grid;grid-template-columns:repeat(${Math.min(group.length, 3)},1fr);gap:8px;margin:12px 0">${group.join('')}</div>`);
+    } else if (group.length === 1) {
+      result.push(group[0]);
+    }
+    group = [];
+  };
+
+  for (const line of lines) {
+    if (imgParagraph.test(line.trim())) {
+      const img = line.trim().replace(/^<p>\s*/, '').replace(/\s*<\/p>$/, '');
+      group.push(img.replace('<img ', '<img style="width:100%;height:auto;border-radius:2px;display:block" '));
+    } else {
+      flushGroup();
+      result.push(line);
+    }
+  }
+  flushGroup();
+  return result.join('\n');
+}
+
 function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: () => void }) {
   const [showSpritz, setShowSpritz] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const proseRef = useRef<HTMLDivElement | null>(null);
   const postHtml = post.html || `<p>${post.excerpt}</p>`;
   const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.round(wordCount / 230));
 
+  const postImages = useMemo(() => {
+    const srcs: string[] = [];
+    if (post.feature_image) srcs.push(post.feature_image);
+    const matches = postHtml.matchAll(/<img[^>]+src="([^"]+)"/g);
+    for (const m of matches) {
+      if (!srcs.includes(m[1])) srcs.push(m[1]);
+    }
+    return srcs;
+  }, [postHtml, post.feature_image]);
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+    const el = proseRef.current;
+    if (!el) return;
+    const handleClick = (e: MouseEvent) => {
+      const img = (e.target as HTMLElement).closest('img');
+      if (!img) return;
+      const src = img.getAttribute('src') || '';
+      const idx = postImages.indexOf(src);
+      if (idx >= 0) setLightboxIdx(idx);
+    };
+    el.addEventListener('click', handleClick);
+    return () => el.removeEventListener('click', handleClick);
+  }, [postImages]);
 
   const isLife = post.tag === 'life';
-  const hasImage = isLife && (post.img || post.feature_image);
+  const isWork = post.tag === 'work' || post.tag === 'archive';
+  const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: '56px 56px 100px 48px', position: 'relative' }}>
@@ -1153,14 +1522,25 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
       {hasImage && (
         <div style={{ marginBottom: 24 }}>
           {post.feature_image ? (
-            <img src={post.feature_image} alt="" style={{ width: '100%', borderRadius: 2 }} />
+            <img
+              src={post.feature_image}
+              alt=""
+              style={{ width: '100%', borderRadius: 2, cursor: 'pointer' }}
+              onClick={() => setLightboxIdx(0)}
+            />
           ) : (
             <LifeImage color={post.img || '#3a434e'} seed={post.title.length} height={260} />
           )}
         </div>
       )}
 
-      <div className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: postHtml }} />
+      <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: groupConsecutiveImages(postHtml) }} />
+      <style>{`.prose img { cursor: pointer; }`}</style>
+
+      {lightboxIdx !== null && (
+        <Lightbox images={postImages} index={lightboxIdx} onClose={() => setLightboxIdx(null)} onChange={setLightboxIdx} />
+      )}
+
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)', fontSize: 11, color: 'var(--fg-dim)' }}>
         <em>~{minutes} min read</em>
@@ -1285,14 +1665,33 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
 }
 
 // ---------- App ----------
+interface GalleryImage {
+  src: string;
+  slug: string;
+}
+
 interface PortfolioProps {
   thoughts?: Post[];
   life?: Post[];
+  archive?: Post[];
+  work?: Post[];
+  galleryImages?: GalleryImage[];
 }
 
-export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp }: PortfolioProps) {
+export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, work: workProp, galleryImages: galleryImagesProp }: PortfolioProps) {
   const thoughts = thoughtsProp ?? [];
   const life = lifeProp ?? [];
+  const archive = archiveProp ?? [];
+  const work = workProp ?? [];
+  const galleryImages: GalleryImage[] = galleryImagesProp ?? [];
+
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const [theme, setThemeRaw] = useState(getInitialTheme);
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
@@ -1343,37 +1742,48 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp }: Po
     document.body.dataset.font = font;
   }, [font]);
 
+  const hasActiveRight = !!(activePost || activeProject);
   const rightContent = activePost
     ? <PostPanel post={activePost} onClose={closeRightPanel} />
     : activeProject
       ? <ProjectPanel projectId={activeProject} onClose={closeRightPanel} />
-      : <TileGrid density={DEFAULTS.density} onPick={setActiveTile} />;
+      : <ImageGallery images={galleryImages} onImageClick={(slug) => {
+          const allPosts = [...work, ...thoughts, ...life, ...archive];
+          const post = allPosts.find((p) => p.slug === slug);
+          if (post) setActivePostRaw(post);
+        }} />;
 
   return (
-    <div style={{ height: '100vh', padding: 20, background: 'var(--bg)', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden' }}>
       <div
         style={{
-          height: 'calc(100vh - 40px)',
+          height: isMobile ? '100vh' : 'calc(100vh - 40px)',
           background: 'var(--bg-inner)',
-          borderRadius: 4,
+          borderRadius: isMobile ? 0 : 4,
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        <LeftColumn
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          activePost={activePost}
-          setActivePost={setActivePost}
-          onOpenProject={openProject}
-          onOpenBioModal={setBioModal}
-          thoughts={thoughts}
-          life={life}
-        />
+        {(!isMobile || !hasActiveRight) && (
+          <LeftColumn
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            activePost={activePost}
+            setActivePost={setActivePost}
+            onOpenProject={openProject}
+            onOpenBioModal={setBioModal}
+            thoughts={thoughts}
+            life={life}
+            archive={archive}
+            work={work}
+          />
+        )}
 
-        <div style={{ height: '100%', overflow: 'hidden' }}>{rightContent}</div>
+        {(!isMobile || hasActiveRight) && (
+          <div style={{ height: '100%', overflow: 'hidden' }}>{rightContent}</div>
+        )}
       </div>
 
       <BottomChrome theme={theme} setTheme={setTheme} font={font} setFont={setFont} onTimeTravel={setTimeTravelUrl} themeLocked={themeLocked} fontLocked={fontLocked} onToggleThemeLock={toggleThemeLock} onToggleFontLock={toggleFontLock} />
