@@ -8,9 +8,9 @@ export const BIO_BODY_3 = `Imposter syndrome is forever, and I think that's a go
 
 export const BIO_BODY_4 = ``;
 
-export const BIO_ORIGIN = `Hudson Land is older than it looks`;
+export const BIO_ORIGIN = `hudsonland is older than it looks`;
 
-export const MODAL_CONTENT: Record<string, { title: string; preview: string; body: string }> = {
+export const MODAL_CONTENT: Record<string, { title: string; preview: string; body: string; image?: string }> = {
   'make-stuff': {
     title: 'I like to make stuff',
     preview: `Always have. Kitchen experiments as a kid, HTML in the school library, a design agency in college, custom bikes now. Most people have a project or two. I have a queue.`,
@@ -60,11 +60,12 @@ What I love about all three is the deep technical side. Fly fishing has rod comp
 It's just making and learning, but with better views.`,
   },
   'origin': {
-    title: 'Hudson Land is older than it looks',
-    preview: `My uncle Chris built me a website before I was five. Race car GIFs, big letters, Hudson Land. That sparked something. I've been chasing it ever since.`,
-    body: `Hudson Land has existed since before I can really remember.
+    title: 'hudsonland is older than it looks',
+    preview: `My uncle Chris built me a website before I was five. Race car GIFs, big letters, hudsonland. That sparked something. I've been chasing it ever since.`,
+    image: `/images/hudsonland-racecar.gif`,
+    body: `hudsonland has existed since before I can really remember.
 
-When I was younger than five, my uncle Chris built me a website at hudsonland.com. I don't remember much but I remember enough: there was a GIF of race cars going around a track that stretched almost the full width of the page. Somewhere on it, in big letters, it said Hudson Land.
+When I was younger than five, my uncle Chris built me a website at hudsonland.com. I don't remember much but I remember enough: there was a GIF of race cars going around a track that stretched almost the full width of the page. Somewhere on it, in big letters, it said hudsonland.
 
 I've tried everything I can to get it back. All that remains are the memories.
 
@@ -75,4 +76,4 @@ Thank you, Uncle Chris. I hope to recreate it someday.`,
 };
 
 // Keep for backward compat
-export const BIO = `Hey. Welcome to Hudson Land.`;
+export const BIO = `Hey. Welcome to hudsonland.`;

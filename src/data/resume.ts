@@ -11,6 +11,7 @@ export const RESUME: ResumeEntry[] = [
   { years: '2020 — 2021', role: 'Lead Product Designer', org: 'Botstacks' },
   { years: '2020', role: 'Web & Multimedia Specialist', org: 'SureClinical' },
   { years: '2018', role: 'Product Designer, AR', org: 'ODG' },
+  { years: '2015 — 2023', role: 'Freelance Designer', org: 'LoColl Design Co' },
   { years: 'B.S.', role: 'Liberal Arts & Engineering Studies', org: 'Cal Poly SLO' },
 ];
 
