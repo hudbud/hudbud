@@ -1,0 +1,11 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import ImageGraph from '../components/ImageGraph.tsx';
+import { loadGraphData } from '../lib/posts';
+
+const posts = await loadGraphData();
+---
+<Layout title="graph — paine.design">
+  <ImageGraph client:only="react" posts={posts} />
+</Layout>

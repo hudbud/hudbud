@@ -797,8 +797,9 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           and I have strong opinions on just about everything, just reach out.
         </p>
         <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>
-        <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
+        <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic', display: 'flex', gap: 16, alignItems: 'baseline' }}>
           <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
+          <a href="/graph" style={{ color: 'var(--fg-dim)', fontSize: 11, textDecoration: 'none' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>✦ space mode</a>
         </p>
       </div>
 
@@ -1697,7 +1698,13 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
   const [themeLocked, setThemeLocked] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('hp-lock-theme'));
   const [fontLocked, setFontLocked] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('hp-lock-font'));
-  const [activeTab, setActiveTab] = useState<TabId>('ideas');
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (typeof window === 'undefined') return 'ideas';
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && ['ideas', 'life', 'thoughts', 'work', 'archive'].includes(tab)) return tab as TabId;
+    return 'ideas';
+  });
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
@@ -1717,6 +1724,16 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
   const [activeTile, setActiveTileRaw] = useState<Tile | null>(null);
   const [activePost, setActivePostRaw] = useState<(Post & { tag?: string }) | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const postSlug = params.get('post');
+    if (postSlug) {
+      const allPosts = [...work, ...thoughts, ...life, ...archive];
+      const found = allPosts.find((p) => p.slug === postSlug);
+      if (found) setActivePostRaw(found);
+    }
+  }, []);
   const [bioModal, setBioModal] = useState<string | null>(null);
   const [timeTravelUrl, setTimeTravelUrl] = useState<string | null>(null);
 
