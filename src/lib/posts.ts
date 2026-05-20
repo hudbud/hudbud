@@ -72,3 +72,33 @@ export async function loadAllImages(): Promise<GalleryImage[]> {
 
   return images;
 }
+
+export interface GraphPost {
+  slug: string;
+  title: string;
+  tag: string;
+  featureImage?: string;
+  images: string[];
+}
+
+export async function loadGraphData(): Promise<GraphPost[]> {
+  const entries = await getCollection('posts', (e) => !e.data.draft);
+  const imgRegex = /!\[.*?\]\(([^)]+)\)/g;
+
+  return entries.map((entry) => {
+    const images: string[] = [];
+    if (entry.data.feature_image) images.push(entry.data.feature_image);
+    let match;
+    while ((match = imgRegex.exec(entry.body)) !== null) {
+      if (!images.includes(match[1])) images.push(match[1]);
+    }
+    imgRegex.lastIndex = 0;
+    return {
+      slug: entry.id,
+      title: entry.data.title,
+      tag: entry.data.tag,
+      featureImage: entry.data.feature_image,
+      images,
+    };
+  });
+}

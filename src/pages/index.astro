@@ -1,17 +1,8 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
-import Portfolio from '../components/Portfolio.tsx';
-import { loadPosts, loadAllImages } from '../lib/posts';
-
-const [thoughts, life, archive, work, galleryImages] = await Promise.all([
-  loadPosts('thoughts'),
-  loadPosts('life'),
-  loadPosts('archive'),
-  loadPosts('work'),
-  loadAllImages(),
-]);
+import Welcome from '../components/Welcome.tsx';
 ---
-<Layout title="paine.design — Hudson Paine">
-  <Portfolio client:only="react" thoughts={thoughts} life={life} archive={archive} work={work} galleryImages={galleryImages} />
+<Layout title="Hudson Paine">
+  <Welcome client:only="react" />
 </Layout>
