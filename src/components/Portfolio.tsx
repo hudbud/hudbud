@@ -1483,14 +1483,6 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
     el.addEventListener('click', handleClick);
     return () => el.removeEventListener('click', handleClick);
   }, [postImages]);
-  const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.round(wordCount / 230));
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
 
   const isLife = post.tag === 'life';
   const isWork = post.tag === 'work' || post.tag === 'archive';
