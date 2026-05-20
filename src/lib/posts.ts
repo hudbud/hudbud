@@ -35,3 +35,25 @@ export async function loadPosts(tag: Tag): Promise<Post[]> {
   entries.sort((a, b) => +b.data.date - +a.data.date);
   return Promise.all(entries.map(entryToPost));
 }
+
+export async function loadAllImages(): Promise<string[]> {
+  const entries = await getCollection('posts', (e) => !e.data.draft);
+  const images: string[] = [];
+  const imgRegex = /!\[.*?\]\(([^)]+)\)/g;
+
+  for (const entry of entries) {
+    if (entry.data.feature_image) images.push(entry.data.feature_image);
+    let match;
+    while ((match = imgRegex.exec(entry.body)) !== null) {
+      if (!images.includes(match[1])) images.push(match[1]);
+    }
+    imgRegex.lastIndex = 0;
+  }
+
+  for (let i = images.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [images[i], images[j]] = [images[j], images[i]];
+  }
+
+  return images;
+}

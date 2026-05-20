@@ -84,7 +84,7 @@ html, body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   transition: background 0.3s ease, color 0.3s ease;
@@ -94,7 +94,7 @@ html, body {
 
 * { font-family: var(--font) !important; }
 
-.prose { font-size: 13px; line-height: 1.6; }
+.prose { font-size: 15px; line-height: 1.6; }
 
 ::selection { background: var(--accent); color: var(--bg); }
 

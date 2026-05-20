@@ -17,15 +17,17 @@ const TAGS: TabId[] = ['ideas', 'life', 'thoughts', 'work'];
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel'];
 
 const DEFAULTS = {
-  theme: 'bushido',
+  theme: 'earthsong',
   density: '3x5',
-  font: 'mono' as FontId,
+  font: 'apfel' as FontId,
 };
 
 function getInitialTheme(): string {
   if (typeof window === 'undefined') return DEFAULTS.theme;
   const locked = localStorage.getItem('hp-lock-theme');
   if (locked) return localStorage.getItem('hp-theme') || DEFAULTS.theme;
+  const saved = localStorage.getItem('hp-theme');
+  if (!saved) return DEFAULTS.theme;
   return MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)].name;
 }
 
@@ -33,6 +35,8 @@ function getInitialFont(): FontId {
   if (typeof window === 'undefined') return DEFAULTS.font;
   const locked = localStorage.getItem('hp-lock-font');
   if (locked) return (localStorage.getItem('hp-font') as FontId) || DEFAULTS.font;
+  const saved = localStorage.getItem('hp-font');
+  if (!saved) return DEFAULTS.font;
   return FONT_IDS[Math.floor(Math.random() * FONT_IDS.length)];
 }
 
@@ -248,7 +252,7 @@ function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
     <div style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        style={{ fontSize: 11, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4 }}
+        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
         onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
         onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
       >
@@ -261,12 +265,50 @@ function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
             <button
               key={v.label}
               onClick={() => { if (v.url) onSelect(v.url); setOpen(false); }}
-              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', borderRadius: 2, fontSize: 11, color: v.url ? 'var(--fg-dim)' : 'var(--accent)' }}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: v.url ? 'var(--fg-dim)' : 'var(--accent)' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = v.url ? 'var(--fg-dim)' : 'var(--accent)')}
             >
               {v.label}
             </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const RESOURCES = [
+  { label: 'Design Resources', href: '/posts/design-resources-list' },
+  { label: 'Outdoor Resources', href: '/posts/outdoors-resources-list' },
+];
+
+function ResourcesDropup() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+      >
+        <span>resources</span>
+        <span style={{ fontSize: 9, opacity: 0.6 }}>▴</span>
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 180, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
+          {RESOURCES.map((r) => (
+            <a
+              key={r.label}
+              href={r.href}
+              onClick={() => setOpen(false)}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: 'var(--fg-dim)', textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+            >
+              {r.label}
+            </a>
           ))}
         </div>
       )}
@@ -283,20 +325,20 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
     apfel: 'Apfel Grotezk',
   };
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', padding: '8px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
+    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', padding: '12px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <span style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
-        <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
-        <a href="/resources" style={{ color: 'var(--fg-dim)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>resources</a>
+        <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
+        <ResourcesDropup />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--fg-dim)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--fg-dim)' }}>
           <span>type set in:</span>
           <select
             value={font}
             onChange={(e) => setFont(e.target.value as FontId)}
-            style={{ background: 'transparent', border: 'none', color: 'var(--fg)', fontSize: 11, cursor: 'pointer', padding: '2px 4px' }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--fg)', fontSize: 13, cursor: 'pointer', padding: '4px 6px' }}
           >
             {(Object.keys(FONT_LABELS) as FontId[]).map((f) => (
               <option key={f} value={f}>{FONT_LABELS[f]}</option>
@@ -305,42 +347,42 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
           <button
             onClick={onToggleFontLock}
             title={fontLocked ? 'font locked (click to unlock)' : 'font randomizes on reload (click to lock)'}
-            style={{ color: fontLocked ? 'var(--accent)' : 'var(--fg-faint)', fontSize: 11, lineHeight: 1 }}
+            style={{ color: fontLocked ? 'var(--accent)' : 'var(--fg-faint)', padding: '4px', lineHeight: 1 }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = fontLocked ? 'var(--accent)' : 'var(--fg-faint)')}
           >
-            {fontLocked ? <Lock size={12} weight="fill" /> : <LockOpen size={12} weight="fill" />}
+            {fontLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
           </button>
         </div>
         {THEME_PAIRS[theme] && (
           <button
             onClick={() => setTheme(THEME_PAIRS[theme])}
             title={THEME_PAIRS[theme].includes('dark') ? 'switch to dark' : 'switch to light'}
-            style={{ color: 'var(--fg-dim)', fontSize: 13, lineHeight: 1 }}
+            style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
           >
-            {THEME_PAIRS[theme].includes('dark') ? <Moon size={13} weight="fill" /> : <Sun size={13} weight="fill" />}
+            {THEME_PAIRS[theme].includes('dark') ? <Moon size={16} weight="fill" /> : <Sun size={16} weight="fill" />}
           </button>
         )}
         <button
           onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }}
           title="random theme"
-          style={{ color: 'var(--fg-dim)', fontSize: 13, lineHeight: 1 }}
+          style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
           onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
         >
-          <Shuffle size={13} weight="fill" />
+          <Shuffle size={16} weight="fill" />
         </button>
         <ThemeChrome theme={theme} setTheme={setTheme} />
         <button
           onClick={onToggleThemeLock}
           title={themeLocked ? 'theme locked (click to unlock)' : 'theme randomizes on reload (click to lock)'}
-          style={{ color: themeLocked ? 'var(--accent)' : 'var(--fg-faint)', fontSize: 11, lineHeight: 1 }}
+          style={{ color: themeLocked ? 'var(--accent)' : 'var(--fg-faint)', padding: '4px', lineHeight: 1 }}
           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
           onMouseLeave={(e) => (e.currentTarget.style.color = themeLocked ? 'var(--accent)' : 'var(--fg-faint)')}
         >
-          {themeLocked ? <Lock size={12} weight="fill" /> : <LockOpen size={12} weight="fill" />}
+          {themeLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
         </button>
       </div>
     </div>
@@ -475,7 +517,7 @@ function PostList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'thoughts' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 0', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -498,7 +540,7 @@ function LifeList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'life' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 0', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 12px', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -639,6 +681,98 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
         {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
       </div>
 
+    </div>
+  );
+}
+
+// ---------- Image gallery (MVP default right panel) ----------
+function ImageGallery({ images }: { images: string[] }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const velocityRef = useRef(0);
+  const targetVelRef = useRef(0.2);
+  const rafRef = useRef<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(48, now - last);
+      last = now;
+      const k = targetVelRef.current === 0 ? 0.03 : 0.06;
+      velocityRef.current += (targetVelRef.current - velocityRef.current) * k;
+      if (Math.abs(velocityRef.current) > 0.002) {
+        const max = el.scrollHeight - el.clientHeight;
+        let next = el.scrollTop + velocityRef.current * (dt / 16.67);
+        if (max > 0) {
+          if (next >= max - 0.5) next = 0;
+          else if (next < 0) next = max;
+        }
+        el.scrollTop = next;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let timer: number | null = null;
+    const pause = () => {
+      targetVelRef.current = 0;
+      if (timer !== null) clearTimeout(timer);
+      timer = window.setTimeout(() => { if (hoveredIdx === null) targetVelRef.current = 0.2; }, 2000);
+    };
+    el.addEventListener('wheel', pause, { passive: true });
+    el.addEventListener('touchmove', pause, { passive: true });
+    return () => { el.removeEventListener('wheel', pause); el.removeEventListener('touchmove', pause); if (timer !== null) clearTimeout(timer); };
+  }, [hoveredIdx]);
+
+  return (
+    <div style={{ position: 'relative', height: '100%' }}>
+      <div
+        ref={containerRef}
+        className="hp-scroll"
+        style={{
+          position: 'relative',
+          height: '100%',
+          overflowY: 'auto',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
+          padding: '32px 64px 80px 56px',
+        }}
+      >
+        <style>{`.hp-scroll::-webkit-scrollbar { display: none; } .hp-scroll { scrollbar-width: none; }`}</style>
+        <div style={{ columnCount: 3, columnGap: '10px' }}>
+          {images.map((src, i) => {
+            const isHovered = hoveredIdx === i;
+            const anyHovered = hoveredIdx !== null;
+            return (
+              <div
+                key={i}
+                onMouseEnter={() => { setHoveredIdx(i); targetVelRef.current = 0; }}
+                onMouseLeave={() => { setHoveredIdx(null); targetVelRef.current = 0.2; }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  marginBottom: 10,
+                  breakInside: 'avoid',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  opacity: anyHovered ? (isHovered ? 1 : 0.4) : 0.88,
+                  boxShadow: isHovered ? '0 0 16px rgba(255,255,255,0.12)' : 'none',
+                  transition: 'opacity 0.4s ease, box-shadow 0.3s ease',
+                }}
+              >
+                <img src={src} alt="" loading="lazy" style={{ display: 'block', width: '100%', height: 'auto' }} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1288,11 +1422,13 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
 interface PortfolioProps {
   thoughts?: Post[];
   life?: Post[];
+  galleryImages?: string[];
 }
 
-export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp }: PortfolioProps) {
+export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, galleryImages: galleryImagesProp }: PortfolioProps) {
   const thoughts = thoughtsProp ?? [];
   const life = lifeProp ?? [];
+  const galleryImages = galleryImagesProp ?? [];
 
   const [theme, setThemeRaw] = useState(getInitialTheme);
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
@@ -1347,7 +1483,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp }: Po
     ? <PostPanel post={activePost} onClose={closeRightPanel} />
     : activeProject
       ? <ProjectPanel projectId={activeProject} onClose={closeRightPanel} />
-      : <TileGrid density={DEFAULTS.density} onPick={setActiveTile} />;
+      : <ImageGallery images={galleryImages} />;
 
   return (
     <div style={{ height: '100vh', padding: 20, background: 'var(--bg)', overflow: 'hidden' }}>
