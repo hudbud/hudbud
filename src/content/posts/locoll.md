@@ -1,5 +1,5 @@
 ---
-title: "Locoll"
+title: "Locoll Design Co."
 date: "2020-01-06T18:13:23.000Z"
 tag: "archive"
 feature_image: "/posts/34/20180805_165438.jpg"

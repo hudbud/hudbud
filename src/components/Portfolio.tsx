@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { BIO_INTRO, BIO_BODY, BIO_BODY_2, BIO_BODY_3, BIO_BODY_4, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
+import { BIO_LEAD, BIO_INTRO, BIO_BODY, BIO_BODY_2, BIO_BODY_3, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type IdeaStatus } from '../data/ideas';
 import { TILES, type Tile } from '../data/tiles';
@@ -26,15 +26,6 @@ function getInitialTheme(): string {
   if (typeof window === 'undefined') return DEFAULTS.theme;
   const locked = localStorage.getItem('hp-lock-theme');
   if (locked) return localStorage.getItem('hp-theme') || DEFAULTS.theme;
-  const saved = localStorage.getItem('hp-theme');
-  if (!saved) {
-    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-    if (prefersLight) {
-      const lightTheme = Object.keys(THEME_PAIRS).find(k => k.endsWith('_light'));
-      return lightTheme || DEFAULTS.theme;
-    }
-    return DEFAULTS.theme;
-  }
   return MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)].name;
 }
 
@@ -255,14 +246,12 @@ const SITE_VERSIONS = [
 
 function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
   const [open, setOpen] = useState(false);
+  const closeTimer = useRef<number | null>(null);
+  const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
+  const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
   return (
-    <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-      >
+    <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}>
         <span>time machine</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -292,14 +281,12 @@ const RESOURCES = [
 
 function ResourcesDropup() {
   const [open, setOpen] = useState(false);
+  const closeTimer = useRef<number | null>(null);
+  const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
+  const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
   return (
-    <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-      >
+    <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}>
         <span>resources</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -309,7 +296,6 @@ function ResourcesDropup() {
             <a
               key={r.label}
               href={r.href}
-              onClick={() => setOpen(false)}
               style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: 'var(--fg-dim)', textDecoration: 'none' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
@@ -325,12 +311,12 @@ function ResourcesDropup() {
 
 function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: FontId) => void; labels: Record<FontId, string> }) {
   const [open, setOpen] = useState(false);
+  const closeTimer = useRef<number | null>(null);
+  const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
+  const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
   return (
-    <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg)', fontSize: 13, cursor: 'pointer' }}
-      >
+    <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg)', fontSize: 13, cursor: 'pointer' }}>
         <span>{labels[font]}</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -368,6 +354,7 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
         <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
         <ResourcesDropup />
+        <a href="/graph" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>space</a>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--fg-dim)' }}>
@@ -420,12 +407,19 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
 
 // ---------- Tab button ----------
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <button
       onClick={onClick}
-      style={{ padding: '4px 10px', color: active ? 'var(--bg)' : 'var(--fg-dim)', background: active ? 'var(--fg)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
-      onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = 'var(--fg)'; }}
-      onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = 'var(--fg-dim)'; }}
+      style={{
+        padding: '4px 10px',
+        color: active ? 'var(--bg)' : hovered ? 'var(--bg)' : 'var(--fg-dim)',
+        background: active ? 'var(--fg)' : hovered ? 'var(--fg-faint)' : 'transparent',
+        borderRadius: 2,
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {children}
     </button>
@@ -787,49 +781,50 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
   life: Post[];
   work: Post[];
 }) {
+  const [showMore, setShowMore] = useState(false);
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', height: '100%', overflowY: 'auto' }}>
+    <div style={{ height: '100%', overflowY: 'auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
         <div style={{ color: 'var(--accent)', fontSize: 13, marginBottom: 14, letterSpacing: '0.01em' }}>Hudson Paine</div>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_INTRO}</p>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY}</p>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>
-          {BIO_BODY_2}{' '}
-          <BioLink label="make stuff" modalId="make-stuff" onOpenModal={onOpenBioModal} />.{' '}
-          I'm a <BioLink label="tinkerer and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
-          I <BioLink label="love computers" modalId="computers" onOpenModal={onOpenBioModal} />,{' '}
-          I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
-          and I have strong opinions on just about everything, just reach out.
-        </p>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>
-        <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
-          <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
-        </p>
+        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 8, whiteSpace: 'pre-line' }}>{BIO_LEAD}</p>
+        <button
+          onClick={() => setShowMore(v => !v)}
+          style={{ fontSize: 12, color: 'var(--fg-dim)', padding: 0, transition: 'color 0.15s' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; }}
+        >
+          {showMore ? 'less' : 'more'}
+        </button>
+        {showMore && (
+          <div style={{ marginTop: 12 }}>
+            {BIO_INTRO && <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_INTRO}</p>}
+            <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY}</p>
+            <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>
+              {BIO_BODY_2}{' '}
+              <BioLink label="make stuff" modalId="make-stuff" onOpenModal={onOpenBioModal} />.{' '}
+              I'm a <BioLink label="tinkerer and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
+              I <BioLink label="love computers" modalId="computers" onOpenModal={onOpenBioModal} />,{' '}
+              I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
+              and I have strong opinions on just about everything.
+            </p>
+            {BIO_BODY_3 && <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>}
+            <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
+              <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
+            </p>
+          </div>
+        )}
       </div>
 
       {activeTab === null ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 20, fontSize: 12 }}>
             {TAGS.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveTab(tag)}
-                style={{ padding: '10px 20px', fontSize: 14, color: 'var(--fg-dim)', background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 2, transition: 'color 0.15s, background 0.15s, border-color 0.15s', cursor: 'pointer' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.background = 'var(--bg)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.background = 'var(--tile)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
-              >
+              <TabButton key={tag} active={false} onClick={() => setActiveTab(tag)}>
                 {tag}
-              </button>
+              </TabButton>
             ))}
           </div>
-          <a
-            href="/graph"
-            style={{ display: 'inline-block', padding: '6px 14px', fontSize: 12, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, textDecoration: 'none', transition: 'color 0.15s, border-color 0.15s' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--fg)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--fg-dim)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--fg-dim)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--rule)'; }}
-          >
-            <Sparkle size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />space mode
-          </a>
         </div>
       ) : (
         <div>
@@ -846,6 +841,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
         </div>
       )}
+    </div>
     </div>
   );
 }
@@ -1778,9 +1774,15 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     root.style.setProperty('--fg', mt.fg);
     root.style.setProperty('--fg-dim', mt.dim);
     root.style.setProperty('--fg-faint', `color-mix(in srgb, ${mt.dim} 60%, ${mt.bg})`);
-    root.style.setProperty('--accent', mt.accent);
     root.style.setProperty('--rule', mt.dim);
     root.style.setProperty('--tile', mt.bgInner);
+    if (mt.name === 'rainbow_trail') {
+      root.style.removeProperty('--accent');
+      document.body.classList.add('rainbow-trail');
+    } else {
+      root.style.setProperty('--accent', mt.accent);
+      document.body.classList.remove('rainbow-trail');
+    }
   }, [theme]);
 
   useEffect(() => {

@@ -1,10 +1,12 @@
-export const BIO_INTRO = `Howdy!`;
+export const BIO_LEAD = `design bike fish climb.\ni like to make stuff, tinker, and play with computers.\nmore importantly, i like to go outside.`;
 
-export const BIO_BODY = `This used to be a serious portfolio. Now it's experiments, weird projects, and the occasional eccentric blog post. The internet is supposed to be fun.`;
+export const BIO_INTRO = ``;
+
+export const BIO_BODY = `this used to be a serious portfolio. now it's experiments, weird projects, and occasional blog posts.`;
 
 export const BIO_BODY_2 = `I like to`;
 
-export const BIO_BODY_3 = `Imposter syndrome is forever, and I think that's a good thing.`;
+export const BIO_BODY_3 = ``;
 
 export const BIO_BODY_4 = ``;
 
@@ -13,7 +15,7 @@ export const BIO_ORIGIN = `hudsonland is older than it looks`;
 export const MODAL_CONTENT: Record<string, { title: string; preview: string; body: string; image?: string }> = {
   'make-stuff': {
     title: 'I like to make stuff',
-    preview: `Always have. Kitchen experiments as a kid, HTML in the school library, a design agency in college, custom bikes now. Most people have a project or two. I have a queue.`,
+    preview: `Always have. Kitchen stuff as a kid, HTML in the school library, a design shop in college, bikes and sewing now. The queue never empties.`,
     body: `I genuinely like making things. Always have.
 
 Cooking in the kitchen as a kid. Editing HTML in the school library. Photography and video in high school. Logo design for student government. A design agency with a friend in college. A web design shop, brand work, side projects for family, a running club identity, a wedding website I've already iterated on six times.
@@ -24,7 +26,7 @@ Most people have a project or two. I have a queue.`,
   },
   'hobbyist': {
     title: 'Tinkerer and serial hobbyist',
-    preview: `The list changes but the impulse doesn't. Typography, kendama, sewing bags, DnD, custom bikes. Everything has a technical side, a creative side, and a community. That combo gets me every time.`,
+    preview: `The list rotates but the impulse doesn't. Typography, kendama, bags, DnD, bikes. Everything on it has a technical side, a creative side, and a community. That combination is impossible for me to resist.`,
     body: `The list changes but the impulse doesn't.
 
 In high school my friends and I shot twenty-five minute feature-style movies and I did all the motion graphics. I got obsessed with typography around the same time and still care about it probably too much. I've played kendama since I was young. I sew bags. I play video games when I can, though usually some project wins. I play DnD on Monday nights. I've built two custom bikes in the past couple years.
@@ -35,7 +37,7 @@ Also: I knew OXO products were different before I knew what product design was. 
   },
   'computers': {
     title: 'I love computers',
-    preview: `Not for the money. I was the kid in the library editing HTML and downloading every app just to play with it. I genuinely find this stuff fascinating. I think that's what separates me.`,
+    preview: `Not for the money. I was the kid in the library editing HTML and downloading every app just to play with it. I genuinely find this stuff fascinating.`,
     body: `A lot of people get into tech because it pays well. That's never been me.
 
 I was the kid in the library editing my own HTML website. Downloading every new app and tool just to play with it. That wasn't a career strategy, it was just who I was. Genuinely, I find this stuff fascinating. The technology, the tools, the craft, the weird stuff at the edges of what you can make.
@@ -46,7 +48,7 @@ And I don't think a lot of people can honestly say that.`,
   },
   'outdoorsman': {
     title: 'Outdoorsman',
-    preview: `From Oregon. Climbing, biking, fly fishing — all excuses to be outside with friends doing something a little bit hard. I seek out Type Two Fun constantly.`,
+    preview: `From Oregon. Climbing, biking, fly fishing — all excuses to be outside with friends doing something a little bit hard.`,
     body: `I'm from Oregon, which probably explains a lot.
 
 Climbing, biking, and fly fishing are my three main outdoor hobbies. If I'm being honest they're all just excuses to be outside with friends doing something a little bit hard. I seek out Type Two Fun constantly.

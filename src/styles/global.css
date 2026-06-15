@@ -55,6 +55,22 @@
   font-display: swap;
 }
 
+/* ---------- Rainbow trail ---------- */
+@property --rainbow-h {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: true;
+}
+
+@keyframes rainbow-hue {
+  to { --rainbow-h: 360; }
+}
+
+body.rainbow-trail {
+  animation: rainbow-hue 12s linear infinite;
+  --accent: hsl(var(--rainbow-h), 75%, 50%);
+}
+
 /* ---------- Tokens (defaults: serika_dark; overridden at runtime) ---------- */
 :root {
   --bg: #323437;
