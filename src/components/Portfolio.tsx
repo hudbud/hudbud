@@ -7,12 +7,12 @@ import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp } from '@phosphor-icons/react';
+import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle } from '@phosphor-icons/react';
 
-type TabId = 'ideas' | 'life' | 'thoughts' | 'work' | 'archive';
+type TabId = 'ideas' | 'life' | 'work';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel';
 
-const TAGS: TabId[] = ['ideas', 'life', 'thoughts', 'work', 'archive'];
+const TAGS: TabId[] = ['ideas', 'life', 'work'];
 
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel'];
 
@@ -27,7 +27,14 @@ function getInitialTheme(): string {
   const locked = localStorage.getItem('hp-lock-theme');
   if (locked) return localStorage.getItem('hp-theme') || DEFAULTS.theme;
   const saved = localStorage.getItem('hp-theme');
-  if (!saved) return DEFAULTS.theme;
+  if (!saved) {
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    if (prefersLight) {
+      const lightTheme = Object.keys(THEME_PAIRS).find(k => k.endsWith('_light'));
+      return lightTheme || DEFAULTS.theme;
+    }
+    return DEFAULTS.theme;
+  }
   return MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)].name;
 }
 
@@ -165,7 +172,7 @@ function ThemeChrome({ theme, setTheme }: { theme: string; setTheme: (t: string)
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="search themes..."
-            style={{ background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 3, padding: '6px 10px', fontSize: 11, color: 'var(--fg)', outline: 'none', marginBottom: 4 }}
+            style={{ background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 2, padding: '6px 10px', fontSize: 11, color: 'var(--fg)', outline: 'none', marginBottom: 4 }}
           />
           <div style={{ overflowY: 'auto', flex: 1 }}>
             {filtered.map((t) => (
@@ -416,7 +423,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   return (
     <button
       onClick={onClick}
-      style={{ padding: '4px 10px', color: active ? 'var(--bg)' : 'var(--fg-dim)', background: active ? 'var(--fg)' : 'transparent', borderRadius: 3, transition: 'all 0.15s' }}
+      style={{ padding: '4px 10px', color: active ? 'var(--bg)' : 'var(--fg-dim)', background: active ? 'var(--fg)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
       onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = 'var(--fg)'; }}
       onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = 'var(--fg-dim)'; }}
     >
@@ -495,7 +502,7 @@ const STATUS_LABEL: Record<IdeaStatus, string> = {
   new: 'new!',
   'in-development': 'in development',
   idea: 'idea',
-  dormant: 'dormant 🌋',
+  dormant: 'dormant',
   stale: 'stale',
   retired: 'retired',
 };
@@ -770,16 +777,14 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, thoughts, life, archive, work }: {
-  activeTab: TabId;
+function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, life, work }: {
+  activeTab: TabId | null;
   setActiveTab: (t: TabId) => void;
   activePost: Post | null;
   setActivePost: (p: Post | null) => void;
   onOpenProject: (id: string) => void;
   onOpenBioModal: (id: string) => void;
-  thoughts: Post[];
   life: Post[];
-  archive: Post[];
   work: Post[];
 }) {
   return (
@@ -797,28 +802,50 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           and I have strong opinions on just about everything, just reach out.
         </p>
         <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>
-        <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic', display: 'flex', gap: 16, alignItems: 'baseline' }}>
+        <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
           <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
-          <a href="/graph" style={{ color: 'var(--fg-dim)', fontSize: 11, textDecoration: 'none' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>✦ space mode</a>
         </p>
       </div>
 
-      <div>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, fontSize: 12, alignItems: 'center' }}>
-          {TAGS.map((tag) => (
-            <TabButton key={tag} active={activeTab === tag} onClick={() => { setActiveTab(tag); }}>
-              {tag}
-            </TabButton>
-          ))}
+      {activeTab === null ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+            {TAGS.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveTab(tag)}
+                style={{ padding: '10px 20px', fontSize: 14, color: 'var(--fg-dim)', background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 2, transition: 'color 0.15s, background 0.15s, border-color 0.15s', cursor: 'pointer' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.background = 'var(--bg)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.background = 'var(--tile)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          <a
+            href="/graph"
+            style={{ display: 'inline-block', padding: '6px 14px', fontSize: 12, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, textDecoration: 'none', transition: 'color 0.15s, border-color 0.15s' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--fg)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--fg-dim)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--fg-dim)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--rule)'; }}
+          >
+            <Sparkle size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />space mode
+          </a>
         </div>
+      ) : (
+        <div>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 24, fontSize: 12, alignItems: 'center' }}>
+            {TAGS.map((tag) => (
+              <TabButton key={tag} active={activeTab === tag} onClick={() => setActiveTab(tag)}>
+                {tag}
+              </TabButton>
+            ))}
+          </div>
 
-        {activeTab === 'work' && <WorkSection work={work} activePost={activePost} setActivePost={setActivePost} />}
-        {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
-        {activeTab === 'thoughts' && <PostList posts={thoughts} activePost={activePost} setActivePost={setActivePost} />}
-        {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
-        {activeTab === 'archive' && <ArchiveList posts={archive} activePost={activePost} setActivePost={setActivePost} />}
-      </div>
-
+          {activeTab === 'work' && <WorkSection work={work} activePost={activePost} setActivePost={setActivePost} />}
+          {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
+          {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
+        </div>
+      )}
     </div>
   );
 }
@@ -1073,7 +1100,7 @@ function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
 
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ position: 'relative', width: 'min(78vw, 1100px)', maxHeight: '70vh', aspectRatio: '4 / 3', background: tile.color, overflow: 'hidden', borderRadius: 3, boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}
+        style={{ position: 'relative', width: 'min(78vw, 1100px)', maxHeight: '70vh', aspectRatio: '4 / 3', background: tile.color, overflow: 'hidden', borderRadius: 2, boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}
       >
         <TileMedia tile={tile} />
         {!tile.image && (
@@ -1171,7 +1198,7 @@ function SpritzReader({ html, onClose }: { html: string; onClose: () => void }) 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button
           onClick={() => playing ? stop() : play()}
-          style={{ background: 'var(--accent)', color: 'var(--bg)', borderRadius: 3, padding: '4px 10px', fontSize: 11, fontWeight: 600 }}
+          style={{ background: 'var(--accent)', color: 'var(--bg)', borderRadius: 2, padding: '4px 10px', fontSize: 11, fontWeight: 600 }}
         >
           {playing ? '⏸' : '▶'}
         </button>
@@ -1186,7 +1213,7 @@ function SpritzReader({ html, onClose }: { html: string; onClose: () => void }) 
         <select
           value={wpm}
           onChange={(e) => setWpm(Number(e.target.value))}
-          style={{ background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 3, padding: '3px 6px', fontSize: 11, color: 'var(--fg)' }}
+          style={{ background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 2, padding: '3px 6px', fontSize: 11, color: 'var(--fg)' }}
         >
           <option value={200}>200</option>
           <option value={300}>300</option>
@@ -1308,7 +1335,7 @@ function TypingTest({ html, onClose }: { html: string; onClose: () => void }) {
           <div style={{ fontSize: 36, color: 'var(--accent)', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{finalWpm} wpm</div>
           <div style={{ fontSize: 13, color: 'var(--fg-dim)', marginTop: 8 }}>{accuracy}% accuracy · {words.length} words</div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
-            <button onClick={reset} style={{ background: 'var(--accent)', color: 'var(--bg)', borderRadius: 3, padding: '6px 14px', fontSize: 11, fontWeight: 600 }}>restart</button>
+            <button onClick={reset} style={{ background: 'var(--accent)', color: 'var(--bg)', borderRadius: 2, padding: '6px 14px', fontSize: 11, fontWeight: 600 }}>restart</button>
             <button onClick={onClose} style={{ fontSize: 11, color: 'var(--fg-dim)', padding: '6px 14px' }}>done</button>
           </div>
         </div>
@@ -1372,7 +1399,7 @@ function TypingTest({ html, onClose }: { html: string; onClose: () => void }) {
               {started && <span style={{ color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{accuracy}%</span>}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={reset} style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 10px' }}>restart</button>
+              <button onClick={reset} style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}>restart</button>
               <button onClick={onClose} style={{ fontSize: 11, color: 'var(--fg-dim)', padding: '4px 8px' }}>done</button>
             </div>
           </div>
@@ -1501,19 +1528,19 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         <button
           onClick={() => { setShowSpritz(!showSpritz); setShowTyping(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 10px' }}
+          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
-          {showSpritz ? 'hide speed reader' : '⚡ speed read'}
+          {showSpritz ? 'hide speed reader' : <><Lightning size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />speed read</>}
         </button>
         <button
           onClick={() => { setShowTyping(!showTyping); setShowSpritz(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 10px' }}
+          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
-          {showTyping ? 'hide typing test' : '⌨ typing test'}
+          {showTyping ? 'hide typing test' : <><Keyboard size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />typing test</>}
         </button>
       </div>
 
@@ -1593,7 +1620,7 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
           <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>[project] · tool</div>
           <a
             href="/freezer-martini"
-            style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 10px' }}
+            style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
           >
@@ -1630,19 +1657,19 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         <button
           onClick={() => { setShowSpritz(!showSpritz); setShowTyping(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 10px' }}
+          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
-          {showSpritz ? 'hide speed reader' : '⚡ speed read'}
+          {showSpritz ? 'hide speed reader' : <><Lightning size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />speed read</>}
         </button>
         <button
           onClick={() => { setShowTyping(!showTyping); setShowSpritz(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 10px' }}
+          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
-          {showTyping ? 'hide typing test' : '⌨ typing test'}
+          {showTyping ? 'hide typing test' : <><Keyboard size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />typing test</>}
         </button>
       </div>
 
@@ -1698,13 +1725,14 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
   const [themeLocked, setThemeLocked] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('hp-lock-theme'));
   const [fontLocked, setFontLocked] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('hp-lock-font'));
-  const [activeTab, setActiveTab] = useState<TabId>(() => {
-    if (typeof window === 'undefined') return 'ideas';
+  const [activeTab, setActiveTabRaw] = useState<TabId | null>(() => {
+    if (typeof window === 'undefined') return null;
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
-    if (tab && ['ideas', 'life', 'thoughts', 'work', 'archive'].includes(tab)) return tab as TabId;
-    return 'ideas';
+    if (tab && (['ideas', 'life', 'work'] as string[]).includes(tab)) return tab as TabId;
+    return null;
   });
+  const handleTabClick = (t: TabId) => setActiveTabRaw(prev => prev === t ? null : t);
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
@@ -1749,7 +1777,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     root.style.setProperty('--bg-inner', mt.bgInner);
     root.style.setProperty('--fg', mt.fg);
     root.style.setProperty('--fg-dim', mt.dim);
-    root.style.setProperty('--fg-faint', mt.dim);
+    root.style.setProperty('--fg-faint', `color-mix(in srgb, ${mt.dim} 60%, ${mt.bg})`);
     root.style.setProperty('--accent', mt.accent);
     root.style.setProperty('--rule', mt.dim);
     root.style.setProperty('--tile', mt.bgInner);
@@ -1759,47 +1787,70 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     document.body.dataset.font = font;
   }, [font]);
 
-  const hasActiveRight = !!(activePost || activeProject);
+  const panelOpen = !!(activePost || activeProject);
   const rightContent = activePost
     ? <PostPanel post={activePost} onClose={closeRightPanel} />
     : activeProject
       ? <ProjectPanel projectId={activeProject} onClose={closeRightPanel} />
-      : <ImageGallery images={galleryImages} onImageClick={(slug) => {
-          const allPosts = [...work, ...thoughts, ...life, ...archive];
-          const post = allPosts.find((p) => p.slug === slug);
-          if (post) setActivePostRaw(post);
-        }} />;
+      : null;
 
   return (
-    <div style={{ height: '100vh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden' }}>
+    <div style={{ height: '100dvh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden' }}>
       <div
         style={{
-          height: isMobile ? '100vh' : 'calc(100vh - 40px)',
+          height: isMobile ? '100dvh' : 'calc(100dvh - 40px)',
           background: 'var(--bg-inner)',
           borderRadius: isMobile ? 0 : 4,
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          display: 'flex',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        {(!isMobile || !hasActiveRight) && (
-          <LeftColumn
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            activePost={activePost}
-            setActivePost={setActivePost}
-            onOpenProject={openProject}
-            onOpenBioModal={setBioModal}
-            thoughts={thoughts}
-            life={life}
-            archive={archive}
-            work={work}
-          />
+        {/* Left spacer: centers left column when panel closed (desktop only) */}
+        {!isMobile && (
+          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)' }} />
         )}
 
-        {(!isMobile || hasActiveRight) && (
-          <div style={{ height: '100%', overflow: 'hidden' }}>{rightContent}</div>
+        {/* Left column */}
+        {(!isMobile || !panelOpen) && (
+          <div style={{
+            flexShrink: 0,
+            width: isMobile ? '100%' : (panelOpen ? '50%' : 640),
+            transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1)',
+            overflowY: 'auto',
+            height: '100%',
+          }}>
+            <LeftColumn
+              activeTab={activeTab}
+              setActiveTab={handleTabClick}
+              activePost={activePost}
+              setActivePost={setActivePost}
+              onOpenProject={openProject}
+              onOpenBioModal={setBioModal}
+              life={life}
+              work={work}
+            />
+          </div>
+        )}
+
+        {/* Right panel */}
+        {(!isMobile || panelOpen) && (
+          <div style={{
+            flexShrink: 0,
+            width: isMobile ? '100%' : (panelOpen ? '50%' : 0),
+            overflow: 'hidden',
+            height: '100%',
+            opacity: panelOpen ? 1 : 0,
+            transform: !isMobile ? (panelOpen ? 'translateX(0)' : 'translateX(16px)') : undefined,
+            transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s, transform 0.35s ease 0.08s',
+          }}>
+            {rightContent}
+          </div>
+        )}
+
+        {/* Right spacer: mirrors left spacer (desktop only) */}
+        {!isMobile && (
+          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)' }} />
         )}
       </div>
 
@@ -1813,7 +1864,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
             <span style={{ fontSize: 11, color: 'var(--fg-dim)' }}>viewing: {timeTravelUrl}</span>
             <button
               onClick={() => setTimeTravelUrl(null)}
-              style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 3, padding: '4px 12px' }}
+              style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 12px' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
             >

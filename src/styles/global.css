@@ -88,8 +88,16 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   transition: background 0.3s ease, color 0.3s ease;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 * { font-family: var(--font) !important; }
@@ -121,7 +129,7 @@ img { max-width: 100%; display: block; }
 
 .kb-fig img {
   width: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .kb-fig-row {
@@ -140,5 +148,5 @@ img { max-width: 100%; display: block; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 3px;
+  border-radius: 2px;
 }
