@@ -1,7 +1,7 @@
 ---
 title: "Laos Bag Report"
 date: "2023-11-15T18:33-08:00"
-tag: "thoughts"
+tag: "life"
 feature_image: "/posts/11/bagcontents-scaled.jpg"
 ---
 ##### Trip context

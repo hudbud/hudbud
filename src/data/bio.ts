@@ -1,4 +1,4 @@
-export const BIO_LEAD = `design bike fish climb.\ni like to make stuff, tinker, and play with computers.\nmore importantly, i like to go outside.`;
+export const BIO_LEAD = `design bike fish climb\ni like to make stuff, tinker, and play with computers.\nmore importantly, i like to go outside.`;
 
 export const BIO_INTRO = ``;
 
@@ -26,7 +26,7 @@ Most people have a project or two. I have a queue.`,
   },
   'hobbyist': {
     title: 'Tinkerer and serial hobbyist',
-    preview: `The list rotates but the impulse doesn't. Typography, kendama, bags, DnD, bikes. Everything on it has a technical side, a creative side, and a community. That combination is impossible for me to resist.`,
+    preview: `Cooking, typography, kendama, photography, making custom bags, DnD, bikes, home projects, you name it. a technical side, a creative side, a lot of frustration, and a great payoff.`,
     body: `The list changes but the impulse doesn't.
 
 In high school my friends and I shot twenty-five minute feature-style movies and I did all the motion graphics. I got obsessed with typography around the same time and still care about it probably too much. I've played kendama since I was young. I sew bags. I play video games when I can, though usually some project wins. I play DnD on Monday nights. I've built two custom bikes in the past couple years.
@@ -37,7 +37,7 @@ Also: I knew OXO products were different before I knew what product design was. 
   },
   'computers': {
     title: 'I love computers',
-    preview: `Not for the money. I was the kid in the library editing HTML and downloading every app just to play with it. I genuinely find this stuff fascinating.`,
+    preview: `i was the kid in the library editing HTML and downloading every app just to play with it. and even made youtube videos for things as boring as monitor unboxings`,
     body: `A lot of people get into tech because it pays well. That's never been me.
 
 I was the kid in the library editing my own HTML website. Downloading every new app and tool just to play with it. That wasn't a career strategy, it was just who I was. Genuinely, I find this stuff fascinating. The technology, the tools, the craft, the weird stuff at the edges of what you can make.
@@ -48,7 +48,7 @@ And I don't think a lot of people can honestly say that.`,
   },
   'outdoorsman': {
     title: 'Outdoorsman',
-    preview: `From Oregon. Climbing, biking, fly fishing — all excuses to be outside with friends doing something a little bit hard.`,
+    preview: `Climbing, biking, and fly fishing are all great excuses to be outside with friends, highly stimulated and challenged in a beautiful place. and the gear is littered with rabbit holes. all worth jumping into.`,
     body: `I'm from Oregon, which probably explains a lot.
 
 Climbing, biking, and fly fishing are my three main outdoor hobbies. If I'm being honest they're all just excuses to be outside with friends doing something a little bit hard. I seek out Type Two Fun constantly.

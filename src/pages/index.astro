@@ -4,14 +4,15 @@ import Layout from '../layouts/Layout.astro';
 import Portfolio from '../components/Portfolio.tsx';
 import { loadPosts, loadAllImages } from '../lib/posts';
 
-const [thoughts, life, archive, work, galleryImages] = await Promise.all([
+const [thoughts, life, archive, work, resources, galleryImages] = await Promise.all([
   loadPosts('thoughts'),
   loadPosts('life'),
   loadPosts('archive'),
   loadPosts('work'),
+  loadPosts('resources'),
   loadAllImages(),
 ]);
 ---
 <Layout title="Hudson Paine">
-  <Portfolio client:only="react" thoughts={thoughts} life={life} archive={archive} work={work} galleryImages={galleryImages} />
+  <Portfolio client:only="react" thoughts={thoughts} life={life} archive={archive} work={work} resources={resources} galleryImages={galleryImages} />
 </Layout>

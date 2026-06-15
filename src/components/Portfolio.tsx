@@ -9,10 +9,11 @@ import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
 import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle } from '@phosphor-icons/react';
 
-type TabId = 'ideas' | 'life' | 'work';
+type TabId = 'ideas' | 'life' | 'work' | 'archive';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel';
 
-const TAGS: TabId[] = ['ideas', 'life', 'work'];
+const TAGS: TabId[] = ['ideas', 'life', 'work']; // landing page buttons
+const ALL_TABS: TabId[] = ['ideas', 'life', 'work', 'archive']; // tab bar when selected
 
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel'];
 
@@ -146,7 +147,7 @@ function ThemeChrome({ theme, setTheme }: { theme: string; setTheme: (t: string)
     <div style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 11 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 13 }}
       >
         <span style={{ display: 'inline-flex', gap: 4 }}>
           <span style={dot(cur.bg)} />
@@ -275,11 +276,11 @@ function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
 }
 
 const RESOURCES = [
-  { label: 'Design Resources', href: '/posts/design-resources-list' },
-  { label: 'Outdoor Resources', href: '/posts/outdoors-resources-list' },
+  { label: 'Design Resources', slug: 'design-resources-list' },
+  { label: 'Outdoor Resources', slug: 'outdoors-resources-list' },
 ];
 
-function ResourcesDropup() {
+function ResourcesDropup({ onOpen }: { onOpen: (slug: string) => void }) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<number | null>(null);
   const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
@@ -293,15 +294,15 @@ function ResourcesDropup() {
       {open && (
         <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 180, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
           {RESOURCES.map((r) => (
-            <a
+            <button
               key={r.label}
-              href={r.href}
-              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: 'var(--fg-dim)', textDecoration: 'none' }}
+              onClick={() => { onOpen(r.slug); setOpen(false); }}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: 'var(--fg-dim)' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
             >
               {r.label}
-            </a>
+            </button>
           ))}
         </div>
       )}
@@ -316,7 +317,7 @@ function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: Font
   const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
   return (
     <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-      <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg)', fontSize: 13, cursor: 'pointer' }}>
+      <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 13, cursor: 'pointer' }}>
         <span>{labels[font]}</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -339,7 +340,7 @@ function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: Font
   );
 }
 
-function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: { theme: string; setTheme: (t: string) => void; font: FontId; setFont: (f: FontId) => void; onTimeTravel: (url: string) => void; themeLocked: boolean; fontLocked: boolean; onToggleThemeLock: () => void; onToggleFontLock: () => void }) {
+function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: { theme: string; setTheme: (t: string) => void; font: FontId; setFont: (f: FontId) => void; onTimeTravel: (url: string) => void; onOpenResource: (slug: string) => void; themeLocked: boolean; fontLocked: boolean; onToggleThemeLock: () => void; onToggleFontLock: () => void }) {
   const FONT_LABELS: Record<FontId, string> = {
     mono: 'Geist Mono',
     serif: 'Newsreader',
@@ -353,12 +354,11 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
         <span style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
         <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
-        <ResourcesDropup />
+        <ResourcesDropup onOpen={onOpenResource} />
         <a href="/graph" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>space</a>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--fg-dim)' }}>
-          <span>type set in:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FontDropup font={font} setFont={setFont} labels={FONT_LABELS} />
           <button
             onClick={onToggleFontLock}
@@ -381,15 +381,6 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
             {THEME_PAIRS[theme].includes('dark') ? <Moon size={16} weight="fill" /> : <Sun size={16} weight="fill" />}
           </button>
         )}
-        <button
-          onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }}
-          title="random theme"
-          style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-        >
-          <Shuffle size={16} weight="fill" />
-        </button>
         <ThemeChrome theme={theme} setTheme={setTheme} />
         <button
           onClick={onToggleThemeLock}
@@ -399,6 +390,15 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, themeLocke
           onMouseLeave={(e) => (e.currentTarget.style.color = themeLocked ? 'var(--accent)' : 'var(--fg-faint)')}
         >
           {themeLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
+        </button>
+        <button
+          onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }}
+          title="random theme"
+          style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+        >
+          <Shuffle size={16} weight="fill" />
         </button>
       </div>
     </div>
@@ -470,7 +470,7 @@ function WorkSection({ work, activePost, setActivePost }: { work: Post[]; active
                 <button
                   key={p.title}
                   onClick={() => setActivePost(isActive ? null : { ...p, tag: 'work' } as Post)}
-                  style={{ display: 'block', padding: '12px 12px', textAlign: 'left', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
+                  style={{ display: 'block', padding: '12px 12px', textAlign: 'left', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
                   onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
                   onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = isActive ? 'var(--accent)' : 'var(--fg)'; }}
                 >
@@ -604,7 +604,7 @@ function ArchiveList({ posts, activePost, setActivePost }: { posts: Post[]; acti
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'archive' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -626,7 +626,7 @@ function PostList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'thoughts' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -649,7 +649,7 @@ function LifeList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
           <button
             key={p.title}
             onClick={() => setActivePost(isActive ? null : { ...p, tag: 'life' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 12px', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 2, transition: 'all 0.15s' }}
+            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 12px', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
             onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
@@ -771,22 +771,24 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, life, work }: {
+function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, onHome, life, work, archive }: {
   activeTab: TabId | null;
   setActiveTab: (t: TabId) => void;
   activePost: Post | null;
   setActivePost: (p: Post | null) => void;
   onOpenProject: (id: string) => void;
   onOpenBioModal: (id: string) => void;
+  onHome: () => void;
   life: Post[];
   work: Post[];
+  archive: Post[];
 }) {
   const [showMore, setShowMore] = useState(false);
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
-        <div style={{ color: 'var(--accent)', fontSize: 13, marginBottom: 14, letterSpacing: '0.01em' }}>Hudson Paine</div>
+        <button onClick={onHome} style={{ color: 'var(--accent)', fontSize: 13, marginBottom: 14, letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
         <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 8, whiteSpace: 'pre-line' }}>{BIO_LEAD}</p>
         <button
           onClick={() => setShowMore(v => !v)}
@@ -802,8 +804,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
             <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY}</p>
             <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>
               {BIO_BODY_2}{' '}
-              <BioLink label="make stuff" modalId="make-stuff" onOpenModal={onOpenBioModal} />.{' '}
-              I'm a <BioLink label="tinkerer and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
+              <BioLink label="maker, tinkerer, and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
               I <BioLink label="love computers" modalId="computers" onOpenModal={onOpenBioModal} />,{' '}
               I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
               and I have strong opinions on just about everything.
@@ -817,7 +818,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
       </div>
 
       {activeTab === null ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', animation: 'hpFadeSlide 0.25s ease' }}>
           <div style={{ display: 'flex', gap: 4, marginBottom: 20, fontSize: 12 }}>
             {TAGS.map((tag) => (
               <TabButton key={tag} active={false} onClick={() => setActiveTab(tag)}>
@@ -827,9 +828,9 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           </div>
         </div>
       ) : (
-        <div>
+        <div key={activeTab} style={{ animation: 'hpFadeSlide 0.25s ease' }}>
           <div style={{ display: 'flex', gap: 4, marginBottom: 24, fontSize: 12, alignItems: 'center' }}>
-            {TAGS.map((tag) => (
+            {ALL_TABS.map((tag) => (
               <TabButton key={tag} active={activeTab === tag} onClick={() => setActiveTab(tag)}>
                 {tag}
               </TabButton>
@@ -839,6 +840,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           {activeTab === 'work' && <WorkSection work={work} activePost={activePost} setActivePost={setActivePost} />}
           {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
           {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
+          {activeTab === 'archive' && <ArchiveList posts={archive} activePost={activePost} setActivePost={setActivePost} />}
         </div>
       )}
     </div>
@@ -1699,14 +1701,16 @@ interface PortfolioProps {
   life?: Post[];
   archive?: Post[];
   work?: Post[];
+  resources?: Post[];
   galleryImages?: GalleryImage[];
 }
 
-export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, work: workProp, galleryImages: galleryImagesProp }: PortfolioProps) {
+export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, work: workProp, resources: resourcesProp, galleryImages: galleryImagesProp }: PortfolioProps) {
   const thoughts = thoughtsProp ?? [];
   const life = lifeProp ?? [];
   const archive = archiveProp ?? [];
   const work = workProp ?? [];
+  const resources = resourcesProp ?? [];
   const galleryImages: GalleryImage[] = galleryImagesProp ?? [];
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
@@ -1753,7 +1757,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     const params = new URLSearchParams(window.location.search);
     const postSlug = params.get('post');
     if (postSlug) {
-      const allPosts = [...work, ...thoughts, ...life, ...archive];
+      const allPosts = [...work, ...thoughts, ...life, ...archive, ...resources];
       const found = allPosts.find((p) => p.slug === postSlug);
       if (found) setActivePostRaw(found);
     }
@@ -1773,9 +1777,9 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     root.style.setProperty('--bg-inner', mt.bgInner);
     root.style.setProperty('--fg', mt.fg);
     root.style.setProperty('--fg-dim', mt.dim);
-    root.style.setProperty('--fg-faint', `color-mix(in srgb, ${mt.dim} 60%, ${mt.bg})`);
-    root.style.setProperty('--rule', mt.dim);
-    root.style.setProperty('--tile', mt.bgInner);
+    root.style.setProperty('--fg-faint', `color-mix(in srgb, ${mt.fg} 30%, ${mt.bg})`);
+    root.style.setProperty('--rule', `color-mix(in srgb, ${mt.fg} 14%, ${mt.bg})`);
+    root.style.setProperty('--tile', `color-mix(in srgb, ${mt.fg} 8%, ${mt.bg})`);
     if (mt.name === 'rainbow_trail') {
       root.style.removeProperty('--accent');
       document.body.classList.add('rainbow-trail');
@@ -1829,8 +1833,10 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
               setActivePost={setActivePost}
               onOpenProject={openProject}
               onOpenBioModal={setBioModal}
+              onHome={() => { setActiveTabRaw(null); closeRightPanel(); }}
               life={life}
               work={work}
+              archive={archive}
             />
           </div>
         )}
@@ -1843,7 +1849,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
             overflow: 'hidden',
             height: '100%',
             opacity: panelOpen ? 1 : 0,
-            transform: !isMobile ? (panelOpen ? 'translateX(0)' : 'translateX(16px)') : undefined,
+            transform: (!isMobile && !panelOpen) ? 'translateX(16px)' : undefined,
             transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s, transform 0.35s ease 0.08s',
           }}>
             {rightContent}
@@ -1856,7 +1862,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
         )}
       </div>
 
-      <BottomChrome theme={theme} setTheme={setTheme} font={font} setFont={setFont} onTimeTravel={setTimeTravelUrl} themeLocked={themeLocked} fontLocked={fontLocked} onToggleThemeLock={toggleThemeLock} onToggleFontLock={toggleFontLock} />
+      <BottomChrome theme={theme} setTheme={setTheme} font={font} setFont={setFont} onTimeTravel={setTimeTravelUrl} onOpenResource={(slug) => { const p = resources.find(r => r.slug === slug); if (p) setActivePost(p); }} themeLocked={themeLocked} fontLocked={fontLocked} onToggleThemeLock={toggleThemeLock} onToggleFontLock={toggleFontLock} />
 
       {activeTile && <TileLightbox tile={activeTile} onClose={() => setActiveTile(null)} />}
       {bioModal && <BioModal modalId={bioModal} onClose={() => setBioModal(null)} />}
