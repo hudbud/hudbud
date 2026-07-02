@@ -829,14 +829,21 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
   archive: Post[];
 }) {
   const [showMore, setShowMore] = useState(false);
+  // Apple-style type scale: one big, tight display line; supporting lines a
+  // step down with relaxed leading. (500 is the heaviest weight all five
+  // site fonts actually ship, so it stays true rather than synthesizing.)
+  const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
-        <h1 style={{ margin: 0, marginBottom: 14, fontSize: 13, fontWeight: 400 }}>
-          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
+        <h1 style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}>
+          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: 12, padding: 0, textAlign: 'left' }}>Hudson Paine</button>
         </h1>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 8, whiteSpace: 'pre-line' }}>{BIO_LEAD}</p>
+        <p style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>{leadDisplay}</p>
+        {leadRest.length > 0 && (
+          <p style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}>{leadRest.join('\n')}</p>
+        )}
         <button
           onClick={() => setShowMore(v => !v)}
           style={{ fontSize: 12, color: 'var(--fg-dim)', padding: 0, transition: 'color 0.15s' }}
@@ -864,11 +871,18 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
 
       {activeTab === null ? (
         <div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', animation: 'hpFadeSlide 0.25s ease' }}>
-          <div style={{ display: 'flex', gap: 4, marginBottom: 20, fontSize: 12 }}>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--fg-faint)', marginBottom: 10 }}>explore</div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             {TAGS.map((tag) => (
-              <TabButton key={tag} active={false} onClick={() => setActiveTab(tag)}>
+              <button
+                key={tag}
+                onClick={() => setActiveTab(tag)}
+                style={{ fontSize: 13, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 999, padding: '7px 16px', letterSpacing: '-0.005em', transition: 'color 0.15s, border-color 0.15s, background 0.15s' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; e.currentTarget.style.background = 'var(--tile)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; e.currentTarget.style.background = 'transparent'; }}
+              >
                 {tag}
-              </TabButton>
+              </button>
             ))}
           </div>
         </div>
