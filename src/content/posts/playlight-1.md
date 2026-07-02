@@ -3,7 +3,12 @@ title: "Playlight"
 date: "2020-01-02T23:42:48.000Z"
 tag: "archive"
 feature_image: "/posts/42/final2.jpg"
+excerpt: "A product exploration in gradients and light."
 ---
+
+<!-- DRAFT excerpt — Hudson: no body text on this post to draw from (image
+     dump only); wrote a placeholder guess from the image filenames, please
+     rewrite with the real project context. -->
 
 ![](/posts/42/final2.jpg)
 

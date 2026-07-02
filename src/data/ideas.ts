@@ -50,7 +50,8 @@ export const IDEAS: Idea[] = [
   {
     title: 'musicshare',
     href: '#',
-    desc: '',
+    // DRAFT — Hudson: placeholder, please replace with what this idea actually is.
+    desc: 'A simple way to share what you’re listening to with friends.',
     status: 'idea',
   },
   {
