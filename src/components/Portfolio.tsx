@@ -385,14 +385,28 @@ function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: Font
   );
 }
 
-function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: { theme: string; setTheme: (t: string) => void; font: FontId; setFont: (f: FontId) => void; onTimeTravel: (url: string) => void; onOpenResource: (slug: string) => void; themeLocked: boolean; fontLocked: boolean; onToggleThemeLock: () => void; onToggleFontLock: () => void }) {
-  const FONT_LABELS: Record<FontId, string> = {
-    mono: 'Geist Mono',
-    serif: 'Newsreader',
-    sans: 'DM Sans',
-    dys: 'OpenDyslexic',
-    apfel: 'Apfel Grotezk',
-  };
+const FONT_LABELS: Record<FontId, string> = {
+  mono: 'Geist Mono',
+  serif: 'Newsreader',
+  sans: 'DM Sans',
+  dys: 'OpenDyslexic',
+  apfel: 'Apfel Grotezk',
+};
+
+interface ChromeProps {
+  theme: string;
+  setTheme: (t: string) => void;
+  font: FontId;
+  setFont: (f: FontId) => void;
+  onTimeTravel: (url: string) => void;
+  onOpenResource: (slug: string) => void;
+  themeLocked: boolean;
+  fontLocked: boolean;
+  onToggleThemeLock: () => void;
+  onToggleFontLock: () => void;
+}
+
+function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
   return (
     <div className="hp-footer" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
       <div className="hp-footer-group" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -447,6 +461,140 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
         </button>
       </div>
     </div>
+  );
+}
+
+// ---------- Mobile chrome: floating liquid-glass buttons ----------
+const GLASS: CSSProperties = {
+  background: 'color-mix(in srgb, var(--bg) 70%, transparent)',
+  WebkitBackdropFilter: 'blur(18px) saturate(1.6)',
+  backdropFilter: 'blur(18px) saturate(1.6)',
+  border: '1px solid color-mix(in srgb, var(--fg) 16%, transparent)',
+  boxShadow: '0 8px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
+};
+
+function GlassPanelItem({ onClick, href, external, children, active }: { onClick?: () => void; href?: string; external?: boolean; children: React.ReactNode; active?: boolean }) {
+  const style: CSSProperties = {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+    width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: 14, borderRadius: 10,
+    color: active ? 'var(--fg)' : 'var(--fg-dim)', background: active ? 'var(--tile)' : 'transparent',
+  };
+  if (href) {
+    return <a href={href} {...(external ? { target: '_blank', rel: 'noopener' } : {})} style={style}>{children}</a>;
+  }
+  return <button onClick={onClick} style={style}>{children}</button>;
+}
+
+function GlassSectionLabel({ children }: { children: React.ReactNode }) {
+  return <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.13em', color: 'var(--fg-faint)', padding: '10px 16px 4px' }}>{children}</div>;
+}
+
+function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
+  const [open, setOpen] = useState<'nav' | 'settings' | null>(null);
+  const [search, setSearch] = useState('');
+  const filtered = search ? MT_THEMES.filter((t) => t.name.replace(/_/g, ' ').includes(search.toLowerCase())) : MT_THEMES;
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  useEffect(() => { if (open !== 'settings') setSearch(''); }, [open]);
+
+  const fabStyle: CSSProperties = {
+    ...GLASS,
+    position: 'fixed', bottom: 'calc(16px + env(safe-area-inset-bottom))', zIndex: 140,
+    width: 46, height: 46, borderRadius: 999,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--fg)', fontSize: 16,
+  };
+  const panelStyle: CSSProperties = {
+    ...GLASS,
+    position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom))', zIndex: 150,
+    width: 'min(300px, calc(100vw - 32px))', maxHeight: '62vh', overflowY: 'auto',
+    borderRadius: 18, padding: 6, animation: 'hpFadeSlide 0.2s ease',
+  };
+  const lockBtn = (locked: boolean, toggle: () => void) => (
+    <button onClick={toggle} title={locked ? 'locked (tap to unlock)' : 'randomizes on reload (tap to lock)'} style={{ color: locked ? 'var(--accent)' : 'var(--fg-faint)', padding: 6, lineHeight: 1 }}>
+      {locked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
+    </button>
+  );
+
+  return (
+    <>
+      {open && <div onClick={() => setOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 145 }} />}
+
+      <button onClick={() => setOpen(open === 'nav' ? null : 'nav')} aria-label="menu" aria-expanded={open === 'nav'} style={{ ...fabStyle, left: 16, letterSpacing: '0.08em' }}>
+        ···
+      </button>
+      <button onClick={() => setOpen(open === 'settings' ? null : 'settings')} aria-label="appearance settings" aria-expanded={open === 'settings'} style={{ ...fabStyle, right: 16, fontWeight: 500 }}>
+        <span style={{ fontFamily: FONT_FAMILY[font] }}>Aa</span>
+      </button>
+
+      {open === 'nav' && (
+        <div style={{ ...panelStyle, left: 16 }}>
+          <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+          <GlassPanelItem href="/graph">space</GlassPanelItem>
+          <GlassSectionLabel>resources</GlassSectionLabel>
+          {RESOURCES.map((r) => (
+            <GlassPanelItem key={r.slug} onClick={() => { onOpenResource(r.slug); setOpen(null); }}>{r.label}</GlassPanelItem>
+          ))}
+          <GlassSectionLabel>time machine</GlassSectionLabel>
+          {SITE_VERSIONS.map((v) => (
+            <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); setOpen(null); }}>{v.label}</GlassPanelItem>
+          ))}
+          <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
+        </div>
+      )}
+
+      {open === 'settings' && (
+        <div style={{ ...panelStyle, right: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
+            <GlassSectionLabel>font</GlassSectionLabel>
+            {lockBtn(fontLocked, onToggleFontLock)}
+          </div>
+          {FONT_IDS.map((f) => (
+            <GlassPanelItem key={f} active={f === font} onClick={() => setFont(f)}>
+              <span style={{ fontFamily: FONT_FAMILY[f] }}>{FONT_LABELS[f]}</span>
+            </GlassPanelItem>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
+            <GlassSectionLabel>theme</GlassSectionLabel>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {THEME_PAIRS[theme] && (
+                <button onClick={() => setTheme(THEME_PAIRS[theme])} title="light/dark" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
+                  {THEME_PAIRS[theme].includes('dark') ? <Moon size={15} weight="fill" /> : <Sun size={15} weight="fill" />}
+                </button>
+              )}
+              <button onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }} title="random theme" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
+                <Shuffle size={15} weight="fill" />
+              </button>
+              {lockBtn(themeLocked, onToggleThemeLock)}
+            </div>
+          </div>
+          <div style={{ padding: '0 10px 6px' }}>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="search themes..."
+              style={{ width: '100%', background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: 'var(--fg)', outline: 'none' }}
+            />
+          </div>
+          {filtered.map((t) => (
+            <GlassPanelItem key={t.name} active={t.name === theme} onClick={() => setTheme(t.name)}>
+              <span>{t.name.replace(/_/g, ' ')}</span>
+              <span style={{ display: 'inline-flex', gap: 3 }}>
+                <span style={dot(t.bg)} />
+                <span style={dot(t.fg)} />
+                <span style={dot(t.accent)} />
+              </span>
+            </GlassPanelItem>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1971,7 +2119,16 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
         )}
       </div>
 
-      <BottomChrome theme={theme} setTheme={setTheme} font={font} setFont={setFont} onTimeTravel={setTimeTravelUrl} onOpenResource={(slug) => { const p = resources.find(r => r.slug === slug); if (p) setActivePost(p); }} themeLocked={themeLocked} fontLocked={fontLocked} onToggleThemeLock={toggleThemeLock} onToggleFontLock={toggleFontLock} />
+      {(() => {
+        const chromeProps: ChromeProps = {
+          theme, setTheme, font, setFont,
+          onTimeTravel: setTimeTravelUrl,
+          onOpenResource: (slug: string) => { const p = resources.find(r => r.slug === slug); if (p) setActivePost(p); },
+          themeLocked, fontLocked,
+          onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
+        };
+        return isMobile ? <MobileChrome {...chromeProps} /> : <BottomChrome {...chromeProps} />;
+      })()}
 
       {activeTile && <TileLightbox tile={activeTile} onClose={() => setActiveTile(null)} />}
       {bioModal && <BioModal modalId={bioModal} onClose={() => setBioModal(null)} />}
