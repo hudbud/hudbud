@@ -10,7 +10,7 @@ const rendered = await Promise.all(
   entries.map(async (e) => ({ entry: e, ...(await render(e)) }))
 );
 ---
-<Layout title="Resources — Hudson Paine">
+<Layout title="Resources — Hudson Paine" description="Design and outdoor resource lists curated by Hudson Paine.">
   <main class="resources-page">
     <a class="back" href="/">← back</a>
     <header><h1>Resources</h1></header>
