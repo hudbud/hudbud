@@ -2,17 +2,20 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Portfolio from '../components/Portfolio.tsx';
-import { loadPosts, loadAllImages } from '../lib/posts';
+import { loadPostMeta } from '../lib/posts';
 
-const [thoughts, life, archive, work, resources, galleryImages] = await Promise.all([
-  loadPosts('thoughts'),
-  loadPosts('life'),
-  loadPosts('archive'),
-  loadPosts('work'),
-  loadPosts('resources'),
-  loadAllImages(),
+const [thoughts, life, archive, work, resources] = await Promise.all([
+  loadPostMeta('thoughts'),
+  loadPostMeta('life'),
+  loadPostMeta('archive'),
+  loadPostMeta('work'),
+  loadPostMeta('resources'),
 ]);
 ---
-<Layout title="Hudson Paine">
-  <Portfolio client:only="react" thoughts={thoughts} life={life} archive={archive} work={work} resources={resources} galleryImages={galleryImages} />
+<Layout
+  title="Hudson Paine"
+  description="design bike fish climb — Hudson Paine's personal site. Product design case studies, life posts, and weird little web experiments."
+  image="/posts/graph-zoomed-in.jpg"
+>
+  <Portfolio client:load thoughts={thoughts} life={life} archive={archive} work={work} resources={resources} />
 </Layout>

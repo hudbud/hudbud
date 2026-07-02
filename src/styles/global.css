@@ -61,6 +61,29 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ---------- Fade ---------- */
+@keyframes hpFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- Footer chrome (wraps on narrow screens) ---------- */
+.hp-footer {
+  padding: 12px 32px;
+  row-gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .hp-footer {
+    flex-wrap: wrap;
+    padding: 10px 16px;
+  }
+  .hp-footer-group {
+    gap: 10px !important;
+    flex-wrap: wrap;
+  }
+}
+
 /* ---------- Rainbow trail ---------- */
 @property --rainbow-h {
   syntax: '<number>';
