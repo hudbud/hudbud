@@ -4,6 +4,7 @@ export interface Post {
   excerpt: string;
   html?: string;
   slug?: string;
+  tag?: string;
   feature_image?: string;
   img?: string;
   roles?: string;

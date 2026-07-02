@@ -1,14 +1,8 @@
 export const BIO_LEAD = `design bike fish climb\ni like to make stuff, tinker, and play with computers.\nmore importantly, i like to go outside.`;
 
-export const BIO_INTRO = ``;
-
 export const BIO_BODY = `this used to be a serious portfolio. now it's experiments, weird projects, and occasional blog posts.`;
 
 export const BIO_BODY_2 = `I like to`;
-
-export const BIO_BODY_3 = ``;
-
-export const BIO_BODY_4 = ``;
 
 export const BIO_ORIGIN = `hudsonland is older than it looks`;
 
@@ -76,6 +70,3 @@ That little website did something to me. It sparked a curiosity about technology
 Thank you, Uncle Chris. I hope to recreate it someday.`,
   },
 };
-
-// Keep for backward compat
-export const BIO = `Hey. Welcome to hudsonland.`;

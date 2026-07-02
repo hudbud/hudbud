@@ -2,23 +2,18 @@
 title: "CarvanaDS"
 date: "2024-05-30T18:21-07:00"
 tag: "work"
+excerpt: "Building and maintaining Carvana's design system — UI, design ops, engineering collaboration, icons, and the system's long-term upkeep."
+roles: "Senior Product Designer, Design Systems"
+tools: "Figma"
 ---
-Art Gallery — Overview
 
-This transformative project seeks to enhance the gallery's infrastructure, accessibility, and exhibition spaces while preserving its rich cultural heritage.
+<!-- DRAFT — Hudson: review and personalize before publishing. This replaces
+     placeholder template copy that was shipping on the live site. Facts below
+     are pulled from src/data/resume.ts and src/data/tiles.ts (t01); rewrite
+     in your own voice and add specifics (screens, scale, before/after). -->
 
-The revitalized art gallery is set to redefine cultural landscape.
+CarvanaDS is Carvana's design system, and I've been the design lead on it since 2022. It's the shared foundation for UI across Carvana's product surfaces — components, patterns, and documentation that product teams draw from instead of rebuilding the same button, card, or form pattern for the tenth time.
 
-With meticulous attention to detail and a commitment to excellence, we create spaces that inspire, elevate, and enrich the lives of those who inhabit them.
+The work spans a few different modes. Some of it is UI: designing and refining components so they hold up across contexts, not just the screen they were built for. Some of it is design ops: keeping the system documented, versioned, and actually usable by the teams who depend on it, not just a Figma file that drifts out of sync with what ships. A good chunk is engineering collaboration — working with frontend engineers to make sure what's in Figma and what's in code stay honest with each other. And there's a steady stream of maintenance: icons, edge cases, deprecations, the unglamorous work that keeps a design system credible over years instead of months.
 
-The revitalized Art Gallery is set to redefine the cultural landscape of Toronto, serving as a nexus of artistic expression, community engagement, and architectural marvel. The expansion and renovation project pay homage to the Art Gallery's rich history while embracing the future, ensuring that the gallery remains a beacon of inspiration.
-
-The revitalized Art Gallery is set to redefine the cultural landscape of Toronto, serving as a nexus of artistic expression, community engagement, and architectural marvel. The expansion and renovation project pay homage to the Art Gallery's rich history while embracing the future, ensuring that the gallery remains a beacon of inspiration.
-
-_Études_ is not confined to the past—we are passionate about the cutting edge designs shaping our world today.
-
-1\. Through Études, we aspire to redefine architectural boundaries and usher in a new era of design excellence that leaves an indelible mark on the built environment.
-
-Our comprehensive suite of professional services caters to a diverse clientele, ranging from homeowners to commercial developers. With a commitment to innovation and sustainability, Études is the bridge that transforms architectural dreams into remarkable built realities.
-
-2\. Case studies that celebrate the artistry can fuel curiosity and ignite inspiration.
+Design systems succeed or fail on adoption, not on how polished the component library looks in isolation. The measure of this work is whether product teams reach for the system by default.

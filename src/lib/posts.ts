@@ -16,21 +16,36 @@ function formatDate(d: Date): string {
   return `${mm}.${dd}.${d.getFullYear()}`;
 }
 
-async function entryToPost(entry: CollectionEntry<'posts'>): Promise<Post> {
-  const { Content } = await render(entry);
-  const container = await getContainer();
-  const html = await container.renderToString(Content);
+function entryToMeta(entry: CollectionEntry<'posts'>): Post {
   return {
     title: entry.data.title,
     date: formatDate(entry.data.date),
     excerpt: entry.data.excerpt ?? '',
-    html,
     slug: entry.id,
+    tag: entry.data.tag,
     feature_image: entry.data.feature_image,
     roles: entry.data.roles,
     tools: entry.data.tools,
     agency: entry.data.agency,
   };
+}
+
+export async function renderPostHtml(entry: CollectionEntry<'posts'>): Promise<string> {
+  const { Content } = await render(entry);
+  const container = await getContainer();
+  return container.renderToString(Content);
+}
+
+async function entryToPost(entry: CollectionEntry<'posts'>): Promise<Post> {
+  const html = await renderPostHtml(entry);
+  return { ...entryToMeta(entry), html };
+}
+
+/** Metadata only — skips AstroContainer rendering, much cheaper for listing pages. */
+export async function loadPostMeta(tag: Tag): Promise<Post[]> {
+  const entries = await getCollection('posts', (e) => e.data.tag === tag && !e.data.draft);
+  entries.sort((a, b) => +b.data.date - +a.data.date);
+  return entries.map(entryToMeta);
 }
 
 export async function loadPosts(tag: Tag): Promise<Post[]> {

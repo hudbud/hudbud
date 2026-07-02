@@ -1,8 +1,27 @@
 ---
+import { MT_THEMES } from '../data/themes';
+
 interface Props {
   title?: string;
+  description?: string;
+  image?: string;
 }
-const { title = 'paine.design — Hudson Paine' } = Astro.props;
+
+const {
+  title = 'paine.design — Hudson Paine',
+  description = "design bike fish climb — Hudson Paine's personal site. Product design case studies, life posts, and weird little web experiments.",
+  image = '/posts/graph-zoomed-in.jpg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageURL = new URL(image, Astro.site).toString();
+
+// Compact name -> color map for the inline anti-flash script below.
+const THEME_DATA = Object.fromEntries(
+  MT_THEMES.map((t) => [t.name, { bg: t.bg, bgInner: t.bgInner, fg: t.fg, dim: t.dim, accent: t.accent }])
+);
+const THEME_NAMES = MT_THEMES.map((t) => t.name);
+const FONT_IDS = ['mono', 'serif', 'sans', 'dys', 'apfel'];
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +29,21 @@ const { title = 'paine.design — Hudson Paine' } = Astro.props;
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={ogImageURL} />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageURL} />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -21,6 +55,42 @@ const { title = 'paine.design — Hudson Paine' } = Astro.props;
   </style>
 </head>
 <body data-font="apfel">
+  <script is:inline define:vars={{ themeData: THEME_DATA, themeNames: THEME_NAMES, fontIds: FONT_IDS }}>
+    (function () {
+      try {
+        var DEFAULT_THEME = 'earthsong';
+        var DEFAULT_FONT = 'apfel';
+
+        var themeLocked = localStorage.getItem('hp-lock-theme');
+        var theme = themeLocked
+          ? (localStorage.getItem('hp-theme') || DEFAULT_THEME)
+          : themeNames[Math.floor(Math.random() * themeNames.length)];
+
+        var fontLocked = localStorage.getItem('hp-lock-font');
+        var font = fontLocked
+          ? (localStorage.getItem('hp-font') || DEFAULT_FONT)
+          : fontIds[Math.floor(Math.random() * fontIds.length)];
+
+        var mt = themeData[theme] || themeData[DEFAULT_THEME];
+        var root = document.documentElement;
+        root.style.setProperty('--bg', mt.bg);
+        root.style.setProperty('--bg-inner', mt.bgInner);
+        root.style.setProperty('--fg', mt.fg);
+        root.style.setProperty('--fg-dim', mt.dim);
+        root.style.setProperty('--fg-faint', 'color-mix(in srgb, ' + mt.fg + ' 30%, ' + mt.bg + ')');
+        root.style.setProperty('--rule', 'color-mix(in srgb, ' + mt.fg + ' 14%, ' + mt.bg + ')');
+        root.style.setProperty('--tile', 'color-mix(in srgb, ' + mt.fg + ' 8%, ' + mt.bg + ')');
+        if (theme === 'rainbow_trail') {
+          root.style.removeProperty('--accent');
+          document.body.classList.add('rainbow-trail');
+        } else {
+          root.style.setProperty('--accent', mt.accent);
+        }
+        document.body.dataset.font = font;
+        window.__hpInitial = { theme: theme, font: font };
+      } catch (e) {}
+    })();
+  </script>
   <slot />
 </body>
 </html>

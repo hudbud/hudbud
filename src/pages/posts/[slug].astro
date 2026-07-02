@@ -17,7 +17,11 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
   day: 'numeric',
 });
 ---
-<Layout title={`${entry.data.title} — Hudson Paine`}>
+<Layout
+  title={`${entry.data.title} — Hudson Paine`}
+  description={entry.data.excerpt}
+  image={entry.data.feature_image}
+>
   <main class="post-page">
     <a class="back" href="/">← back</a>
     <header>
@@ -25,7 +29,7 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
       <h1>{entry.data.title}</h1>
     </header>
     {entry.data.feature_image && (
-      <img class="hero" src={entry.data.feature_image} alt="" />
+      <img class="hero" src={entry.data.feature_image} alt="" decoding="async" />
     )}
     <article class="prose">
       <Content />

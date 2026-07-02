@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { BIO_LEAD, BIO_INTRO, BIO_BODY, BIO_BODY_2, BIO_BODY_3, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
+import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type IdeaStatus } from '../data/ideas';
 import { TILES, type Tile } from '../data/tiles';
@@ -23,20 +23,26 @@ const DEFAULTS = {
   font: 'apfel' as FontId,
 };
 
+// NOTE: these must return the same value on the server render and the client's
+// first hydration render (no window/localStorage access) — the real theme/font
+// choice is applied post-mount from window.__hpInitial, which the inline head
+// script (see Layout.astro) already painted onto the page before hydration.
 function getInitialTheme(): string {
-  if (typeof window === 'undefined') return DEFAULTS.theme;
-  const locked = localStorage.getItem('hp-lock-theme');
-  if (locked) return localStorage.getItem('hp-theme') || DEFAULTS.theme;
-  return MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)].name;
+  return DEFAULTS.theme;
 }
 
 function getInitialFont(): FontId {
-  if (typeof window === 'undefined') return DEFAULTS.font;
-  const locked = localStorage.getItem('hp-lock-font');
-  if (locked) return (localStorage.getItem('hp-font') as FontId) || DEFAULTS.font;
-  const saved = localStorage.getItem('hp-font');
-  if (!saved) return DEFAULTS.font;
-  return FONT_IDS[Math.floor(Math.random() * FONT_IDS.length)];
+  return DEFAULTS.font;
+}
+
+interface HpInitial {
+  theme: string;
+  font: FontId;
+}
+
+function readHpInitial(): HpInitial | null {
+  if (typeof window === 'undefined') return null;
+  return (window as unknown as { __hpInitial?: HpInitial }).__hpInitial ?? null;
 }
 
 // ---------- LifeImage ----------
@@ -239,6 +245,39 @@ function FontSwitcher({ font, setFont }: { font: FontId; setFont: (f: FontId) =>
   );
 }
 
+// Shared open/close behavior for footer dropups: hover on desktop, tap on
+// touch devices, click-outside to dismiss.
+function useDropup() {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const closeTimer = useRef<number | null>(null);
+
+  // Gate hover on pointerType === 'mouse' so touch taps (which fire a
+  // synthetic hover immediately before click) don't open-then-immediately-
+  // close via the click toggle below.
+  const handleEnter = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+    setOpen(true);
+  };
+  const handleLeave = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    closeTimer.current = window.setTimeout(() => setOpen(false), 120);
+  };
+  const toggle = () => setOpen((o) => !o);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  return { open, setOpen, containerRef, handleEnter, handleLeave, toggle };
+}
+
 const SITE_VERSIONS = [
   { label: '2026 (current)', url: '' },
   { label: '2024', url: 'https://2024.paine.design' },
@@ -246,13 +285,15 @@ const SITE_VERSIONS = [
 ];
 
 function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const closeTimer = useRef<number | null>(null);
-  const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
-  const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
+  const { open, setOpen, containerRef, handleEnter, handleLeave, toggle } = useDropup();
   return (
-    <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-      <button style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}>
+    <div ref={containerRef} style={{ position: 'relative' }} onPointerEnter={handleEnter} onPointerLeave={handleLeave}>
+      <button
+        onClick={toggle}
+        aria-haspopup="true"
+        aria-expanded={open}
+        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+      >
         <span>time machine</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -281,13 +322,15 @@ const RESOURCES = [
 ];
 
 function ResourcesDropup({ onOpen }: { onOpen: (slug: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const closeTimer = useRef<number | null>(null);
-  const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
-  const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
+  const { open, setOpen, containerRef, handleEnter, handleLeave, toggle } = useDropup();
   return (
-    <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-      <button style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}>
+    <div ref={containerRef} style={{ position: 'relative' }} onPointerEnter={handleEnter} onPointerLeave={handleLeave}>
+      <button
+        onClick={toggle}
+        aria-haspopup="true"
+        aria-expanded={open}
+        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+      >
         <span>resources</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -311,13 +354,15 @@ function ResourcesDropup({ onOpen }: { onOpen: (slug: string) => void }) {
 }
 
 function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: FontId) => void; labels: Record<FontId, string> }) {
-  const [open, setOpen] = useState(false);
-  const closeTimer = useRef<number | null>(null);
-  const handleEnter = () => { if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; } setOpen(true); };
-  const handleLeave = () => { closeTimer.current = window.setTimeout(() => setOpen(false), 120); };
+  const { open, setOpen, containerRef, handleEnter, handleLeave, toggle } = useDropup();
   return (
-    <div style={{ position: 'relative' }} onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-      <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 13, cursor: 'pointer' }}>
+    <div ref={containerRef} style={{ position: 'relative' }} onPointerEnter={handleEnter} onPointerLeave={handleLeave}>
+      <button
+        onClick={toggle}
+        aria-haspopup="true"
+        aria-expanded={open}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 13, cursor: 'pointer' }}
+      >
         <span>{labels[font]}</span>
         <CaretUp size={10} style={{ opacity: 0.6 }} />
       </button>
@@ -340,24 +385,38 @@ function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: Font
   );
 }
 
-function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: { theme: string; setTheme: (t: string) => void; font: FontId; setFont: (f: FontId) => void; onTimeTravel: (url: string) => void; onOpenResource: (slug: string) => void; themeLocked: boolean; fontLocked: boolean; onToggleThemeLock: () => void; onToggleFontLock: () => void }) {
-  const FONT_LABELS: Record<FontId, string> = {
-    mono: 'Geist Mono',
-    serif: 'Newsreader',
-    sans: 'DM Sans',
-    dys: 'OpenDyslexic',
-    apfel: 'Apfel Grotezk',
-  };
+const FONT_LABELS: Record<FontId, string> = {
+  mono: 'Geist Mono',
+  serif: 'Newsreader',
+  sans: 'DM Sans',
+  dys: 'OpenDyslexic',
+  apfel: 'Apfel Grotezk',
+};
+
+interface ChromeProps {
+  theme: string;
+  setTheme: (t: string) => void;
+  font: FontId;
+  setFont: (f: FontId) => void;
+  onTimeTravel: (url: string) => void;
+  onOpenResource: (slug: string) => void;
+  themeLocked: boolean;
+  fontLocked: boolean;
+  onToggleThemeLock: () => void;
+  onToggleFontLock: () => void;
+}
+
+function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', padding: '12px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <span style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
+    <div className="hp-footer" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
+      <div className="hp-footer-group" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <span className="hp-footer-copy" style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
         <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
         <ResourcesDropup onOpen={onOpenResource} />
         <a href="/graph" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>space</a>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="hp-footer-group" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FontDropup font={font} setFont={setFont} labels={FONT_LABELS} />
           <button
@@ -402,6 +461,140 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
         </button>
       </div>
     </div>
+  );
+}
+
+// ---------- Mobile chrome: floating liquid-glass buttons ----------
+const GLASS: CSSProperties = {
+  background: 'color-mix(in srgb, var(--bg) 70%, transparent)',
+  WebkitBackdropFilter: 'blur(18px) saturate(1.6)',
+  backdropFilter: 'blur(18px) saturate(1.6)',
+  border: '1px solid color-mix(in srgb, var(--fg) 16%, transparent)',
+  boxShadow: '0 8px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
+};
+
+function GlassPanelItem({ onClick, href, external, children, active }: { onClick?: () => void; href?: string; external?: boolean; children: React.ReactNode; active?: boolean }) {
+  const style: CSSProperties = {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+    width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: 14, borderRadius: 10,
+    color: active ? 'var(--fg)' : 'var(--fg-dim)', background: active ? 'var(--tile)' : 'transparent',
+  };
+  if (href) {
+    return <a href={href} {...(external ? { target: '_blank', rel: 'noopener' } : {})} style={style}>{children}</a>;
+  }
+  return <button onClick={onClick} style={style}>{children}</button>;
+}
+
+function GlassSectionLabel({ children }: { children: React.ReactNode }) {
+  return <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.13em', color: 'var(--fg-faint)', padding: '10px 16px 4px' }}>{children}</div>;
+}
+
+function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
+  const [open, setOpen] = useState<'nav' | 'settings' | null>(null);
+  const [search, setSearch] = useState('');
+  const filtered = search ? MT_THEMES.filter((t) => t.name.replace(/_/g, ' ').includes(search.toLowerCase())) : MT_THEMES;
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  useEffect(() => { if (open !== 'settings') setSearch(''); }, [open]);
+
+  const fabStyle: CSSProperties = {
+    ...GLASS,
+    position: 'fixed', bottom: 'calc(16px + env(safe-area-inset-bottom))', zIndex: 140,
+    width: 46, height: 46, borderRadius: 999,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--fg)', fontSize: 16,
+  };
+  const panelStyle: CSSProperties = {
+    ...GLASS,
+    position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom))', zIndex: 150,
+    width: 'min(300px, calc(100vw - 32px))', maxHeight: '62vh', overflowY: 'auto',
+    borderRadius: 18, padding: 6, animation: 'hpFadeSlide 0.2s ease',
+  };
+  const lockBtn = (locked: boolean, toggle: () => void) => (
+    <button onClick={toggle} title={locked ? 'locked (tap to unlock)' : 'randomizes on reload (tap to lock)'} style={{ color: locked ? 'var(--accent)' : 'var(--fg-faint)', padding: 6, lineHeight: 1 }}>
+      {locked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
+    </button>
+  );
+
+  return (
+    <>
+      {open && <div onClick={() => setOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 145 }} />}
+
+      <button onClick={() => setOpen(open === 'nav' ? null : 'nav')} aria-label="menu" aria-expanded={open === 'nav'} style={{ ...fabStyle, left: 16, letterSpacing: '0.08em' }}>
+        ···
+      </button>
+      <button onClick={() => setOpen(open === 'settings' ? null : 'settings')} aria-label="appearance settings" aria-expanded={open === 'settings'} style={{ ...fabStyle, right: 16, fontWeight: 500 }}>
+        <span style={{ fontFamily: FONT_FAMILY[font] }}>Aa</span>
+      </button>
+
+      {open === 'nav' && (
+        <div style={{ ...panelStyle, left: 16 }}>
+          <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+          <GlassPanelItem href="/graph">space</GlassPanelItem>
+          <GlassSectionLabel>resources</GlassSectionLabel>
+          {RESOURCES.map((r) => (
+            <GlassPanelItem key={r.slug} onClick={() => { onOpenResource(r.slug); setOpen(null); }}>{r.label}</GlassPanelItem>
+          ))}
+          <GlassSectionLabel>time machine</GlassSectionLabel>
+          {SITE_VERSIONS.map((v) => (
+            <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); setOpen(null); }}>{v.label}</GlassPanelItem>
+          ))}
+          <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
+        </div>
+      )}
+
+      {open === 'settings' && (
+        <div style={{ ...panelStyle, right: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
+            <GlassSectionLabel>font</GlassSectionLabel>
+            {lockBtn(fontLocked, onToggleFontLock)}
+          </div>
+          {FONT_IDS.map((f) => (
+            <GlassPanelItem key={f} active={f === font} onClick={() => setFont(f)}>
+              <span style={{ fontFamily: FONT_FAMILY[f] }}>{FONT_LABELS[f]}</span>
+            </GlassPanelItem>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
+            <GlassSectionLabel>theme</GlassSectionLabel>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {THEME_PAIRS[theme] && (
+                <button onClick={() => setTheme(THEME_PAIRS[theme])} title="light/dark" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
+                  {THEME_PAIRS[theme].includes('dark') ? <Moon size={15} weight="fill" /> : <Sun size={15} weight="fill" />}
+                </button>
+              )}
+              <button onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }} title="random theme" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
+                <Shuffle size={15} weight="fill" />
+              </button>
+              {lockBtn(themeLocked, onToggleThemeLock)}
+            </div>
+          </div>
+          <div style={{ padding: '0 10px 6px' }}>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="search themes..."
+              style={{ width: '100%', background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: 'var(--fg)', outline: 'none' }}
+            />
+          </div>
+          {filtered.map((t) => (
+            <GlassPanelItem key={t.name} active={t.name === theme} onClick={() => setTheme(t.name)}>
+              <span>{t.name.replace(/_/g, ' ')}</span>
+              <span style={{ display: 'inline-flex', gap: 3 }}>
+                <span style={dot(t.bg)} />
+                <span style={dot(t.fg)} />
+                <span style={dot(t.accent)} />
+              </span>
+            </GlassPanelItem>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -654,7 +847,7 @@ function LifeList({ posts, activePost, setActivePost }: { posts: Post[]; activeP
             onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
           >
             {p.feature_image ? (
-              <img src={p.feature_image} alt="" style={{ width: 96, height: 58, objectFit: 'cover', borderRadius: 2 }} />
+              <img src={p.feature_image} alt="" loading="lazy" style={{ width: 96, height: 58, objectFit: 'cover', borderRadius: 2 }} />
             ) : (
               <LifeImage color={imgColor} seed={i} height={58} />
             )}
@@ -694,7 +887,7 @@ function BioModal({ modalId, onClose }: { modalId: string; onClose: () => void }
           close ×
         </button>
         <div style={{ fontSize: 18, color: 'var(--accent)', marginBottom: 18, lineHeight: 1.3 }}>{content.title}</div>
-        {content.image && <img src={content.image} alt="" style={{ width: '100%', borderRadius: 2, marginBottom: 18 }} />}
+        {content.image && <img src={content.image} alt="" loading="lazy" style={{ width: '100%', borderRadius: 2, marginBottom: 18 }} />}
         {content.body.split('\n\n').map((para, i) => (
           <p key={i} className="prose" style={{ color: 'var(--fg)', marginBottom: 14, fontSize: 13, lineHeight: 1.65 }}>{para}</p>
         ))}
@@ -762,7 +955,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
           onMouseLeave={handleLeave}
           style={{ position: 'absolute', top: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', width: 320, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: '16px 18px', boxShadow: '0 12px 40px rgba(0,0,0,0.5)', zIndex: 150, animation: 'hpFade 0.15s ease' }}
         >
-          {content.image && <img src={content.image} alt="" style={{ width: '100%', borderRadius: 2, marginBottom: 10 }} />}
+          {content.image && <img src={content.image} alt="" loading="lazy" style={{ width: '100%', borderRadius: 2, marginBottom: 10 }} />}
           <p style={{ color: 'var(--fg)', fontSize: 12, lineHeight: 1.6, margin: 0 }}>{content.preview}</p>
         </div>
       )}
@@ -784,12 +977,21 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
   archive: Post[];
 }) {
   const [showMore, setShowMore] = useState(false);
+  // Apple-style type scale: one big, tight display line; supporting lines a
+  // step down with relaxed leading. (500 is the heaviest weight all five
+  // site fonts actually ship, so it stays true rather than synthesizing.)
+  const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
-        <button onClick={onHome} style={{ color: 'var(--accent)', fontSize: 13, marginBottom: 14, letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
-        <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 8, whiteSpace: 'pre-line' }}>{BIO_LEAD}</p>
+        <h1 style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}>
+          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
+        </h1>
+        <p style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>{leadDisplay}</p>
+        {leadRest.length > 0 && (
+          <p style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}>{leadRest.join('\n')}</p>
+        )}
         <button
           onClick={() => setShowMore(v => !v)}
           style={{ fontSize: 12, color: 'var(--fg-dim)', padding: 0, transition: 'color 0.15s' }}
@@ -800,7 +1002,6 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
         </button>
         {showMore && (
           <div style={{ marginTop: 12 }}>
-            {BIO_INTRO && <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_INTRO}</p>}
             <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY}</p>
             <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>
               {BIO_BODY_2}{' '}
@@ -809,7 +1010,6 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
               I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
               and I have strong opinions on just about everything.
             </p>
-            {BIO_BODY_3 && <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY_3}</p>}
             <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
               <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
             </p>
@@ -819,11 +1019,18 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
 
       {activeTab === null ? (
         <div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', animation: 'hpFadeSlide 0.25s ease' }}>
-          <div style={{ display: 'flex', gap: 4, marginBottom: 20, fontSize: 12 }}>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--fg-faint)', marginBottom: 10 }}>explore</div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             {TAGS.map((tag) => (
-              <TabButton key={tag} active={false} onClick={() => setActiveTab(tag)}>
+              <button
+                key={tag}
+                onClick={() => setActiveTab(tag)}
+                style={{ fontSize: 13, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 999, padding: '7px 16px', letterSpacing: '-0.005em', transition: 'color 0.15s, border-color 0.15s, background 0.15s' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; e.currentTarget.style.background = 'var(--tile)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; e.currentTarget.style.background = 'transparent'; }}
+              >
                 {tag}
-              </TabButton>
+              </button>
             ))}
           </div>
         </div>
@@ -1085,7 +1292,6 @@ function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
       onClick={onClose}
       style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.82)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 18, animation: 'hpFade 0.2s ease' }}
     >
-      <style>{`@keyframes hpFade { from { opacity: 0; } to { opacity: 1; } }`}</style>
 
       <button
         onClick={onClose}
@@ -1477,12 +1683,45 @@ function groupConsecutiveImages(html: string): string {
   return result.join('\n');
 }
 
-function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: () => void }) {
+const postHtmlCache = new Map<string, string>();
+
+function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
   const [showSpritz, setShowSpritz] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [fetchedHtml, setFetchedHtml] = useState<string | null>(
+    post.html ?? (post.slug ? postHtmlCache.get(post.slug) ?? null : null)
+  );
   const proseRef = useRef<HTMLDivElement | null>(null);
-  const postHtml = post.html || `<p>${post.excerpt}</p>`;
+
+  useEffect(() => {
+    const cached = post.slug ? postHtmlCache.get(post.slug) ?? null : null;
+    setFetchedHtml(post.html ?? cached);
+    if (post.html || !post.slug || cached) return;
+    const slug = post.slug;
+    let cancelled = false;
+    fetch(`/posts/${slug}.json`)
+      .then((r) => r.json())
+      .then((data: { html: string }) => {
+        if (cancelled) return;
+        postHtmlCache.set(slug, data.html);
+        setFetchedHtml(data.html);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [post.slug, post.html]);
+
+  // Only close the panel on Escape when the image lightbox isn't the one
+  // that should be handling it (Lightbox has its own Escape handler).
+  useEffect(() => {
+    if (lightboxIdx !== null) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, lightboxIdx]);
+
+  const isLoadingHtml = !post.html && !fetchedHtml;
+  const postHtml = fetchedHtml ?? post.html ?? `<p>${post.excerpt}</p>`;
   const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.round(wordCount / 230));
 
@@ -1551,6 +1790,7 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
             <img
               src={post.feature_image}
               alt=""
+              loading="lazy"
               style={{ width: '100%', borderRadius: 2, cursor: 'pointer' }}
               onClick={() => setLightboxIdx(0)}
             />
@@ -1560,7 +1800,11 @@ function PostPanel({ post, onClose }: { post: Post & { tag?: string }; onClose: 
         </div>
       )}
 
-      <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: groupConsecutiveImages(postHtml) }} />
+      {isLoadingHtml ? (
+        <div style={{ color: 'var(--fg-dim)', fontSize: 13, padding: '8px 0 20px' }}>loading…</div>
+      ) : (
+        <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: groupConsecutiveImages(postHtml) }} />
+      )}
       <style>{`.prose img { cursor: pointer; }`}</style>
 
       {lightboxIdx !== null && (
@@ -1705,17 +1949,19 @@ interface PortfolioProps {
   galleryImages?: GalleryImage[];
 }
 
-export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, work: workProp, resources: resourcesProp, galleryImages: galleryImagesProp }: PortfolioProps) {
+export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, work: workProp, resources: resourcesProp }: PortfolioProps) {
   const thoughts = thoughtsProp ?? [];
   const life = lifeProp ?? [];
   const archive = archiveProp ?? [];
   const work = workProp ?? [];
   const resources = resourcesProp ?? [];
-  const galleryImages: GalleryImage[] = galleryImagesProp ?? [];
 
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  // isMobile starts false to match the server render; the mount effect below
+  // corrects it on the client before paint-sensitive layout settles.
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
@@ -1723,15 +1969,9 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
 
   const [theme, setThemeRaw] = useState(getInitialTheme);
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
-  const [themeLocked, setThemeLocked] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('hp-lock-theme'));
-  const [fontLocked, setFontLocked] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('hp-lock-font'));
-  const [activeTab, setActiveTabRaw] = useState<TabId | null>(() => {
-    if (typeof window === 'undefined') return null;
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab');
-    if (tab && (['ideas', 'life', 'work'] as string[]).includes(tab)) return tab as TabId;
-    return null;
-  });
+  const [themeLocked, setThemeLocked] = useState(false);
+  const [fontLocked, setFontLocked] = useState(false);
+  const [activeTab, setActiveTabRaw] = useState<TabId | null>(null);
   const handleTabClick = (t: TabId) => setActiveTabRaw(prev => prev === t ? null : t);
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
@@ -1750,23 +1990,40 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
   };
 
   const [activeTile, setActiveTileRaw] = useState<Tile | null>(null);
-  const [activePost, setActivePostRaw] = useState<(Post & { tag?: string }) | null>(null);
+  const [activePost, setActivePostRaw] = useState<Post | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
 
+  // Reconcile deferred, client-only state: the theme/font the inline head
+  // script already painted, lock flags, and any ?tab=/?post= deep link.
   useEffect(() => {
+    const initial = readHpInitial();
+    if (initial) {
+      setThemeRaw(initial.theme);
+      setFontRaw(initial.font);
+    }
+    setThemeLocked(!!localStorage.getItem('hp-lock-theme'));
+    setFontLocked(!!localStorage.getItem('hp-lock-font'));
+
     const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && (ALL_TABS as string[]).includes(tab)) setActiveTabRaw(tab as TabId);
+
     const postSlug = params.get('post');
     if (postSlug) {
       const allPosts = [...work, ...thoughts, ...life, ...archive, ...resources];
       const found = allPosts.find((p) => p.slug === postSlug);
-      if (found) setActivePostRaw(found);
+      if (found) {
+        setActivePostRaw(found);
+        if (found.tag && (ALL_TABS as string[]).includes(found.tag)) setActiveTabRaw(found.tag as TabId);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [bioModal, setBioModal] = useState<string | null>(null);
   const [timeTravelUrl, setTimeTravelUrl] = useState<string | null>(null);
 
   const setActiveTile = (t: Tile | null) => { setActiveTileRaw(t); setActivePostRaw(null); };
-  const setActivePost = (p: Post | null) => { setActivePostRaw(p as (Post & { tag?: string }) | null); setActiveTileRaw(null); setActiveProject(null); };
+  const setActivePost = (p: Post | null) => { setActivePostRaw(p); setActiveTileRaw(null); setActiveProject(null); };
   const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); setActiveTileRaw(null); };
   const closeRightPanel = () => { setActivePostRaw(null); setActiveProject(null); };
 
@@ -1862,7 +2119,16 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
         )}
       </div>
 
-      <BottomChrome theme={theme} setTheme={setTheme} font={font} setFont={setFont} onTimeTravel={setTimeTravelUrl} onOpenResource={(slug) => { const p = resources.find(r => r.slug === slug); if (p) setActivePost(p); }} themeLocked={themeLocked} fontLocked={fontLocked} onToggleThemeLock={toggleThemeLock} onToggleFontLock={toggleFontLock} />
+      {(() => {
+        const chromeProps: ChromeProps = {
+          theme, setTheme, font, setFont,
+          onTimeTravel: setTimeTravelUrl,
+          onOpenResource: (slug: string) => { const p = resources.find(r => r.slug === slug); if (p) setActivePost(p); },
+          themeLocked, fontLocked,
+          onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
+        };
+        return isMobile ? <MobileChrome {...chromeProps} /> : <BottomChrome {...chromeProps} />;
+      })()}
 
       {activeTile && <TileLightbox tile={activeTile} onClose={() => setActiveTile(null)} />}
       {bioModal && <BioModal modalId={bioModal} onClose={() => setBioModal(null)} />}

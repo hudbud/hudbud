@@ -3,7 +3,12 @@ title: "D4"
 date: "2020-01-03T00:39:44.000Z"
 tag: "archive"
 feature_image: "/posts/33/export12tan@3x_3.png"
+excerpt: "Branding and identity exploration — logo grid, patches, and a landing page design."
 ---
+
+<!-- DRAFT excerpt — Hudson: no body text on this post to draw from (image
+     dump only); wrote a placeholder guess from the image filenames, please
+     rewrite with the real project context. -->
 
 ![](/posts/33/export12tan@3x_3.png)
 
