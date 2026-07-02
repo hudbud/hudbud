@@ -396,7 +396,7 @@ function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
   return (
     <div className="hp-footer" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
       <div className="hp-footer-group" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <span style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
+        <span className="hp-footer-copy" style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
         <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
         <TimeTravelSelector onSelect={onTimeTravel} />
         <ResourcesDropup onOpen={onOpenResource} />
@@ -838,7 +838,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
         <h1 style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}>
-          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: 12, padding: 0, textAlign: 'left' }}>Hudson Paine</button>
+          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
         </h1>
         <p style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>{leadDisplay}</p>
         {leadRest.length > 0 && (

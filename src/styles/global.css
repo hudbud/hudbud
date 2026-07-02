@@ -67,20 +67,31 @@
   to   { opacity: 1; }
 }
 
-/* ---------- Footer chrome (wraps on narrow screens) ---------- */
+/* ---------- Footer chrome ---------- */
 .hp-footer {
   padding: 12px 32px;
   row-gap: 8px;
 }
 
+/* On narrow screens: two tidy centered rows (nav links, then theme/font
+   controls) instead of arbitrary mid-group wrapping. Copyright is hidden —
+   it's decorative and mobile vertical space is premium. */
 @media (max-width: 640px) {
   .hp-footer {
-    flex-wrap: wrap;
-    padding: 10px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 10px 10px;
+    border-top: 1px solid var(--rule);
   }
   .hp-footer-group {
-    gap: 10px !important;
+    gap: 2px !important;
     flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hp-footer-copy {
+    display: none;
   }
 }
 
