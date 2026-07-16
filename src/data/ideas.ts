@@ -42,6 +42,12 @@ export const IDEAS: Idea[] = [
     status: 'in-development',
   },
   {
+    title: 'queet',
+    href: '#',
+    desc: 'Ultra-minimal app for quitting stuff. Counts up how much money you\'re saving as you go.',
+    status: 'in-development',
+  },
+  {
     title: 'weathr',
     href: '#',
     desc: 'Community-based, open-source weather reporting and predictions around San Francisco.',

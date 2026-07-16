@@ -33,6 +33,114 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
   </main>
 </Layout>
 
+<script>
+  const images = Array.from(
+    document.querySelectorAll<HTMLImageElement>('.prose img')
+  );
+  if (images.length) {
+    const srcs = images.map((img) => img.src);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox';
+    overlay.innerHTML = `
+      <img class="lightbox-img" alt="" />
+      <button class="lightbox-prev" aria-label="previous">‹</button>
+      <button class="lightbox-next" aria-label="next">›</button>
+      <div class="lightbox-count"></div>
+    `;
+    document.body.appendChild(overlay);
+
+    const img = overlay.querySelector('.lightbox-img') as HTMLImageElement;
+    const count = overlay.querySelector('.lightbox-count') as HTMLDivElement;
+    const prevBtn = overlay.querySelector('.lightbox-prev') as HTMLButtonElement;
+    const nextBtn = overlay.querySelector('.lightbox-next') as HTMLButtonElement;
+
+    let index = 0;
+    let open = false;
+
+    const show = (i: number) => {
+      index = (i + srcs.length) % srcs.length;
+      img.src = srcs[index];
+      count.textContent = srcs.length > 1 ? `${index + 1} / ${srcs.length}` : '';
+    };
+
+    const openLightbox = (i: number) => {
+      open = true;
+      show(i);
+      overlay.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeLightbox = () => {
+      open = false;
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+    };
+
+    images.forEach((el, i) => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => openLightbox(i));
+    });
+
+    overlay.addEventListener('click', closeLightbox);
+    prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
+    nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
+    img.addEventListener('click', (e) => e.stopPropagation());
+
+    window.addEventListener('keydown', (e) => {
+      if (!open) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') show(index + 1);
+      if (e.key === 'ArrowLeft') show(index - 1);
+    });
+  }
+</script>
+
+<style is:global>
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox.is-open { display: flex; }
+  .lightbox-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 2px;
+  }
+  .lightbox-prev,
+  .lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 28px;
+    color: #fff;
+    opacity: 0.7;
+    background: none;
+  }
+  .lightbox-prev:hover,
+  .lightbox-next:hover { opacity: 1; }
+  .lightbox-prev { left: 20px; }
+  .lightbox-next { right: 20px; }
+  .lightbox-count {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+</style>
+
+<style is:global>
+  html, body { height: auto; overflow-y: auto; }
+</style>
+
 <style>
   .post-page {
     max-width: 720px;
@@ -78,6 +186,19 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
     height: auto;
     border-radius: 2px;
     margin: 12px 0;
+  }
+  .prose :global(p:has(> img)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin: 0 0 1em;
+  }
+  .prose :global(p:has(> img) > img) {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
   }
   .prose :global(h2),
   .prose :global(h3) {
