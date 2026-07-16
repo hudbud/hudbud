@@ -10,12 +10,12 @@ import FreezerMartini from './FreezerMartini';
 import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle } from '@phosphor-icons/react';
 
 type TabId = 'ideas' | 'life' | 'work' | 'archive';
-type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel';
+type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
 
 const TAGS: TabId[] = ['ideas', 'life', 'work']; // landing page buttons
 const ALL_TABS: TabId[] = ['ideas', 'life', 'work', 'archive']; // tab bar when selected
 
-const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel'];
+const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
 
 const DEFAULTS = {
   theme: 'earthsong',
@@ -61,14 +61,14 @@ function HudMark({ size = 44, onClick }: { size?: number; onClick?: () => void }
         <path fillRule="evenodd" clipRule="evenodd" d="M178.362 277.76L151.603 277.758L151.606 271.51L178.365 271.512L178.362 277.76Z" fill="var(--fg-faint)"/>
         <path fillRule="evenodd" clipRule="evenodd" d="M178.355 265.278L151.61 265.262L151.6 259.027L178.359 259.029L178.355 265.278Z" fill="var(--fg-faint)"/>
         <path fillRule="evenodd" clipRule="evenodd" d="M213.96 227.823L116.013 227.796C113.499 225.854 111.096 223.771 108.822 221.561L221.142 221.575C218.881 223.789 216.486 225.871 213.96 227.823Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M148.757 215.326L103.083 215.307C101.421 213.311 99.8655 211.223 98.4078 209.062L135.706 209.076C139.718 211.717 144.107 213.83 148.757 215.326Z" fill="var(--accent)"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M148.757 215.326L103.083 215.307C101.421 213.311 99.8655 211.223 98.4078 209.062L135.706 209.076C139.718 211.717 144.107 213.83 148.757 215.326Z" fill="var(--fg)"/>
         <path fillRule="evenodd" clipRule="evenodd" d="M190.673 240.308L139.325 240.291C134.462 238.639 129.804 236.54 125.4 234.046L204.58 234.061C200.19 236.558 195.541 238.655 190.673 240.308Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M127.879 202.832L94.5861 202.822C93.4634 200.797 92.4287 198.719 91.4989 196.576L122.317 196.58C124.009 198.804 125.86 200.904 127.879 202.832Z" fill="var(--accent)" fillOpacity="0.6"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M127.879 202.832L94.5861 202.822C93.4634 200.797 92.4287 198.719 91.4989 196.576L122.317 196.58C124.009 198.804 125.86 200.904 127.879 202.832Z" fill="color-mix(in srgb, var(--accent) 50%, var(--fg))"/>
         <path fillRule="evenodd" clipRule="evenodd" d="M178.363 252.779L151.604 252.778L151.607 246.53L178.367 246.531L178.363 252.779Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M118.212 190.334L89.0445 190.336C88.3474 188.284 87.716 186.211 87.1793 184.092L115.212 184.091C116.071 186.248 117.079 188.328 118.212 190.334Z" fill="var(--accent)" fillOpacity="0.35"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M226.884 215.331L181.14 215.327C185.798 213.833 190.181 211.724 194.201 209.084L231.551 209.093C230.103 211.242 228.538 213.331 226.884 215.331Z" fill="var(--accent)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M235.375 202.84L202.035 202.839C204.044 200.91 205.915 198.816 207.606 196.598L238.454 196.604C237.521 198.728 236.49 200.811 235.375 202.84Z" fill="var(--accent)" fillOpacity="0.6"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M240.901 190.358L211.723 190.35C212.842 188.354 213.845 186.27 214.716 184.112L242.76 184.122C242.233 186.227 241.603 188.315 240.901 190.358Z" fill="var(--accent)" fillOpacity="0.35"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M118.212 190.334L89.0445 190.336C88.3474 188.284 87.716 186.211 87.1793 184.092L115.212 184.091C116.071 186.248 117.079 188.328 118.212 190.334Z" fill="var(--accent)"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M226.884 215.331L181.14 215.327C185.798 213.833 190.181 211.724 194.201 209.084L231.551 209.093C230.103 211.242 228.538 213.331 226.884 215.331Z" fill="var(--fg)"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M235.375 202.84L202.035 202.839C204.044 200.91 205.915 198.816 207.606 196.598L238.454 196.604C237.521 198.728 236.49 200.811 235.375 202.84Z" fill="color-mix(in srgb, var(--accent) 50%, var(--fg))"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M240.901 190.358L211.723 190.35C212.842 188.354 213.845 186.27 214.716 184.112L242.76 184.122C242.233 186.227 241.603 188.315 240.901 190.358Z" fill="var(--accent)"/>
       </svg>
     </button>
   );
@@ -232,6 +232,7 @@ const FONT_FAMILY: Record<FontId, string> = {
   sans: "'DM Sans', ui-sans-serif, system-ui, sans-serif",
   dys: "'OpenDyslexic', 'Comic Sans MS', sans-serif",
   apfel: "'Apfel Grotezk', -apple-system, BlinkMacSystemFont, sans-serif",
+  outfit: "'Outfit', ui-sans-serif, system-ui, sans-serif",
 };
 
 function FontSwitcher({ font, setFont }: { font: FontId; setFont: (f: FontId) => void }) {
@@ -242,6 +243,7 @@ function FontSwitcher({ font, setFont }: { font: FontId; setFont: (f: FontId) =>
     { id: 'sans', label: 'sans', hint: 'DM Sans' },
     { id: 'apfel', label: 'apfel grotezk', hint: 'custom' },
     { id: 'dys', label: 'opendyslexic', hint: 'accessibility' },
+    { id: 'outfit', label: 'outfit', hint: 'Google Fonts' },
   ];
   return (
     <div style={{ position: 'relative' }}>
@@ -420,6 +422,7 @@ const FONT_LABELS: Record<FontId, string> = {
   sans: 'DM Sans',
   dys: 'OpenDyslexic',
   apfel: 'Apfel Grotezk',
+  outfit: 'Outfit',
 };
 
 interface ChromeProps {
