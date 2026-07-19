@@ -19,7 +19,7 @@ function rehypeLazyImages() {
 
 export default defineConfig({
   output: 'static',
-  site: 'https://paine.design',
+  site: 'https://hudbud.net',
   integrations: [react(), sitemap()],
   markdown: {
     rehypePlugins: [rehypeLazyImages],

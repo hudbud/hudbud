@@ -1,4 +1,4 @@
-export const BIO_LEAD = `design bike fish climb\ni like to make stuff, tinker, and play with computers.\nmore importantly, i like to go outside.`;
+export const BIO_LEAD = `watch a live stream.\ni'm a curious designer obsessed with nature.\ni like to learn, make stuff, and tinker - computers, bike builds, trout streams, tall rocks, the ocean, and whatever other rabbit holes i can find.`;
 
 export const BIO_BODY = `this used to be a serious portfolio. now it's experiments, weird projects, and occasional blog posts.`;
 

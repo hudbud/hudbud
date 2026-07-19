@@ -6,3 +6,5 @@ dist/
 .astro/
 .context/
 .vercel/
+.vercel
+.env*
