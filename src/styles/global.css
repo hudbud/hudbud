@@ -124,11 +124,12 @@ body.rainbow-trail {
   --font: 'Geist Mono', ui-monospace, Menlo, monospace;
 }
 
-body[data-font='mono']  { --font: 'Geist Mono', ui-monospace, Menlo, monospace; }
-body[data-font='serif'] { --font: 'Newsreader', Georgia, serif; }
-body[data-font='sans']  { --font: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
-body[data-font='dys']   { --font: 'OpenDyslexic', 'Comic Sans MS', sans-serif; }
-body[data-font='apfel'] { --font: 'Apfel Grotezk', -apple-system, BlinkMacSystemFont, sans-serif; }
+body[data-font='mono']   { --font: 'Geist Mono', ui-monospace, Menlo, monospace; }
+body[data-font='serif']  { --font: 'Newsreader', Georgia, serif; }
+body[data-font='sans']   { --font: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+body[data-font='dys']    { --font: 'OpenDyslexic', 'Comic Sans MS', sans-serif; }
+body[data-font='apfel']  { --font: 'Apfel Grotezk', -apple-system, BlinkMacSystemFont, sans-serif; }
+body[data-font='outfit'] { --font: 'Outfit', ui-sans-serif, system-ui, sans-serif; }
 
 /* ---------- Reset & base ---------- */
 * { box-sizing: border-box; }
