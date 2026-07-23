@@ -264,7 +264,7 @@ function GlassBloom({ pos, anchor, label, trigger, children }: {
 }
 
 function GlassSectionLabel({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.13em', color: 'var(--fg-faint)', padding: '10px 16px 4px' }}>{children}</div>;
+  return <div style={{ fontSize: 11, letterSpacing: '0.04em', color: 'var(--fg-faint)', padding: '10px 16px 4px' }}>{children}</div>;
 }
 
 function GlassLockButton({ locked, toggle }: { locked: boolean; toggle: () => void }) {
