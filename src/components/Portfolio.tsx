@@ -7,7 +7,7 @@ import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle } from '@phosphor-icons/react';
+import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette } from '@phosphor-icons/react';
 
 type TabId = 'ideas' | 'life' | 'work' | 'archive';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
@@ -164,67 +164,6 @@ function dot(bg: string): CSSProperties {
   return { width: 8, height: 8, borderRadius: '50%', background: bg, display: 'inline-block' };
 }
 
-function ThemeChrome({ theme, setTheme }: { theme: string; setTheme: (t: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const searchRef = useRef<HTMLInputElement | null>(null);
-  const cur = MT_THEMES.find((t) => t.name === theme) || MT_THEMES[0];
-
-  useEffect(() => {
-    if (open) { setSearch(''); setTimeout(() => searchRef.current?.focus(), 0); }
-  }, [open]);
-
-  const filtered = search
-    ? MT_THEMES.filter((t) => t.name.replace(/_/g, ' ').includes(search.toLowerCase()))
-    : MT_THEMES;
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 13 }}
-      >
-        <span style={{ display: 'inline-flex', gap: 4 }}>
-          <span style={dot(cur.bg)} />
-          <span style={dot(cur.fg)} />
-          <span style={dot(cur.accent)} />
-        </span>
-        <span style={{ letterSpacing: '0.02em' }}>{cur.name.replace(/_/g, ' ')}</span>
-        <CaretUp size={10} style={{ opacity: 0.6 }} />
-      </button>
-      {open && (
-        <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', right: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 220, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)', maxHeight: '70vh', display: 'flex', flexDirection: 'column' }}>
-          <input
-            ref={searchRef}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="search themes..."
-            style={{ background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 2, padding: '6px 10px', fontSize: 11, color: 'var(--fg)', outline: 'none', marginBottom: 4 }}
-          />
-          <div style={{ overflowY: 'auto', flex: 1 }}>
-            {filtered.map((t) => (
-              <button
-                key={t.name}
-                onClick={() => { setTheme(t.name); setOpen(false); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', padding: '6px 10px', borderRadius: 2, background: t.name === theme ? 'var(--tile)' : 'transparent', color: t.name === theme ? 'var(--fg)' : 'var(--fg-dim)', fontSize: 11 }}
-                onMouseEnter={(e) => { if (t.name !== theme) e.currentTarget.style.color = 'var(--fg)'; }}
-                onMouseLeave={(e) => { if (t.name !== theme) e.currentTarget.style.color = 'var(--fg-dim)'; }}
-              >
-                <span style={{ display: 'inline-flex', gap: 3 }}>
-                  <span style={dot(t.bg)} />
-                  <span style={dot(t.fg)} />
-                  <span style={dot(t.accent)} />
-                </span>
-                {t.name.replace(/_/g, ' ')}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ---------- Font switcher ----------
 const FONT_FAMILY: Record<FontId, string> = {
   mono: "'Geist Mono', ui-monospace, Menlo, monospace",
@@ -235,186 +174,16 @@ const FONT_FAMILY: Record<FontId, string> = {
   outfit: "'Outfit', ui-sans-serif, system-ui, sans-serif",
 };
 
-function FontSwitcher({ font, setFont }: { font: FontId; setFont: (f: FontId) => void }) {
-  const [open, setOpen] = useState(false);
-  const OPTS: { id: FontId; label: string; hint: string }[] = [
-    { id: 'mono', label: 'mono', hint: 'Geist Mono' },
-    { id: 'serif', label: 'serif', hint: 'Newsreader' },
-    { id: 'sans', label: 'sans', hint: 'DM Sans' },
-    { id: 'apfel', label: 'apfel grotezk', hint: 'custom' },
-    { id: 'dys', label: 'opendyslexic', hint: 'accessibility' },
-    { id: 'outfit', label: 'outfit', hint: 'Google Fonts' },
-  ];
-  return (
-    <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        title="font"
-        style={{ width: 28, height: 28, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--fg-dim)', fontSize: 14, fontWeight: 600 }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-      >
-        <span style={{ fontFamily: FONT_FAMILY[font] }}>Aa</span>
-      </button>
-      {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 220, zIndex: 50, boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
-          {OPTS.map((o) => (
-            <button
-              key={o.id}
-              onClick={() => { setFont(o.id); setOpen(false); }}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', textAlign: 'left', padding: '6px 10px', borderRadius: 2, background: o.id === font ? 'var(--tile)' : 'transparent', color: o.id === font ? 'var(--fg)' : 'var(--fg-dim)', fontSize: 11 }}
-              onMouseEnter={(e) => { if (o.id !== font) e.currentTarget.style.color = 'var(--fg)'; }}
-              onMouseLeave={(e) => { if (o.id !== font) e.currentTarget.style.color = 'var(--fg-dim)'; }}
-            >
-              <span style={{ fontFamily: FONT_FAMILY[o.id] }}>{o.label}</span>
-              <span style={{ color: 'var(--fg-faint)', fontSize: 10 }}>{o.hint}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Shared open/close behavior for footer dropups: hover on desktop, tap on
-// touch devices, click-outside to dismiss.
-function useDropup() {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const closeTimer = useRef<number | null>(null);
-
-  // Gate hover on pointerType === 'mouse' so touch taps (which fire a
-  // synthetic hover immediately before click) don't open-then-immediately-
-  // close via the click toggle below.
-  const handleEnter = (e: React.PointerEvent) => {
-    if (e.pointerType !== 'mouse') return;
-    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
-    setOpen(true);
-  };
-  const handleLeave = (e: React.PointerEvent) => {
-    if (e.pointerType !== 'mouse') return;
-    closeTimer.current = window.setTimeout(() => setOpen(false), 120);
-  };
-  const toggle = () => setOpen((o) => !o);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, [open]);
-
-  return { open, setOpen, containerRef, handleEnter, handleLeave, toggle };
-}
-
 const SITE_VERSIONS = [
   { label: '2026 (current)', url: '' },
   { label: '2024', url: 'https://2024.paine.design' },
   { label: '2022', url: 'https://2022.paine.design' },
 ];
 
-function TimeTravelSelector({ onSelect }: { onSelect: (url: string) => void }) {
-  const { open, setOpen, containerRef, handleEnter, handleLeave, toggle } = useDropup();
-  return (
-    <div ref={containerRef} style={{ position: 'relative' }} onPointerEnter={handleEnter} onPointerLeave={handleLeave}>
-      <button
-        onClick={toggle}
-        aria-haspopup="true"
-        aria-expanded={open}
-        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
-      >
-        <span>time machine</span>
-        <CaretUp size={10} style={{ opacity: 0.6 }} />
-      </button>
-      {open && (
-        <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 160, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
-          {SITE_VERSIONS.map((v) => (
-            <button
-              key={v.label}
-              onClick={() => { if (v.url) onSelect(v.url); setOpen(false); }}
-              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: v.url ? 'var(--fg-dim)' : 'var(--accent)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = v.url ? 'var(--fg-dim)' : 'var(--accent)')}
-            >
-              {v.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const RESOURCES = [
   { label: 'Design Resources', slug: 'design-resources-list' },
   { label: 'Outdoor Resources', slug: 'outdoors-resources-list' },
 ];
-
-function ResourcesDropup({ onOpen }: { onOpen: (slug: string) => void }) {
-  const { open, setOpen, containerRef, handleEnter, handleLeave, toggle } = useDropup();
-  return (
-    <div ref={containerRef} style={{ position: 'relative' }} onPointerEnter={handleEnter} onPointerLeave={handleLeave}>
-      <button
-        onClick={toggle}
-        aria-haspopup="true"
-        aria-expanded={open}
-        style={{ fontSize: 13, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
-      >
-        <span>resources</span>
-        <CaretUp size={10} style={{ opacity: 0.6 }} />
-      </button>
-      {open && (
-        <div style={{ position: 'absolute', bottom: 'calc(100% + 8px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 180, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
-          {RESOURCES.map((r) => (
-            <button
-              key={r.label}
-              onClick={() => { onOpen(r.slug); setOpen(false); }}
-              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', borderRadius: 2, fontSize: 13, color: 'var(--fg-dim)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FontDropup({ font, setFont, labels }: { font: FontId; setFont: (f: FontId) => void; labels: Record<FontId, string> }) {
-  const { open, setOpen, containerRef, handleEnter, handleLeave, toggle } = useDropup();
-  return (
-    <div ref={containerRef} style={{ position: 'relative' }} onPointerEnter={handleEnter} onPointerLeave={handleLeave}>
-      <button
-        onClick={toggle}
-        aria-haspopup="true"
-        aria-expanded={open}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px', color: 'var(--fg-dim)', fontSize: 13, cursor: 'pointer' }}
-      >
-        <span>{labels[font]}</span>
-        <CaretUp size={10} style={{ opacity: 0.6 }} />
-      </button>
-      {open && (
-        <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', left: 0, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: 4, minWidth: 180, zIndex: 50, boxShadow: '0 -8px 24px rgba(0,0,0,0.4)' }}>
-          {(Object.keys(labels) as FontId[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => { setFont(f); setOpen(false); }}
-              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', borderRadius: 2, background: f === font ? 'var(--tile)' : 'transparent', color: f === font ? 'var(--fg)' : 'var(--fg-dim)', fontSize: 12 }}
-              onMouseEnter={(e) => { if (f !== font) e.currentTarget.style.color = 'var(--fg)'; }}
-              onMouseLeave={(e) => { if (f !== font) e.currentTarget.style.color = 'var(--fg-dim)'; }}
-            >
-              {labels[f]}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 const FONT_LABELS: Record<FontId, string> = {
   mono: 'Geist Mono',
@@ -436,64 +205,6 @@ interface ChromeProps {
   fontLocked: boolean;
   onToggleThemeLock: () => void;
   onToggleFontLock: () => void;
-}
-
-function BottomChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
-  return (
-    <div className="hp-footer" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
-      <div className="hp-footer-group" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <span className="hp-footer-copy" style={{ color: 'var(--fg-faint)' }}>© 2026 Hudson Paine</span>
-        <a href="https://github.com/hudbud/hudbud" target="_blank" rel="noopener" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>github</a>
-        <TimeTravelSelector onSelect={onTimeTravel} />
-        <ResourcesDropup onOpen={onOpenResource} />
-        <a href="/graph" style={{ color: 'var(--fg-dim)', padding: '4px 8px' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}>space</a>
-      </div>
-      <div className="hp-footer-group" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FontDropup font={font} setFont={setFont} labels={FONT_LABELS} />
-          <button
-            onClick={onToggleFontLock}
-            title={fontLocked ? 'font locked (click to unlock)' : 'font randomizes on reload (click to lock)'}
-            style={{ color: fontLocked ? 'var(--accent)' : 'var(--fg-faint)', padding: '4px', lineHeight: 1 }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = fontLocked ? 'var(--accent)' : 'var(--fg-faint)')}
-          >
-            {fontLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
-          </button>
-        </div>
-        {THEME_PAIRS[theme] && (
-          <button
-            onClick={() => setTheme(THEME_PAIRS[theme])}
-            title={THEME_PAIRS[theme].includes('dark') ? 'switch to dark' : 'switch to light'}
-            style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-          >
-            {THEME_PAIRS[theme].includes('dark') ? <Moon size={16} weight="fill" /> : <Sun size={16} weight="fill" />}
-          </button>
-        )}
-        <ThemeChrome theme={theme} setTheme={setTheme} />
-        <button
-          onClick={onToggleThemeLock}
-          title={themeLocked ? 'theme locked (click to unlock)' : 'theme randomizes on reload (click to lock)'}
-          style={{ color: themeLocked ? 'var(--accent)' : 'var(--fg-faint)', padding: '4px', lineHeight: 1 }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = themeLocked ? 'var(--accent)' : 'var(--fg-faint)')}
-        >
-          {themeLocked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
-        </button>
-        <button
-          onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }}
-          title="random theme"
-          style={{ color: 'var(--fg-dim)', padding: '4px', lineHeight: 1 }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-        >
-          <Shuffle size={16} weight="fill" />
-        </button>
-      </div>
-    </div>
-  );
 }
 
 // ---------- Mobile chrome: floating liquid-glass buttons ----------
@@ -521,10 +232,73 @@ function GlassSectionLabel({ children }: { children: React.ReactNode }) {
   return <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.13em', color: 'var(--fg-faint)', padding: '10px 16px 4px' }}>{children}</div>;
 }
 
-function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
-  const [open, setOpen] = useState<'nav' | 'settings' | null>(null);
+function GlassLockButton({ locked, toggle }: { locked: boolean; toggle: () => void }) {
+  return (
+    <button onClick={toggle} title={locked ? 'locked (tap to unlock)' : 'randomizes on reload (tap to lock)'} style={{ color: locked ? 'var(--accent)' : 'var(--fg-faint)', padding: 6, lineHeight: 1 }}>
+      {locked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
+    </button>
+  );
+}
+
+function FontPanelBody({ font, setFont, fontLocked, onToggleFontLock }: Pick<ChromeProps, 'font' | 'setFont' | 'fontLocked' | 'onToggleFontLock'>) {
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
+        <GlassSectionLabel>font</GlassSectionLabel>
+        <GlassLockButton locked={fontLocked} toggle={onToggleFontLock} />
+      </div>
+      {FONT_IDS.map((f) => (
+        <GlassPanelItem key={f} active={f === font} onClick={() => setFont(f)}>
+          <span style={{ fontFamily: FONT_FAMILY[f] }}>{FONT_LABELS[f]}</span>
+        </GlassPanelItem>
+      ))}
+    </>
+  );
+}
+
+function ThemePanelBody({ theme, setTheme, themeLocked, onToggleThemeLock }: Pick<ChromeProps, 'theme' | 'setTheme' | 'themeLocked' | 'onToggleThemeLock'>) {
   const [search, setSearch] = useState('');
   const filtered = search ? MT_THEMES.filter((t) => t.name.replace(/_/g, ' ').includes(search.toLowerCase())) : MT_THEMES;
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
+        <GlassSectionLabel>theme</GlassSectionLabel>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {THEME_PAIRS[theme] && (
+            <button onClick={() => setTheme(THEME_PAIRS[theme])} title="light/dark" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
+              {THEME_PAIRS[theme].includes('dark') ? <Moon size={15} weight="fill" /> : <Sun size={15} weight="fill" />}
+            </button>
+          )}
+          <button onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }} title="random theme" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
+            <Shuffle size={15} weight="fill" />
+          </button>
+          <GlassLockButton locked={themeLocked} toggle={onToggleThemeLock} />
+        </div>
+      </div>
+      <div style={{ padding: '0 10px 6px' }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search themes..."
+          style={{ width: '100%', background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: 'var(--fg)', outline: 'none' }}
+        />
+      </div>
+      {filtered.map((t) => (
+        <GlassPanelItem key={t.name} active={t.name === theme} onClick={() => setTheme(t.name)}>
+          <span>{t.name.replace(/_/g, ' ')}</span>
+          <span style={{ display: 'inline-flex', gap: 3 }}>
+            <span style={dot(t.bg)} />
+            <span style={dot(t.fg)} />
+            <span style={dot(t.accent)} />
+          </span>
+        </GlassPanelItem>
+      ))}
+    </>
+  );
+}
+
+function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
+  const [open, setOpen] = useState<'nav' | 'settings' | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -532,8 +306,6 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
-
-  useEffect(() => { if (open !== 'settings') setSearch(''); }, [open]);
 
   const fabStyle: CSSProperties = {
     ...GLASS,
@@ -548,11 +320,6 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
     width: 'min(300px, calc(100vw - 32px))', maxHeight: '62vh', overflowY: 'auto',
     borderRadius: 18, padding: 6, animation: 'hpFadeSlide 0.2s ease',
   };
-  const lockBtn = (locked: boolean, toggle: () => void) => (
-    <button onClick={toggle} title={locked ? 'locked (tap to unlock)' : 'randomizes on reload (tap to lock)'} style={{ color: locked ? 'var(--accent)' : 'var(--fg-faint)', padding: 6, lineHeight: 1 }}>
-      {locked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
-    </button>
-  );
 
   return (
     <>
@@ -583,47 +350,105 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
 
       {open === 'settings' && (
         <div style={{ ...panelStyle, right: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
-            <GlassSectionLabel>font</GlassSectionLabel>
-            {lockBtn(fontLocked, onToggleFontLock)}
-          </div>
-          {FONT_IDS.map((f) => (
-            <GlassPanelItem key={f} active={f === font} onClick={() => setFont(f)}>
-              <span style={{ fontFamily: FONT_FAMILY[f] }}>{FONT_LABELS[f]}</span>
-            </GlassPanelItem>
+          <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
+          <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
+        </div>
+      )}
+    </>
+  );
+}
+
+// ---------- Desktop chrome: same liquid-glass buttons, one per panel ----------
+type DesktopPanel = 'time' | 'resources' | 'links' | 'font' | 'theme';
+
+function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
+  const [open, setOpen] = useState<DesktopPanel | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const fabStyle: CSSProperties = {
+    ...GLASS,
+    position: 'fixed', bottom: 16, zIndex: 140,
+    width: 46, height: 46, borderRadius: 999,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--fg)', fontSize: 16,
+    transition: 'transform 0.15s ease, color 0.15s ease',
+  };
+  const panelStyle: CSSProperties = {
+    ...GLASS,
+    position: 'fixed', bottom: 72, zIndex: 150,
+    width: 300, maxHeight: '62vh', overflowY: 'auto',
+    borderRadius: 18, padding: 6, animation: 'hpFadeSlide 0.2s ease',
+  };
+
+  const fab = (id: DesktopPanel, label: string, pos: CSSProperties, children: React.ReactNode) => (
+    <button
+      onClick={() => setOpen(open === id ? null : id)}
+      title={label}
+      aria-label={label}
+      aria-expanded={open === id}
+      style={{ ...fabStyle, ...pos, ...(open === id ? { color: 'var(--accent)' } : {}) }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <>
+      {open && <div onClick={() => setOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 145 }} />}
+
+      {/* left: time machine, resources, links */}
+      {fab('time', 'time machine', { left: 16 }, <ClockCounterClockwise size={18} weight="fill" />)}
+      {fab('resources', 'resources', { left: 70 }, <BookOpen size={18} weight="fill" />)}
+      {fab('links', 'links', { left: 124 }, <LinkSimple size={18} weight="bold" />)}
+
+      {/* right: font, theme */}
+      {fab('font', 'font', { right: 70 }, <span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>)}
+      {fab('theme', 'theme', { right: 16 }, <Palette size={18} weight="fill" />)}
+
+      {open === 'time' && (
+        <div style={{ ...panelStyle, left: 16 }}>
+          <GlassSectionLabel>time machine</GlassSectionLabel>
+          {SITE_VERSIONS.map((v) => (
+            <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); setOpen(null); }}>{v.label}</GlassPanelItem>
           ))}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
-            <GlassSectionLabel>theme</GlassSectionLabel>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              {THEME_PAIRS[theme] && (
-                <button onClick={() => setTheme(THEME_PAIRS[theme])} title="light/dark" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
-                  {THEME_PAIRS[theme].includes('dark') ? <Moon size={15} weight="fill" /> : <Sun size={15} weight="fill" />}
-                </button>
-              )}
-              <button onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }} title="random theme" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
-                <Shuffle size={15} weight="fill" />
-              </button>
-              {lockBtn(themeLocked, onToggleThemeLock)}
-            </div>
-          </div>
-          <div style={{ padding: '0 10px 6px' }}>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="search themes..."
-              style={{ width: '100%', background: 'var(--tile)', border: '1px solid var(--rule)', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: 'var(--fg)', outline: 'none' }}
-            />
-          </div>
-          {filtered.map((t) => (
-            <GlassPanelItem key={t.name} active={t.name === theme} onClick={() => setTheme(t.name)}>
-              <span>{t.name.replace(/_/g, ' ')}</span>
-              <span style={{ display: 'inline-flex', gap: 3 }}>
-                <span style={dot(t.bg)} />
-                <span style={dot(t.fg)} />
-                <span style={dot(t.accent)} />
-              </span>
-            </GlassPanelItem>
+        </div>
+      )}
+
+      {open === 'resources' && (
+        <div style={{ ...panelStyle, left: 70 }}>
+          <GlassSectionLabel>resources</GlassSectionLabel>
+          {RESOURCES.map((r) => (
+            <GlassPanelItem key={r.slug} onClick={() => { onOpenResource(r.slug); setOpen(null); }}>{r.label}</GlassPanelItem>
           ))}
+        </div>
+      )}
+
+      {open === 'links' && (
+        <div style={{ ...panelStyle, left: 124 }}>
+          <GlassSectionLabel>links</GlassSectionLabel>
+          <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+          <GlassPanelItem href="/graph">space</GlassPanelItem>
+          <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
+        </div>
+      )}
+
+      {open === 'font' && (
+        <div style={{ ...panelStyle, right: 70 }}>
+          <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
+        </div>
+      )}
+
+      {open === 'theme' && (
+        <div style={{ ...panelStyle, right: 16 }}>
+          <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
         </div>
       )}
     </>
@@ -2161,7 +1986,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
           themeLocked, fontLocked,
           onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
         };
-        return isMobile ? <MobileChrome {...chromeProps} /> : <BottomChrome {...chromeProps} />;
+        return isMobile ? <MobileChrome {...chromeProps} /> : <DesktopChrome {...chromeProps} />;
       })()}
 
       {activeTile && <TileLightbox tile={activeTile} onClose={() => setActiveTile(null)} />}

@@ -569,7 +569,8 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
       }
       simAccum = Math.min(simAccum + dt, MAX_FRAME_DT);
       while (simAccum >= SUB_STEP) {
-        stepGraph(nodes, hubs, SUB_STEP, t, grabbed, !reduced);
+        // time drives anchor drift; freeze it for reduced-motion users
+        stepGraph(nodes, hubs, SUB_STEP, reduced ? 0 : t, grabbed, !reduced);
         const parentSim = expandedRef.current;
         if (parentSim && childrenRef.current.length) {
           stepChildren(childrenRef.current, parentSim, childRestRef.current, SUB_STEP);
