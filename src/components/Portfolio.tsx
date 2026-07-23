@@ -1054,15 +1054,14 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
 
       {activeTab === null ? (
         <div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', animation: 'hpFadeSlide 0.25s ease' }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--fg-faint)', marginBottom: 10 }}>explore</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             {TAGS.map((tag) => (
               <button
                 key={tag}
                 onClick={() => setActiveTab(tag)}
-                style={{ fontSize: 13, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 999, padding: '7px 16px', letterSpacing: '-0.005em', transition: 'color 0.15s, border-color 0.15s, background 0.15s' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; e.currentTarget.style.background = 'var(--tile)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; e.currentTarget.style.background = 'transparent'; }}
+                style={{ fontSize: 13, color: 'var(--fg-dim)', border: '1px solid var(--fg-dim)', borderRadius: 999, padding: '7px 16px', letterSpacing: '-0.005em', transition: 'color 0.15s, border-color 0.15s, background 0.15s' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.borderColor = 'var(--fg)'; e.currentTarget.style.background = 'var(--tile)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; e.currentTarget.style.background = 'transparent'; }}
               >
                 {tag}
               </button>
