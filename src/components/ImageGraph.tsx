@@ -18,7 +18,7 @@ interface PostNode {
   tag: string;
   featureImage?: string;
   images: string[];
-  img: HTMLImageElement | null;
+  sprite: HTMLCanvasElement | null;
   imgT: number;       // image fade-in 0..1
   hoverT: number;     // hover ease 0..1
   breathePhase: number;
@@ -32,14 +32,17 @@ interface HubNode {
   y: number;
   vx: number;
   vy: number;
-  anchorX: number;
+  anchorX: number;    // base anchor position...
   anchorY: number;
+  driftPhase: number; // ...that slowly wanders, so whole clusters float
+  driftSpeed: number;
+  driftAmp: number;
   restLen: number;    // spring rest length to member posts
 }
 
 interface ChildNode {
   src: string;
-  img: HTMLImageElement | null;
+  sprite: HTMLCanvasElement | null;
   imgT: number;
   x: number;
   y: number;
@@ -78,7 +81,7 @@ const REPULSE_POST = 140_000;      // post <-> post
 const REPULSE_HUB = 320_000;       // hub <-> hub
 const REPULSE_ROOT = 200_000;      // root keeps the center clear
 const SPRING_POST = 5;             // post -> its hub
-const SPRING_HUB = 8;              // hub -> its anchor
+const SPRING_HUB = 4;              // hub -> its (wandering) anchor
 const DAMPING = 2.6;               // 1/s
 const MAX_VEL = 600;
 const CHILD_REPULSE = 26_000;
@@ -102,19 +105,33 @@ function hashString(s: string) {
   return h >>> 0;
 }
 
-/** Draw an image into a circle using cover-fit (no aspect distortion). */
-function drawCircleImage(ctx: CanvasRenderingContext2D, img: HTMLImageElement, cx: number, cy: number, r: number) {
+/**
+ * Pre-render an image into a small circular sprite (cover-fit, clipped once).
+ * Blitting the sprite per frame is orders of magnitude cheaper than
+ * re-downscaling multi-megapixel photos through a clip path at 60fps.
+ */
+function makeCircleSprite(img: HTMLImageElement, size: number): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext('2d')!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+  ctx.clip();
   const s = Math.min(img.naturalWidth, img.naturalHeight);
   const sx = (img.naturalWidth - s) / 2;
   const sy = (img.naturalHeight - s) / 2;
-  ctx.drawImage(img, sx, sy, s, s, cx - r, cy - r, r * 2, r * 2);
+  ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+  return c;
 }
 
-function loadInto(target: { img: HTMLImageElement | null }, src: string) {
+function loadInto(target: { sprite: HTMLCanvasElement | null }, src: string, spriteSize: number) {
   const el = new Image();
   el.crossOrigin = 'anonymous';
   el.decoding = 'async';
-  el.onload = () => { target.img = el; };
+  el.onload = () => { target.sprite = makeCircleSprite(el, spriteSize); };
   el.src = src;
 }
 
@@ -201,8 +218,10 @@ function stepGraph(
       a.vx -= (dx / d) * f * h; a.vy -= (dy / d) * f * h;
       b.vx += (dx / d) * f * h; b.vy += (dy / d) * f * h;
     }
-    a.vx += (a.anchorX - a.x) * SPRING_HUB * h;
-    a.vy += (a.anchorY - a.y) * SPRING_HUB * h;
+    const ax = a.anchorX + Math.sin(time * a.driftSpeed + a.driftPhase) * a.driftAmp;
+    const ay = a.anchorY + Math.cos(time * a.driftSpeed * 0.7 + a.driftPhase * 1.9) * a.driftAmp;
+    a.vx += (ax - a.x) * SPRING_HUB * h;
+    a.vy += (ay - a.y) * SPRING_HUB * h;
     a.vx *= damp; a.vy *= damp;
     a.x += a.vx * h;
     a.y += a.vy * h;
@@ -249,6 +268,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
   const starsRef = useRef<Star[]>([]);
   const fitZoomRef = useRef(0);
   const extentRef = useRef(1000);
+  const centerRef = useRef({ x: 0, y: 0 }); // graph centroid (fit/reset framing)
 
   const expandedRef = useRef<PostNode | null>(null);
   const childrenRef = useRef<ChildNode[]>([]);
@@ -287,28 +307,57 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
       clusterR.set(tag, Math.max(100, Math.sqrt(tagPosts.length) * (POST_RADIUS + NODE_GAP) * 1.2));
     }
 
-    // Hub anchors on a circle wide enough that neighboring clusters clear each other
-    let hubDist = 0;
+    // Hub anchors: start from a circle but with irregular seeded angles and
+    // distances (no rigid quadrants), then push apart until clusters clear.
+    let baseDist = 0;
     for (let i = 0; i < tags.length; i++) {
       const a = clusterR.get(tags[i])!;
       const b = clusterR.get(tags[(i + 1) % tags.length])!;
       const needed = (a + b + 100) / (2 * Math.sin(Math.PI / Math.max(tags.length, 2)));
-      hubDist = Math.max(hubDist, needed, a + 140);
+      baseDist = Math.max(baseDist, needed, a + 140);
+    }
+
+    const anchors = tags.map((tag, i) => {
+      const angle = (i / tags.length) * Math.PI * 2 - Math.PI / 2 + (rand() - 0.5) * 1.4;
+      const dist = baseDist * (0.7 + rand() * 0.55);
+      return { tag, x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, r: clusterR.get(tag)! };
+    });
+
+    // Relax anchors: separate cluster discs from each other and the root
+    for (let iter = 0; iter < 80; iter++) {
+      for (let i = 0; i < anchors.length; i++) {
+        const a = anchors[i];
+        for (let j = i + 1; j < anchors.length; j++) {
+          const b = anchors[j];
+          const minD = a.r + b.r + 90;
+          let dx = b.x - a.x, dy = b.y - a.y;
+          let d = Math.hypot(dx, dy);
+          if (d < 1) { dx = 1; dy = 0; d = 1; }
+          if (d < minD) {
+            const push = ((minD - d) / d) * 0.5;
+            a.x -= dx * push; a.y -= dy * push;
+            b.x += dx * push; b.y += dy * push;
+          }
+        }
+        const dRoot = Math.hypot(a.x, a.y) || 1;
+        const minRoot = a.r + 150;
+        if (dRoot < minRoot) { a.x *= minRoot / dRoot; a.y *= minRoot / dRoot; }
+      }
     }
 
     const hubs = new Map<string, HubNode>();
-    tags.forEach((tag, i) => {
-      const angle = (i / tags.length) * Math.PI * 2 - Math.PI / 2;
-      hubs.set(tag, {
-        tag,
-        x: Math.cos(angle) * hubDist,
-        y: Math.sin(angle) * hubDist,
+    for (const a of anchors) {
+      hubs.set(a.tag, {
+        tag: a.tag,
+        x: a.x, y: a.y,
         vx: 0, vy: 0,
-        anchorX: Math.cos(angle) * hubDist,
-        anchorY: Math.sin(angle) * hubDist,
-        restLen: clusterR.get(tag)! * 0.75,
+        anchorX: a.x, anchorY: a.y,
+        driftPhase: rand() * Math.PI * 2,
+        driftSpeed: 0.08 + rand() * 0.07,
+        driftAmp: 45 + rand() * 35,
+        restLen: clusterR.get(a.tag)! * 0.75,
       });
-    });
+    }
     hubsRef.current = hubs;
 
     const nodes: PostNode[] = [];
@@ -325,7 +374,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
           vx: 0, vy: 0,
           slug: p.slug, title: p.title, tag: p.tag,
           featureImage: p.featureImage, images: p.images,
-          img: null, imgT: 0, hoverT: 0,
+          sprite: null, imgT: 0, hoverT: 0,
           breathePhase: rand() * Math.PI * 2,
           breatheSpeed: 0.5 + rand() * 0.5,
           restScale: 0.72 + rand() * 0.66,
@@ -337,11 +386,15 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
     for (let i = 0; i < 180; i++) stepGraph(nodes, hubs, SUB_STEP, 0, null, false);
 
     nodesRef.current = nodes;
-    for (const n of nodes) if (n.featureImage) loadInto(n, n.featureImage);
+    for (const n of nodes) if (n.featureImage) loadInto(n, n.featureImage, 224);
 
     // Fit-to-view happens in the render loop once the window has real
     // dimensions (they can be 0 here in prerendered/hidden tabs).
-    extentRef.current = nodes.reduce((m, n) => Math.max(m, Math.hypot(n.x, n.y)), 0) + POST_RADIUS + 70;
+    // Extra padding leaves room for the clusters' slow anchor drift.
+    const cx = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
+    const cy = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
+    centerRef.current = { x: cx, y: cy };
+    extentRef.current = nodes.reduce((m, n) => Math.max(m, Math.hypot(n.x - cx, n.y - cy)), 0) + POST_RADIUS + 150;
     fitZoomRef.current = 0;
   }, [posts]);
 
@@ -355,7 +408,11 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
     const untouched = targetZoomRef.current <= 0.011 || targetZoomRef.current === prevFit;
     if (untouched) {
       targetZoomRef.current = fit;
-      if (zoomRef.current <= 0.011) zoomRef.current = fit * 0.8; // ease in from slightly wider
+      targetPanRef.current = { x: -centerRef.current.x * fit, y: -centerRef.current.y * fit };
+      if (zoomRef.current <= 0.011) {
+        zoomRef.current = fit * 0.8; // ease in from slightly wider
+        panRef.current = { ...targetPanRef.current };
+      }
     }
     return true;
   }, []);
@@ -375,7 +432,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
       const speed = 260 + rand() * 160;
       return {
         src,
-        img: null, imgT: 0,
+        sprite: null, imgT: 0,
         x: node.x + Math.cos(angle) * 4,
         y: node.y + Math.sin(angle) * 4,
         vx: Math.cos(angle) * speed,
@@ -384,7 +441,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
       };
     });
     childrenRef.current = children;
-    for (const c of children) loadInto(c, c.src);
+    for (const c of children) loadInto(c, c.src, 160);
 
     // Zoom just enough to frame the settled cloud of images
     const blobR = restLen + Math.sqrt(count) * CHILD_RADIUS * 0.9 + 70;
@@ -400,7 +457,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
     childrenRef.current = [];
     setExpandedUI(false);
     targetZoomRef.current = fitZoomRef.current;
-    targetPanRef.current = { x: 0, y: 0 };
+    targetPanRef.current = { x: -centerRef.current.x * fitZoomRef.current, y: -centerRef.current.y * fitZoomRef.current };
   }, []);
 
   // ---- Render + simulation loop (persistent) ----
@@ -512,7 +569,8 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
       }
       simAccum = Math.min(simAccum + dt, MAX_FRAME_DT);
       while (simAccum >= SUB_STEP) {
-        stepGraph(nodes, hubs, SUB_STEP, t, grabbed, !reduced);
+        // time drives anchor drift; freeze it for reduced-motion users
+        stepGraph(nodes, hubs, SUB_STEP, reduced ? 0 : t, grabbed, !reduced);
         const parentSim = expandedRef.current;
         if (parentSim && childrenRef.current.length) {
           stepChildren(childrenRef.current, parentSim, childRestRef.current, SUB_STEP);
@@ -572,6 +630,14 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
         if (newHoveredChild >= 0) newHovered = null;
       }
 
+      // Visible world rect (with margin) for culling offscreen work
+      const cullPad = POST_RADIUS * 2;
+      const vx0 = (-w / 2 - pan.x) / zoom - cullPad;
+      const vx1 = (w / 2 - pan.x) / zoom + cullPad;
+      const vy0 = (-h / 2 - pan.y) / zoom - cullPad;
+      const vy1 = (h / 2 - pan.y) / zoom + cullPad;
+      const inView = (x: number, y: number) => x > vx0 && x < vx1 && y > vy0 && y < vy1;
+
       // Edges: root → hubs
       ctx.lineWidth = 1.25 / zoom;
       for (const [tag, hub] of hubs) {
@@ -588,6 +654,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
         const n = nodes[i];
         const hub = hubs.get(n.tag);
         if (!hub) continue;
+        if (!inView(n.x, n.y) && !inView(hub.x, hub.y)) continue;
         const glow = n.hoverT;
         ctx.globalAlpha = edgeDim * (0.5 + 0.5 * glow);
         ctx.strokeStyle = (TAG_COLORS[n.tag] || '#888') + (glow > 0.3 ? '66' : '22');
@@ -618,25 +685,25 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
         const n = nodes[i];
         const isHov = n === newHovered;
         n.hoverT += ((isHov ? 1 : 0) - n.hoverT) * ease(11);
-        if (n.img && n.imgT < 1) n.imgT = Math.min(1, n.imgT + dt * 3);
+        if (n.sprite && n.imgT < 1) n.imgT = Math.min(1, n.imgT + dt * 3);
+        if (!inView(n.x, n.y)) continue;
         const isFocus = parent && n.slug === parent.slug;
         const r = POST_RADIUS * (1 + 0.3 * n.hoverT);
         const alpha = parent
           ? (isFocus ? 1 : 1 - dimT * 0.85)
           : 0.88 + 0.12 * n.hoverT;
 
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.fillStyle = (TAG_COLORS[n.tag] || '#444') + '33';
-        ctx.fill();
-        if (n.img && n.imgT > 0) {
-          ctx.globalAlpha = alpha * n.imgT;
-          drawCircleImage(ctx, n.img, n.x, n.y, r);
+        if (n.imgT < 1) {
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = (TAG_COLORS[n.tag] || '#444') + '33';
+          ctx.fill();
         }
-        ctx.restore();
+        if (n.sprite && n.imgT > 0) {
+          ctx.globalAlpha = alpha * n.imgT;
+          ctx.drawImage(n.sprite, n.x - r, n.y - r, r * 2, r * 2);
+        }
 
         ctx.globalAlpha = alpha;
         ctx.strokeStyle = n.hoverT > 0.02
@@ -654,7 +721,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
         for (let i = 0; i < children.length; i++) {
           const c = children[i];
           c.bornT = Math.min(1, c.bornT + dt * 2.7);
-          if (c.img && c.imgT < 1) c.imgT = Math.min(1, c.imgT + dt * 3.6);
+          if (c.sprite && c.imgT < 1) c.imgT = Math.min(1, c.imgT + dt * 3.6);
           const bt = 1 - Math.pow(1 - c.bornT, 3);
           const isHov = i === newHoveredChild;
           c.hoverT += ((isHov ? 1 : 0) - c.hoverT) * ease(12);
@@ -668,18 +735,17 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
           ctx.lineTo(c.x, c.y);
           ctx.stroke();
 
-          ctx.save();
-          ctx.globalAlpha = bt * (0.8 + 0.2 * c.hoverT);
-          ctx.beginPath();
-          ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
-          ctx.clip();
-          ctx.fillStyle = 'rgba(255,255,255,0.08)';
-          ctx.fill();
-          if (c.img && c.imgT > 0) {
-            ctx.globalAlpha = bt * c.imgT * (0.85 + 0.15 * c.hoverT);
-            drawCircleImage(ctx, c.img, c.x, c.y, r);
+          if (c.imgT < 1) {
+            ctx.globalAlpha = bt * (0.8 + 0.2 * c.hoverT);
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.fill();
           }
-          ctx.restore();
+          if (c.sprite && c.imgT > 0) {
+            ctx.globalAlpha = bt * c.imgT * (0.85 + 0.15 * c.hoverT);
+            ctx.drawImage(c.sprite, c.x - r, c.y - r, r * 2, r * 2);
+          }
 
           if (c.hoverT > 0.02) {
             ctx.globalAlpha = c.hoverT * bt;
@@ -802,7 +868,7 @@ export default function ImageGraph({ posts }: { posts: GraphPost[] }) {
   const handleDoubleClick = useCallback(() => {
     if (!hoveredRef.current && !expandedRef.current) {
       targetZoomRef.current = fitZoomRef.current;
-      targetPanRef.current = { x: 0, y: 0 };
+      targetPanRef.current = { x: -centerRef.current.x * fitZoomRef.current, y: -centerRef.current.y * fitZoomRef.current };
     }
   }, []);
 
