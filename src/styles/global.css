@@ -67,32 +67,10 @@
   to   { opacity: 1; }
 }
 
-/* ---------- Footer chrome ---------- */
-.hp-footer {
-  padding: 12px 32px;
-  row-gap: 8px;
-}
-
-/* On narrow screens: two tidy centered rows (nav links, then theme/font
-   controls) instead of arbitrary mid-group wrapping. Copyright is hidden —
-   it's decorative and mobile vertical space is premium. */
-@media (max-width: 640px) {
-  .hp-footer {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    padding: 8px 10px 10px;
-    border-top: 1px solid var(--rule);
-  }
-  .hp-footer-group {
-    gap: 2px !important;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .hp-footer-copy {
-    display: none;
-  }
+/* ---------- Glass chrome (bloom menus) ---------- */
+.hp-glass-item[data-highlighted] {
+  background: var(--tile) !important;
+  color: var(--fg) !important;
 }
 
 /* ---------- Rainbow trail ---------- */

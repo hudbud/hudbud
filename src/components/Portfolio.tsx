@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Menu } from 'bloom-menu';
 import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type IdeaStatus } from '../data/ideas';
@@ -207,25 +208,59 @@ interface ChromeProps {
   onToggleFontLock: () => void;
 }
 
-// ---------- Mobile chrome: floating liquid-glass buttons ----------
+// ---------- Liquid-glass chrome (bloom morphing menus) ----------
+// The glass surface; bloom's Container animates its own (subtle) shadow.
 const GLASS: CSSProperties = {
   background: 'color-mix(in srgb, var(--bg) 70%, transparent)',
   WebkitBackdropFilter: 'blur(18px) saturate(1.6)',
   backdropFilter: 'blur(18px) saturate(1.6)',
   border: '1px solid color-mix(in srgb, var(--fg) 16%, transparent)',
-  boxShadow: '0 8px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)',
 };
 
-function GlassPanelItem({ onClick, href, external, children, active }: { onClick?: () => void; href?: string; external?: boolean; children: React.ReactNode; active?: boolean }) {
-  const style: CSSProperties = {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-    width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: 14, borderRadius: 10,
-    color: active ? 'var(--fg)' : 'var(--fg-dim)', background: active ? 'var(--tile)' : 'transparent',
+function GlassPanelItem({ onClick, href, external, children, active, closeOnSelect = true }: { onClick?: () => void; href?: string; external?: boolean; children: React.ReactNode; active?: boolean; closeOnSelect?: boolean }) {
+  const select = () => {
+    if (href) {
+      if (external) window.open(href, '_blank', 'noopener');
+      else window.location.href = href;
+    }
+    onClick?.();
   };
-  if (href) {
-    return <a href={href} {...(external ? { target: '_blank', rel: 'noopener' } : {})} style={style}>{children}</a>;
-  }
-  return <button onClick={onClick} style={style}>{children}</button>;
+  return (
+    <Menu.Item
+      onSelect={select}
+      closeOnSelect={closeOnSelect}
+      className="hp-glass-item"
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+        width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: 14, borderRadius: 10,
+        color: active ? 'var(--fg)' : 'var(--fg-dim)', background: active ? 'var(--tile)' : 'transparent',
+      }}
+    >
+      {children}
+    </Menu.Item>
+  );
+}
+
+/** One floating glass button that blooms into its panel. */
+function GlassBloom({ pos, anchor, label, trigger, children }: {
+  pos: CSSProperties; anchor: 'start' | 'end'; label: string; trigger: React.ReactNode; children: React.ReactNode;
+}) {
+  return (
+    <div style={{ position: 'fixed', zIndex: 140, ...pos }}>
+      <Menu.Root direction="top" anchor={anchor}>
+        <Menu.Container buttonSize={46} menuWidth={300} menuRadius={18} style={{ ...GLASS, color: 'var(--fg)' }}>
+          <Menu.Trigger style={{ color: 'var(--fg)', fontSize: 16 }}>
+            <span role="img" aria-label={label} title={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {trigger}
+            </span>
+          </Menu.Trigger>
+          <Menu.Content style={{ padding: 6, maxHeight: '62vh', overflowY: 'auto' }}>
+            {children}
+          </Menu.Content>
+        </Menu.Container>
+      </Menu.Root>
+    </div>
+  );
 }
 
 function GlassSectionLabel({ children }: { children: React.ReactNode }) {
@@ -248,7 +283,7 @@ function FontPanelBody({ font, setFont, fontLocked, onToggleFontLock }: Pick<Chr
         <GlassLockButton locked={fontLocked} toggle={onToggleFontLock} />
       </div>
       {FONT_IDS.map((f) => (
-        <GlassPanelItem key={f} active={f === font} onClick={() => setFont(f)}>
+        <GlassPanelItem key={f} active={f === font} closeOnSelect={false} onClick={() => setFont(f)}>
           <span style={{ fontFamily: FONT_FAMILY[f] }}>{FONT_LABELS[f]}</span>
         </GlassPanelItem>
       ))}
@@ -284,7 +319,7 @@ function ThemePanelBody({ theme, setTheme, themeLocked, onToggleThemeLock }: Pic
         />
       </div>
       {filtered.map((t) => (
-        <GlassPanelItem key={t.name} active={t.name === theme} onClick={() => setTheme(t.name)}>
+        <GlassPanelItem key={t.name} active={t.name === theme} closeOnSelect={false} onClick={() => setTheme(t.name)}>
           <span>{t.name.replace(/_/g, ' ')}</span>
           <span style={{ display: 'inline-flex', gap: 3 }}>
             <span style={dot(t.bg)} />
@@ -298,159 +333,62 @@ function ThemePanelBody({ theme, setTheme, themeLocked, onToggleThemeLock }: Pic
 }
 
 function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
-  const [open, setOpen] = useState<'nav' | 'settings' | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
-
-  const fabStyle: CSSProperties = {
-    ...GLASS,
-    position: 'fixed', bottom: 'calc(16px + env(safe-area-inset-bottom))', zIndex: 140,
-    width: 46, height: 46, borderRadius: 999,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: 'var(--fg)', fontSize: 16,
-  };
-  const panelStyle: CSSProperties = {
-    ...GLASS,
-    position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom))', zIndex: 150,
-    width: 'min(300px, calc(100vw - 32px))', maxHeight: '62vh', overflowY: 'auto',
-    borderRadius: 18, padding: 6, animation: 'hpFadeSlide 0.2s ease',
-  };
-
+  const mobileBottom = 'calc(16px + env(safe-area-inset-bottom))';
   return (
     <>
-      {open && <div onClick={() => setOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 145 }} />}
+      <GlassBloom pos={{ left: 16, bottom: mobileBottom }} anchor="start" label="menu" trigger={<span style={{ letterSpacing: '0.08em' }}>···</span>}>
+        <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+        <GlassPanelItem href="/graph">space</GlassPanelItem>
+        <GlassSectionLabel>resources</GlassSectionLabel>
+        {RESOURCES.map((r) => (
+          <GlassPanelItem key={r.slug} onClick={() => onOpenResource(r.slug)}>{r.label}</GlassPanelItem>
+        ))}
+        <GlassSectionLabel>time machine</GlassSectionLabel>
+        {SITE_VERSIONS.map((v) => (
+          <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); }}>{v.label}</GlassPanelItem>
+        ))}
+        <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
+      </GlassBloom>
 
-      <button onClick={() => setOpen(open === 'nav' ? null : 'nav')} aria-label="menu" aria-expanded={open === 'nav'} style={{ ...fabStyle, left: 16, letterSpacing: '0.08em' }}>
-        ···
-      </button>
-      <button onClick={() => setOpen(open === 'settings' ? null : 'settings')} aria-label="appearance settings" aria-expanded={open === 'settings'} style={{ ...fabStyle, right: 16, fontWeight: 500 }}>
-        <span style={{ fontFamily: FONT_FAMILY[font] }}>Aa</span>
-      </button>
-
-      {open === 'nav' && (
-        <div style={{ ...panelStyle, left: 16 }}>
-          <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
-          <GlassPanelItem href="/graph">space</GlassPanelItem>
-          <GlassSectionLabel>resources</GlassSectionLabel>
-          {RESOURCES.map((r) => (
-            <GlassPanelItem key={r.slug} onClick={() => { onOpenResource(r.slug); setOpen(null); }}>{r.label}</GlassPanelItem>
-          ))}
-          <GlassSectionLabel>time machine</GlassSectionLabel>
-          {SITE_VERSIONS.map((v) => (
-            <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); setOpen(null); }}>{v.label}</GlassPanelItem>
-          ))}
-          <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
-        </div>
-      )}
-
-      {open === 'settings' && (
-        <div style={{ ...panelStyle, right: 16 }}>
-          <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
-          <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
-        </div>
-      )}
+      <GlassBloom pos={{ right: 16, bottom: mobileBottom }} anchor="end" label="appearance settings" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
+        <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
+        <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
+      </GlassBloom>
     </>
   );
 }
 
-// ---------- Desktop chrome: same liquid-glass buttons, one per panel ----------
-type DesktopPanel = 'time' | 'resources' | 'links' | 'font' | 'theme';
-
+// ---------- Desktop chrome: same glass buttons, one bloom menu per panel ----------
 function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
-  const [open, setOpen] = useState<DesktopPanel | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
-
-  const fabStyle: CSSProperties = {
-    ...GLASS,
-    position: 'fixed', bottom: 16, zIndex: 140,
-    width: 46, height: 46, borderRadius: 999,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: 'var(--fg)', fontSize: 16,
-    transition: 'transform 0.15s ease, color 0.15s ease',
-  };
-  const panelStyle: CSSProperties = {
-    ...GLASS,
-    position: 'fixed', bottom: 72, zIndex: 150,
-    width: 300, maxHeight: '62vh', overflowY: 'auto',
-    borderRadius: 18, padding: 6, animation: 'hpFadeSlide 0.2s ease',
-  };
-
-  const fab = (id: DesktopPanel, label: string, pos: CSSProperties, children: React.ReactNode) => (
-    <button
-      onClick={() => setOpen(open === id ? null : id)}
-      title={label}
-      aria-label={label}
-      aria-expanded={open === id}
-      style={{ ...fabStyle, ...pos, ...(open === id ? { color: 'var(--accent)' } : {}) }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
-    >
-      {children}
-    </button>
-  );
-
   return (
     <>
-      {open && <div onClick={() => setOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 145 }} />}
-
       {/* left: time machine, resources, links */}
-      {fab('time', 'time machine', { left: 16 }, <ClockCounterClockwise size={18} weight="fill" />)}
-      {fab('resources', 'resources', { left: 70 }, <BookOpen size={18} weight="fill" />)}
-      {fab('links', 'links', { left: 124 }, <LinkSimple size={18} weight="bold" />)}
+      <GlassBloom pos={{ left: 16, bottom: 16 }} anchor="start" label="time machine" trigger={<ClockCounterClockwise size={18} weight="fill" />}>
+        <GlassSectionLabel>time machine</GlassSectionLabel>
+        {SITE_VERSIONS.map((v) => (
+          <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); }}>{v.label}</GlassPanelItem>
+        ))}
+      </GlassBloom>
+      <GlassBloom pos={{ left: 70, bottom: 16 }} anchor="start" label="resources" trigger={<BookOpen size={18} weight="fill" />}>
+        <GlassSectionLabel>resources</GlassSectionLabel>
+        {RESOURCES.map((r) => (
+          <GlassPanelItem key={r.slug} onClick={() => onOpenResource(r.slug)}>{r.label}</GlassPanelItem>
+        ))}
+      </GlassBloom>
+      <GlassBloom pos={{ left: 124, bottom: 16 }} anchor="start" label="links" trigger={<LinkSimple size={18} weight="bold" />}>
+        <GlassSectionLabel>links</GlassSectionLabel>
+        <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+        <GlassPanelItem href="/graph">space</GlassPanelItem>
+        <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
+      </GlassBloom>
 
       {/* right: font, theme */}
-      {fab('font', 'font', { right: 70 }, <span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>)}
-      {fab('theme', 'theme', { right: 16 }, <Palette size={18} weight="fill" />)}
-
-      {open === 'time' && (
-        <div style={{ ...panelStyle, left: 16 }}>
-          <GlassSectionLabel>time machine</GlassSectionLabel>
-          {SITE_VERSIONS.map((v) => (
-            <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); setOpen(null); }}>{v.label}</GlassPanelItem>
-          ))}
-        </div>
-      )}
-
-      {open === 'resources' && (
-        <div style={{ ...panelStyle, left: 70 }}>
-          <GlassSectionLabel>resources</GlassSectionLabel>
-          {RESOURCES.map((r) => (
-            <GlassPanelItem key={r.slug} onClick={() => { onOpenResource(r.slug); setOpen(null); }}>{r.label}</GlassPanelItem>
-          ))}
-        </div>
-      )}
-
-      {open === 'links' && (
-        <div style={{ ...panelStyle, left: 124 }}>
-          <GlassSectionLabel>links</GlassSectionLabel>
-          <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
-          <GlassPanelItem href="/graph">space</GlassPanelItem>
-          <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
-        </div>
-      )}
-
-      {open === 'font' && (
-        <div style={{ ...panelStyle, right: 70 }}>
-          <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
-        </div>
-      )}
-
-      {open === 'theme' && (
-        <div style={{ ...panelStyle, right: 16 }}>
-          <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
-        </div>
-      )}
+      <GlassBloom pos={{ right: 70, bottom: 16 }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
+        <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
+      </GlassBloom>
+      <GlassBloom pos={{ right: 16, bottom: 16 }} anchor="end" label="theme" trigger={<Palette size={18} weight="fill" />}>
+        <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
+      </GlassBloom>
     </>
   );
 }
