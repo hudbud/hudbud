@@ -12,8 +12,8 @@ import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Spark
 type TabId = 'ideas' | 'life' | 'work' | 'archive';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
 
-const TAGS: TabId[] = ['ideas', 'life', 'work']; // landing page buttons
-const ALL_TABS: TabId[] = ['ideas', 'life', 'work', 'archive']; // tab bar when selected
+const TAGS: TabId[] = ['ideas', 'work', 'life']; // landing page buttons
+const ALL_TABS: TabId[] = ['ideas', 'work', 'life', 'archive']; // tab bar when selected
 
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
 
