@@ -56,17 +56,6 @@
 }
 
 /* ---------- Fade slide ---------- */
-@keyframes hpFadeSlide {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ---------- Fade ---------- */
-@keyframes hpFade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
 /* ---------- Glass chrome (bloom menus) ---------- */
 .hp-glass-item[data-highlighted] {
   background: var(--tile) !important;

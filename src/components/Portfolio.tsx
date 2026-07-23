@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Menu } from 'bloom-menu';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type IdeaStatus } from '../data/ideas';
@@ -207,6 +208,21 @@ interface ChromeProps {
   onToggleThemeLock: () => void;
   onToggleFontLock: () => void;
 }
+
+// Shared motion vocabulary — matches bloom's spring feel
+const SPRING = { type: 'spring', visualDuration: 0.3, bounce: 0.15 } as const;
+const OVERLAY_FADE = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.2 },
+} as const;
+const DIALOG_POP = {
+  initial: { opacity: 0, y: 16, scale: 0.97 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: 8, scale: 0.98 },
+  transition: SPRING,
+} as const;
 
 // ---------- Liquid-glass chrome (bloom morphing menus) ----------
 // The glass surface; bloom's Container animates its own (subtle) shadow.
@@ -665,11 +681,13 @@ function BioModal({ modalId, onClose }: { modalId: string; onClose: () => void }
   }, [onClose]);
   if (!content) return null;
   return (
-    <div
+    <motion.div
+      {...OVERLAY_FADE}
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.82)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '56px 40px', overflowY: 'auto', animation: 'hpFade 0.2s ease' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.82)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '56px 40px', overflowY: 'auto' }}
     >
-      <div
+      <motion.div
+        {...DIALOG_POP}
         onClick={(e) => e.stopPropagation()}
         style={{ width: 'min(560px, 100%)', background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: '36px 40px 40px', boxShadow: '0 20px 80px rgba(0,0,0,0.5)', position: 'relative' }}
       >
@@ -686,8 +704,8 @@ function BioModal({ modalId, onClose }: { modalId: string; onClose: () => void }
         {content.body.split('\n\n').map((para, i) => (
           <p key={i} className="prose" style={{ color: 'var(--fg)', marginBottom: 14, fontSize: 13, lineHeight: 1.65 }}>{para}</p>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -743,17 +761,26 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
       >
         {label}
       </button>
-      {show && content && (
-        <div
-          ref={popoverRef}
-          onMouseEnter={handleEnter}
-          onMouseLeave={handleLeave}
-          style={{ position: 'absolute', top: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', width: 320, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: '16px 18px', boxShadow: '0 12px 40px rgba(0,0,0,0.5)', zIndex: 150, animation: 'hpFade 0.15s ease' }}
-        >
-          {content.image && <img src={content.image} alt="" loading="lazy" style={{ width: '100%', borderRadius: 2, marginBottom: 10 }} />}
-          <p style={{ color: 'var(--fg)', fontSize: 12, lineHeight: 1.6, margin: 0 }}>{content.preview}</p>
-        </div>
-      )}
+      <AnimatePresence>
+        {show && content && (
+          // The positioning effect above manually adjusts left/transform to
+          // dodge viewport edges, so motion may only animate opacity here —
+          // animating x/y would make framer-motion fight over `transform`.
+          <motion.div
+            ref={popoverRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
+            style={{ position: 'absolute', top: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', width: 320, background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 4, padding: '16px 18px', boxShadow: '0 12px 40px rgba(0,0,0,0.5)', zIndex: 150 }}
+          >
+            {content.image && <img src={content.image} alt="" loading="lazy" style={{ width: '100%', borderRadius: 2, marginBottom: 10 }} />}
+            <p style={{ color: 'var(--fg)', fontSize: 12, lineHeight: 1.6, margin: 0 }}>{content.preview}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </span>
   );
 }
@@ -816,7 +843,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
       </div>
 
       {activeTab === null ? (
-        <div key="landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', animation: 'hpFadeSlide 0.25s ease' }}>
+        <motion.div key="landing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SPRING} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             {TAGS.map((tag) => (
               <button
@@ -830,9 +857,9 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div key={activeTab} style={{ animation: 'hpFadeSlide 0.25s ease' }}>
+        <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SPRING}>
           <div style={{ display: 'flex', gap: 4, marginBottom: 24, fontSize: 12, alignItems: 'center' }}>
             {ALL_TABS.map((tag) => (
               <TabButton key={tag} active={activeTab === tag} onClick={() => setActiveTab(tag)}>
@@ -845,7 +872,7 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
           {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
           {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
           {activeTab === 'archive' && <ArchiveList posts={archive} activePost={activePost} setActivePost={setActivePost} />}
-        </div>
+        </motion.div>
       )}
     </div>
     </div>
@@ -1085,9 +1112,10 @@ function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
   }, [onClose]);
 
   return (
-    <div
+    <motion.div
+      {...OVERLAY_FADE}
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.82)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 18, animation: 'hpFade 0.2s ease' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.82)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 18 }}
     >
 
       <button
@@ -1099,7 +1127,8 @@ function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
         [ close × ]
       </button>
 
-      <div
+      <motion.div
+        {...DIALOG_POP}
         onClick={(e) => e.stopPropagation()}
         style={{ position: 'relative', width: 'min(78vw, 1100px)', maxHeight: '70vh', aspectRatio: '4 / 3', background: tile.color, overflow: 'hidden', borderRadius: 2, boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}
       >
@@ -1109,7 +1138,7 @@ function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
             fig. 01 / placeholder
           </div>
         )}
-      </div>
+      </motion.div>
 
       <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(78vw, 1100px)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', color: '#fff', paddingTop: 4 }}>
         <div>
@@ -1124,7 +1153,7 @@ function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
         </div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontVariantNumeric: 'tabular-nums' }}>{tile.year}</div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -1423,11 +1452,16 @@ function Lightbox({ images, index, onClose, onChange }: { images: string[]; inde
   }, [index, images.length, onClose, onChange]);
 
   return (
-    <div
+    <motion.div
+      {...OVERLAY_FADE}
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'hpFade 0.2s ease' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
-      <img
+      <motion.img
+        key={index}
+        initial={{ opacity: 0, scale: 0.985 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={SPRING}
         src={images[index]}
         alt=""
         onClick={(e) => { e.stopPropagation(); onChange((index + 1) % images.length); }}
@@ -1448,7 +1482,7 @@ function Lightbox({ images, index, onClose, onChange }: { images: string[]; inde
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -1604,9 +1638,11 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
       )}
       <style>{`.prose img { cursor: pointer; }`}</style>
 
-      {lightboxIdx !== null && (
-        <Lightbox images={postImages} index={lightboxIdx} onClose={() => setLightboxIdx(null)} onChange={setLightboxIdx} />
-      )}
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <Lightbox images={postImages} index={lightboxIdx} onClose={() => setLightboxIdx(null)} onChange={setLightboxIdx} />
+        )}
+      </AnimatePresence>
 
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)', fontSize: 11, color: 'var(--fg-dim)' }}>
@@ -1927,8 +1963,10 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
         return isMobile ? <MobileChrome {...chromeProps} /> : <DesktopChrome {...chromeProps} />;
       })()}
 
-      {activeTile && <TileLightbox tile={activeTile} onClose={() => setActiveTile(null)} />}
-      {bioModal && <BioModal modalId={bioModal} onClose={() => setBioModal(null)} />}
+      <AnimatePresence>
+        {activeTile && <TileLightbox key="tile" tile={activeTile} onClose={() => setActiveTile(null)} />}
+        {bioModal && <BioModal key="bio" modalId={bioModal} onClose={() => setBioModal(null)} />}
+      </AnimatePresence>
       {timeTravelUrl && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.9)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 24px', background: 'var(--bg)', borderBottom: '1px solid var(--rule)' }}>
