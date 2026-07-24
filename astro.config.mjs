@@ -24,4 +24,7 @@ export default defineConfig({
   markdown: {
     rehypePlugins: [rehypeLazyImages],
   },
+  server: {
+    port: process.env.PORT ? Number(process.env.PORT) : 4321,
+  },
 });

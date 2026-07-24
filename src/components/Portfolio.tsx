@@ -463,9 +463,8 @@ function ResumeList() {
 function WorkSection({ work, activePost, setActivePost }: { work: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
   return (
     <div>
-      <ResumeList />
       {work.length > 0 && (
-        <div style={{ marginTop: 28, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
+        <div>
           <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--fg-faint)', marginBottom: 12 }}>Case Studies</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {work.map((p) => {
@@ -492,6 +491,9 @@ function WorkSection({ work, activePost, setActivePost }: { work: Post[]; active
           </div>
         </div>
       )}
+      <div style={{ marginTop: work.length > 0 ? 28 : 0, borderTop: work.length > 0 ? '1px solid var(--rule)' : 'none', paddingTop: work.length > 0 ? 20 : 0 }}>
+        <ResumeList />
+      </div>
     </div>
   );
 }

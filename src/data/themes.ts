@@ -197,6 +197,70 @@ export const MT_THEMES: MonkeytypeTheme[] = [
   { name: "witch_girl", bg: "#f3dbda", bgInner: "#e7c8be", fg: "#56786a", dim: "#ddb4a7", accent: "#56786a" },
 ];
 
+// ---------- Contrast floor ----------
+// WCAG 2.1 AA relative-luminance contrast, used to keep the load-time random
+// pick from landing on a theme where fg/dim text or the accent color is
+// unreadable against its background. See the accessibility audit for context.
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  let h = hex.trim().replace(/^#/, "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length === 8) h = h.slice(0, 6);
+  if (h.length !== 6) return null;
+  const num = parseInt(h, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+
+function relativeLuminance({ r, g, b }: { r: number; g: number; b: number }): number {
+  const [R, G, B] = [r, g, b].map((v) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+function contrastRatio(hex1: string, hex2: string): number {
+  const c1 = hexToRgb(hex1);
+  const c2 = hexToRgb(hex2);
+  if (!c1 || !c2) return 0;
+  const l1 = relativeLuminance(c1);
+  const l2 = relativeLuminance(c2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function mixHex(fgHex: string, bgHex: string, pct: number): string {
+  const fg = hexToRgb(fgHex);
+  const bg = hexToRgb(bgHex);
+  if (!fg || !bg) return bgHex;
+  const r = Math.round(fg.r * pct + bg.r * (1 - pct));
+  const g = Math.round(fg.g * pct + bg.g * (1 - pct));
+  const b = Math.round(fg.b * pct + bg.b * (1 - pct));
+  return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+
+const AA_TEXT = 4.5; // fg / fg-dim, rendered as small body text on this site
+const AA_UI = 3.0; // accent, rendered on links/active states/selection
+
+function passesContrastFloor(t: MonkeytypeTheme): boolean {
+  const tile = mixHex(t.fg, t.bg, 0.08);
+  const fgMin = Math.min(contrastRatio(t.fg, t.bg), contrastRatio(t.fg, t.bgInner));
+  const dimMin = Math.min(contrastRatio(t.dim, t.bg), contrastRatio(t.dim, t.bgInner));
+  const accentMax = Math.max(
+    contrastRatio(t.accent, t.bg),
+    contrastRatio(t.accent, t.bgInner),
+    contrastRatio(t.accent, tile)
+  );
+  return fgMin >= AA_TEXT && dimMin >= AA_TEXT && accentMax >= AA_UI;
+}
+
+// Themes safe for the *unattended* random pick on page load (no user action
+// taken yet). Excludes rainbow_trail: its accent is an animated hue sweep at
+// fixed lightness, which measurably fails 3:1 for ~half of every cycle.
+export const SAFE_THEME_NAMES: string[] = MT_THEMES.filter(
+  (t) => t.name !== "rainbow_trail" && passesContrastFloor(t)
+).map((t) => t.name);
+
 // Themes with light/dark variants
 export const THEME_PAIRS: Record<string, string> = {
   "blueberry_light": "blueberry_dark",
