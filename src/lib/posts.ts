@@ -19,7 +19,7 @@ function formatDate(d: Date): string {
 function entryToMeta(entry: CollectionEntry<'posts'>): Post {
   return {
     title: entry.data.title,
-    date: formatDate(entry.data.date),
+    date: entry.data.dateLabel ?? formatDate(entry.data.date),
     excerpt: entry.data.excerpt ?? '',
     slug: entry.id,
     tag: entry.data.tag,
