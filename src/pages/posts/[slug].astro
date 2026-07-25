@@ -25,7 +25,10 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
   <main class="post-page">
     <a class="back" href="/">← back</a>
     <header>
-      <div class="meta">[{entry.data.tag}] · {dateLabel}</div>
+      <div class="meta-row">
+        <div class="meta">[{entry.data.tag}] · {dateLabel}</div>
+        <button id="fullscreen-btn" class="fullscreen-btn" type="button">Full screen</button>
+      </div>
       <h1>{entry.data.title}</h1>
     </header>
     {entry.data.feature_image && (
@@ -41,6 +44,8 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
   const images = Array.from(
     document.querySelectorAll<HTMLImageElement>('.prose img')
   );
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
+
   if (images.length) {
     const srcs = images.map((img) => img.src);
 
@@ -86,6 +91,8 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
       el.addEventListener('click', () => openLightbox(i));
     });
 
+    fullscreenBtn?.addEventListener('click', () => openLightbox(0));
+
     overlay.addEventListener('click', closeLightbox);
     prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
     nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
@@ -97,6 +104,8 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
       if (e.key === 'ArrowRight') show(index + 1);
       if (e.key === 'ArrowLeft') show(index - 1);
     });
+  } else {
+    fullscreenBtn?.remove();
   }
 </script>
 
@@ -159,10 +168,28 @@ const dateLabel = entry.data.date.toLocaleDateString('en-US', {
   }
   .back:hover { color: var(--accent); }
   header { margin: 32px 0 28px; }
+  .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
   .meta {
     color: var(--fg-faint);
     font-size: 11px;
-    margin-bottom: 8px;
+  }
+  .fullscreen-btn {
+    color: var(--fg-dim);
+    font-size: 11px;
+    padding: 5px 10px;
+    border: 1px solid var(--fg-dim);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .fullscreen-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
   h1 {
     font-size: 32px;
