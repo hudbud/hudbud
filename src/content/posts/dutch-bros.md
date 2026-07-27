@@ -1,7 +1,7 @@
 ---
 title: "Dutch Bros Coffee"
 date: "2022-01-24"
-tag: "work"
+tags: ["work"]
 excerpt: "Design systems management, Sketch-to-Figma conversion, and UI support for Dutch Bros loyalty app at Hathway."
 feature_image: "/posts/50/Typography.png"
 roles: "Design Systems Management, UI Support, Graphic Design"

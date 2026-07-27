@@ -1,7 +1,7 @@
 ---
 title: "Wild Rainbows"
 date: "2025-05-13T20:07-07:00"
-tag: "life"
+tags: ["life"]
 excerpt: "Somewhere secret"
 feature_image: "/posts/26/30A8F49D-DBF1-41C8-B57C-6235B751D0D0_1_105_c.jpeg"
 ---

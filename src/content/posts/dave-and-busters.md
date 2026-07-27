@@ -1,7 +1,7 @@
 ---
 title: "Dave and Buster's"
 date: "2021-10-06"
-tag: "work"
+tags: ["work"]
 excerpt: "Design systems, UI design, 3D reward illustrations for Dave & Buster's loyalty and ordering experience at Hathway."
 feature_image: "/posts/47/Slide-16_9---1.png"
 roles: "Design Systems Manager, UI Designer, UX Support, Motion Graphics, 3D Specialist"

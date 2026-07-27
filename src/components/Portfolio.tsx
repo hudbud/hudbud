@@ -1,21 +1,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Menu } from 'bloom-menu';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
+import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, FILTER_LEADS, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
-import { IDEAS, type IdeaStatus } from '../data/ideas';
-import { TILES, type Tile } from '../data/tiles';
+import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check } from '@phosphor-icons/react';
+import HeadScene from './HeadScene';
+import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon } from '@phosphor-icons/react';
 
-type TabId = 'ideas' | 'life' | 'work' | 'archive';
+type Filter = 'all' | 'work' | 'life';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
 
-const TAGS: TabId[] = ['ideas', 'work', 'life']; // landing page buttons
-const ALL_TABS: TabId[] = ['ideas', 'work', 'life', 'archive']; // tab bar when selected
+const FILTERS: Filter[] = ['all', 'work', 'life'];
+// A post's facing direction: life -> Life, anything else (work, archive,
+// resources, thoughts) -> Work — archive/resources/ideas sink into the same
+// bucket as active client work rather than getting their own filter.
+const WORK_TAGS = ['work', 'archive', 'resources', 'thoughts'];
+function matchesFilter(p: Post, f: Filter): boolean {
+  if (f === 'all') return true;
+  if (f === 'life') return p.tags.includes('life');
+  return p.tags.some((t) => WORK_TAGS.includes(t));
+}
 
 const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
 
@@ -90,75 +98,6 @@ function LifeImage({ color, seed = 0, height = 140 }: { color: string; seed?: nu
       <div style={{ position: 'absolute', bottom: 6, right: 8, fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>fig.</div>
     </div>
   );
-}
-
-// ---------- Tile pattern ----------
-function TilePattern({ tile }: { tile: Tile }) {
-  const baseStyle: CSSProperties = { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' };
-  const { kind } = tile;
-
-  if (kind === 'photo-series') {
-    return <div style={{ ...baseStyle, background: `repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 8px, transparent 8px 16px)` }} />;
-  }
-  if (kind === 'writing') {
-    return (
-      <div style={{ ...baseStyle, flexDirection: 'column', padding: 14, alignItems: 'flex-start', justifyContent: 'flex-end' }}>
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} style={{ height: 2, background: 'rgba(255,255,255,0.18)', width: `${60 + (i * 7) % 35}%`, marginBottom: 5 }} />
-        ))}
-      </div>
-    );
-  }
-  if (kind === 'motion' || kind === 'animation') {
-    return (
-      <div style={baseStyle}>
-        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.25)', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '50%', left: '50%', width: 12, height: 12, background: 'rgba(255,255,255,0.3)', transform: 'translate(-50%, -50%)' }} />
-        </div>
-      </div>
-    );
-  }
-  if (kind === 'software' || kind === 'product' || kind === 'design-system' || kind === 'web') {
-    return (
-      <div style={{ ...baseStyle, padding: 12, alignItems: 'flex-start', flexDirection: 'column' }}>
-        <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.12)', marginBottom: 4 }} />
-        <div style={{ width: '70%', height: 6, background: 'rgba(255,255,255,0.18)', marginBottom: 4 }} />
-        <div style={{ width: '40%', height: 6, background: 'rgba(255,255,255,0.12)' }} />
-      </div>
-    );
-  }
-  if (kind === 'identity' || kind === 'brand') {
-    return (
-      <div style={baseStyle}>
-        <div style={{ fontSize: 28, color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>
-          {tile.title.charAt(0)}
-        </div>
-      </div>
-    );
-  }
-  if (kind === 'print' || kind === 'ar') {
-    return (
-      <div style={baseStyle}>
-        <div style={{ width: '55%', height: '70%', background: 'rgba(255,255,255,0.08)', borderRadius: 1, position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,0.2)' }} />
-        </div>
-      </div>
-    );
-  }
-  return null;
-}
-
-function TileMedia({ tile, fill = true }: { tile: Tile; fill?: boolean }) {
-  if (tile.image) {
-    return (
-      <img
-        src={tile.image}
-        alt={tile.title}
-        style={fill ? { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } : { width: '100%', height: '100%', objectFit: 'cover' }}
-      />
-    );
-  }
-  return <TilePattern tile={tile} />;
 }
 
 // ---------- Chrome (theme switcher) ----------
@@ -409,21 +348,34 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
   );
 }
 
-// ---------- Tab button ----------
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+// ---------- Filter pill ----------
+function FilterPill({ active, highlight, onClick, onMouseEnter, onMouseLeave, children }: {
+  active: boolean;
+  highlight?: boolean;
+  onClick: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  children: React.ReactNode;
+}) {
   const [hovered, setHovered] = useState(false);
+  // Highlight (sweep) uses the same subtle treatment as hover, since `all`
+  // stays active for the whole sweep and needs its own distinguishable cue.
+  const lit = hovered || (highlight && !active);
   return (
     <button
       onClick={onClick}
       style={{
-        padding: '4px 10px',
-        color: active ? 'var(--bg)' : hovered ? 'var(--bg)' : 'var(--fg-dim)',
-        background: active ? 'var(--fg)' : hovered ? 'var(--fg-faint)' : 'transparent',
-        borderRadius: 2,
-        transition: 'all 0.15s',
+        fontSize: 13,
+        color: active ? 'var(--bg)' : lit ? 'var(--fg)' : 'var(--fg-dim)',
+        background: active ? 'var(--fg)' : highlight && !active ? 'var(--fg-faint)' : hovered ? 'var(--tile)' : 'transparent',
+        border: `1px solid ${active || lit ? 'var(--fg)' : 'var(--fg-dim)'}`,
+        borderRadius: 999,
+        padding: '7px 16px',
+        letterSpacing: '-0.005em',
+        transition: 'color 0.15s, border-color 0.15s, background 0.15s',
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => { setHovered(true); onMouseEnter?.(); }}
+      onMouseLeave={() => { setHovered(false); onMouseLeave?.(); }}
     >
       {children}
     </button>
@@ -460,42 +412,6 @@ function ResumeList() {
   );
 }
 
-function WorkSection({ work, activePost, setActivePost }: { work: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
-  return (
-    <div>
-      <ResumeList />
-      {work.length > 0 && (
-        <div style={{ marginTop: 28, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--fg-faint)', marginBottom: 12 }}>Case Studies</div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {work.map((p) => {
-              const isActive = activePost && activePost.title === p.title;
-              return (
-                <button
-                  key={p.title}
-                  onClick={() => setActivePost(isActive ? null : { ...p, tag: 'work' } as Post)}
-                  style={{ display: 'block', padding: '12px 12px', textAlign: 'left', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = isActive ? 'var(--accent)' : 'var(--fg)'; }}
-                >
-                  <div style={{ fontSize: 13 }}>{p.title}</div>
-                  {(p.agency || p.roles) && (
-                    <div style={{ fontSize: 11, color: 'var(--fg-dim)', marginTop: 3 }}>
-                      {p.agency && <span>{p.agency}</span>}
-                      {p.agency && p.roles && <span> · </span>}
-                      {p.roles && <span>{p.roles.split(',')[0]}</span>}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 const STATUS_LABEL: Record<IdeaStatus, string> = {
   new: 'new!',
   'in-development': 'in development',
@@ -505,115 +421,140 @@ const STATUS_LABEL: Record<IdeaStatus, string> = {
   retired: 'retired',
 };
 
-function StatusTag({ status, note }: { status: IdeaStatus; note?: string }) {
-  const isHighlight = status === 'new';
-  const isMuted = status === 'retired' || status === 'stale' || status === 'dormant';
+// ---------- Unified feed ----------
+// Every entry — post or idea — renders through this one row, in one flat
+// chronological list. A row's only variance is: does it have an image
+// (shown when viewMode is 'roomy'), and what its click does.
+const CATEGORY_CHIPS = ['all', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
+type ViewMode = 'compact' | 'roomy';
+
+interface Row {
+  key: string;
+  title: string;
+  date: string;
+  dateValue: number;
+  image?: string;
+  meta?: string;
+  isActive: boolean;
+  onClick: (() => void) | null;
+}
+
+function formatIdeaDate(iso: string): string {
+  const d = new Date(iso);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${mm}.${dd}.${d.getFullYear()}`;
+}
+
+function ideaClickAction(idea: Idea, openProject: (id: string) => void): (() => void) | null {
+  if (idea.internal && idea.href.startsWith('#')) return () => openProject(idea.href.slice(1));
+  if (!idea.internal && idea.href !== '#') return () => window.open(idea.href, '_blank', 'noopener');
+  return null;
+}
+
+function buildRows({ feed, filter, workCategory, activePost, activeProject, setActivePost, openProject }: {
+  feed: Post[];
+  filter: Filter;
+  workCategory: string;
+  activePost: Post | null;
+  activeProject: string | null;
+  setActivePost: (p: Post | null) => void;
+  openProject: (id: string) => void;
+}): Row[] {
+  const postRows: Row[] = feed
+    .filter((p) => matchesFilter(p, filter) && (filter !== 'work' || workCategory === 'all' || p.category === workCategory))
+    .map((p) => ({
+      key: p.slug ?? p.title,
+      title: p.title,
+      date: p.date,
+      dateValue: p.dateValue,
+      image: p.feature_image,
+      meta: p.agency || p.roles ? [p.agency, p.roles?.split(',')[0]].filter(Boolean).join(' · ') : p.category,
+      isActive: !!(activePost && activePost.title === p.title),
+      onClick: () => setActivePost(activePost && activePost.title === p.title ? null : p),
+    }));
+
+  // Ideas map to the Work bucket; a specific category chip has nothing to
+  // match against, so they only show under "all".
+  const ideaRows: Row[] = (filter === 'life' || (filter === 'work' && workCategory !== 'all'))
+    ? []
+    : IDEAS.map((idea) => {
+        const slug = idea.internal && idea.href.startsWith('#') ? idea.href.slice(1) : null;
+        return {
+          key: idea.title,
+          title: idea.title,
+          date: formatIdeaDate(idea.date),
+          dateValue: +new Date(idea.date),
+          meta: idea.statusNote || STATUS_LABEL[idea.status],
+          isActive: slug ? activeProject === slug : false,
+          onClick: ideaClickAction(idea, openProject),
+        };
+      });
+
+  return [...postRows, ...ideaRows].sort((a, b) => b.dateValue - a.dateValue);
+}
+
+function FeedRow({ row, index, showImage }: { row: Row; index: number; showImage: boolean }) {
+  const clickable = !!row.onClick;
+  const [hovered, setHovered] = useState(false);
+  const lit = row.isActive || (hovered && clickable);
   return (
-    <span
+    <button
+      onClick={row.onClick ?? undefined}
       style={{
-        fontSize: 11,
-        color: isHighlight ? 'var(--accent)' : isMuted ? 'var(--fg-faint)' : 'var(--fg-dim)',
-        whiteSpace: 'nowrap',
-        fontVariantNumeric: 'tabular-nums',
+        display: 'grid',
+        gridTemplateColumns: showImage ? '96px 1fr auto' : '1fr auto',
+        gap: 16,
+        padding: '10px 12px',
+        textAlign: 'left',
+        alignItems: 'center',
+        color: lit ? 'var(--accent)' : 'var(--fg)',
+        background: lit ? 'var(--tile)' : 'transparent',
+        borderRadius: 2,
+        opacity: clickable ? 1 : 0.6,
+        cursor: clickable ? 'pointer' : 'default',
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {note || STATUS_LABEL[status]}
-    </span>
+      {showImage && (
+        row.image ? (
+          <img src={row.image} alt="" loading="lazy" style={{ width: 96, height: 58, objectFit: 'cover', borderRadius: 2 }} />
+        ) : (
+          <LifeImage color="#3a434e" seed={index} height={58} />
+        )
+      )}
+      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+        <span style={{ fontSize: 13 }}>{row.title}</span>
+        {row.meta && <span style={{ fontSize: 11, color: 'var(--fg-dim)' }}>{row.meta}</span>}
+      </span>
+      <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{row.date}</span>
+    </button>
   );
 }
 
-function IdeasList({ onOpenProject }: { onOpenProject?: (id: string) => void }) {
+const VIEW_MODE_ICON: Record<ViewMode, typeof ListDashes> = { compact: ListDashes, roomy: ImageIcon };
+const VIEW_MODE_LABEL: Record<ViewMode, string> = { compact: 'compact (text only)', roomy: 'roomy (with thumbnails)' };
+
+function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMode) => void }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {IDEAS.map((idea, i) => {
-        const external = !idea.internal;
-        const isLinkable = idea.href && idea.href !== '#';
-        const isInternalProject = idea.internal && idea.href && idea.href.startsWith('#');
-        const dim = idea.status === 'retired' || idea.status === 'stale' || idea.status === 'dormant';
-
-        const handleClick = isInternalProject
-          ? (e: any) => { e.preventDefault(); onOpenProject?.(idea.href!.slice(1)); }
-          : undefined;
-
-        const Wrapper: any = isLinkable || isInternalProject ? 'a' : 'div';
-        const wrapperProps: any = isInternalProject
-          ? { href: idea.href, onClick: handleClick }
-          : isLinkable
-            ? { href: idea.href, ...(external ? { target: '_blank', rel: 'noopener' } : {}) }
-            : {};
-
+    <div style={{ display: 'flex', gap: 2, padding: 2, background: 'var(--tile)', borderRadius: 8 }}>
+      {(['compact', 'roomy'] as const).map((m) => {
+        const Icon = VIEW_MODE_ICON[m];
         return (
-          <Wrapper
-            key={idea.title}
-            {...wrapperProps}
-            style={{
-              display: 'block',
-              padding: '14px 0',
-              borderTop: i === 0 ? 'none' : '1px dashed var(--rule)',
-              color: dim ? 'var(--fg-dim)' : 'var(--fg)',
-              transition: 'color 0.15s',
-              cursor: (isLinkable || isInternalProject) ? 'pointer' : 'default',
-            }}
-            onMouseEnter={(isLinkable || isInternalProject) ? (e: any) => (e.currentTarget.style.color = 'var(--accent)') : undefined}
-            onMouseLeave={(isLinkable || isInternalProject) ? (e: any) => (e.currentTarget.style.color = dim ? 'var(--fg-dim)' : 'var(--fg)') : undefined}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16 }}>
-              <span style={{ fontSize: 13 }}>{idea.title}{external && isLinkable && <span style={{ marginLeft: 5, fontSize: 10, opacity: 0.5 }}>↗</span>}</span>
-              <StatusTag status={idea.status} note={idea.statusNote} />
-            </div>
-            {idea.desc && (
-              <div style={{ fontSize: 12, color: 'var(--fg-dim)', marginTop: 4, lineHeight: 1.5 }}>{idea.desc}</div>
-            )}
-          </Wrapper>
-        );
-      })}
-    </div>
-  );
-}
-
-const ARCHIVE_CATEGORIES: Record<string, string> = {
-  bigsur: 'photo', 'travel-video': 'film', 'film-1': 'film', naps: 'motion', 'video_art': 'motion', vjloops: 'motion',
-  doodles: 'illustration', doodles2: 'illustration', everything: 'illustration',
-  d4design: 'branding', locoll: 'branding', painepacificgallery: 'branding', 'thrill-1': 'branding', 'zeroidea-1': 'branding',
-  'buildform': 'branding', 'country-gentlemen': 'branding', 'papercut-films': 'branding', 'savasana-sound': 'branding', tunein: 'branding', 'ugly-boys': 'branding',
-  thevault: 'product', 'playlight-1': 'product', 'trew-gear': 'product', pellowski: 'motion',
-};
-const ARCHIVE_CHIPS = ['all', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
-
-function ArchiveList({ posts, activePost, setActivePost }: { posts: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
-  const [filter, setFilter] = useState<string>('all');
-  const filtered = filter === 'all' ? posts : posts.filter((p) => ARCHIVE_CATEGORIES[p.slug || ''] === filter);
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
-        {ARCHIVE_CHIPS.map((chip) => (
           <button
-            key={chip}
-            onClick={() => setFilter(chip)}
+            key={m}
+            onClick={() => setMode(m)}
+            aria-label={VIEW_MODE_LABEL[m]}
+            title={VIEW_MODE_LABEL[m]}
             style={{
-              fontSize: 11, padding: '3px 10px', borderRadius: 12,
-              background: filter === chip ? 'var(--accent)' : 'var(--tile)',
-              color: filter === chip ? 'var(--bg)' : 'var(--fg-dim)',
+              display: 'flex', padding: '6px 8px', borderRadius: 6,
+              background: mode === m ? 'var(--bg-inner)' : 'transparent',
+              color: mode === m ? 'var(--fg)' : 'var(--fg-dim)',
               transition: 'all 0.15s',
             }}
           >
-            {chip}
-          </button>
-        ))}
-      </div>
-      {filtered.map((p) => {
-        const isActive = activePost && activePost.title === p.title;
-        return (
-          <button
-            key={p.title}
-            onClick={() => setActivePost(isActive ? null : { ...p, tag: 'archive' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
-            onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
-            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
-          >
-            <span style={{ fontSize: 13 }}>{p.title}</span>
-            <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{p.date}</span>
+            <Icon size={14} weight={mode === m ? 'fill' : 'regular'} />
           </button>
         );
       })}
@@ -621,52 +562,45 @@ function ArchiveList({ posts, activePost, setActivePost }: { posts: Post[]; acti
   );
 }
 
-function PostList({ posts, activePost, setActivePost }: { posts: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
+function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode }: {
+  feed: Post[];
+  filter: Filter;
+  workCategory: string;
+  setWorkCategory: (c: string) => void;
+  activePost: Post | null;
+  activeProject: string | null;
+  setActivePost: (p: Post | null) => void;
+  openProject: (id: string) => void;
+  viewMode: ViewMode;
+}) {
+  const rows = useMemo(
+    () => buildRows({ feed, filter, workCategory, activePost, activeProject, setActivePost, openProject }),
+    [feed, filter, workCategory, activePost, activeProject, setActivePost, openProject]
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {posts.map((p) => {
-        const isActive = activePost && activePost.title === p.title;
-        return (
-          <button
-            key={p.title}
-            onClick={() => setActivePost(isActive ? null : { ...p, tag: 'thoughts' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, padding: '10px 12px', textAlign: 'left', alignItems: 'baseline', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
-            onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
-            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
-          >
-            <span style={{ fontSize: 13 }}>{p.title}</span>
-            <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{p.date}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function LifeList({ posts, activePost, setActivePost }: { posts: Post[]; activePost: Post | null; setActivePost: (p: Post | null) => void }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {posts.map((p, i) => {
-        const isActive = activePost && activePost.title === p.title;
-        const imgColor = p.img || '#3a434e';
-        return (
-          <button
-            key={p.title}
-            onClick={() => setActivePost(isActive ? null : { ...p, tag: 'life' } as Post)}
-            style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 16, padding: '10px 12px', textAlign: 'left', alignItems: 'center', color: isActive ? 'var(--accent)' : 'var(--fg)', background: isActive ? 'var(--tile)' : 'transparent', borderRadius: 2, transition: 'all 0.15s' }}
-            onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--accent)'; }}
-            onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = 'var(--fg)'; }}
-          >
-            {p.feature_image ? (
-              <img src={p.feature_image} alt="" loading="lazy" style={{ width: 96, height: 58, objectFit: 'cover', borderRadius: 2 }} />
-            ) : (
-              <LifeImage color={imgColor} seed={i} height={58} />
-            )}
-            <span style={{ fontSize: 13 }}>{p.title}</span>
-            <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{p.date}</span>
-          </button>
-        );
-      })}
+      {filter === 'work' && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+          {CATEGORY_CHIPS.map((chip) => (
+            <button
+              key={chip}
+              onClick={() => setWorkCategory(chip)}
+              style={{
+                fontSize: 11, padding: '3px 10px', borderRadius: 12,
+                background: workCategory === chip ? 'var(--accent)' : 'var(--tile)',
+                color: workCategory === chip ? 'var(--bg)' : 'var(--fg-dim)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+      )}
+      {rows.map((row, i) => (
+        <FeedRow key={row.key} row={row} index={i} showImage={viewMode === 'roomy'} />
+      ))}
     </div>
   );
 }
@@ -786,34 +720,56 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpenProject, onOpenBioModal, onHome, life, work, archive }: {
-  activeTab: TabId | null;
-  setActiveTab: (t: TabId) => void;
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, theme, isMobile, sweepStage, onSweepStage, ghost, setGhost }: {
+  filter: Filter;
+  setFilter: (f: Filter) => void;
+  workCategory: string;
+  setWorkCategory: (c: string) => void;
   activePost: Post | null;
+  activeProject: string | null;
   setActivePost: (p: Post | null) => void;
   onOpenProject: (id: string) => void;
   onOpenBioModal: (id: string) => void;
   onHome: () => void;
-  life: Post[];
-  work: Post[];
-  archive: Post[];
+  feed: Post[];
+  theme: string;
+  isMobile: boolean;
+  sweepStage: Filter | null;
+  onSweepStage: (stage: Filter | null) => void;
+  ghost: Filter | null;
+  setGhost: (f: Filter | null) => void;
 }) {
   const [showMore, setShowMore] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('compact');
   // Apple-style type scale: one big, tight display line; supporting lines a
   // step down with relaxed leading. (500 is the heaviest weight all five
   // site fonts actually ship, so it stays true rather than synthesizing.)
-  const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
+  const [, ...leadRest] = BIO_LEAD.split('\n');
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
+        <HeadScene facing={filter} ghost={ghost} onSweepStage={onSweepStage} theme={theme} height={isMobile ? 120 : 180} />
         <div style={{ marginBottom: 14 }}>
           <HudMark size={46} onClick={onHome} />
         </div>
         <h1 style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}>
           <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
         </h1>
-        <p style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>{leadDisplay}</p>
+        <div style={{ marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.p
+              key={filter}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={SPRING}
+              style={{ color: 'var(--fg)', margin: 0 }}
+            >
+              {FILTER_LEADS[filter]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
         {leadRest.length > 0 && (
           <p style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}>{leadRest.join('\n')}</p>
         )}
@@ -838,322 +794,46 @@ function LeftColumn({ activeTab, setActiveTab, activePost, setActivePost, onOpen
             <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
               <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
             </p>
+            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--rule)' }}>
+              <ResumeList />
+            </div>
           </div>
         )}
       </div>
 
-      {activeTab === null ? (
-        <motion.div key="landing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SPRING} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-            {TAGS.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveTab(tag)}
-                style={{ fontSize: 13, color: 'var(--fg-dim)', border: '1px solid var(--fg-dim)', borderRadius: 999, padding: '7px 16px', letterSpacing: '-0.005em', transition: 'color 0.15s, border-color 0.15s, background 0.15s' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; e.currentTarget.style.borderColor = 'var(--fg)'; e.currentTarget.style.background = 'var(--tile)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--fg-dim)'; e.currentTarget.style.background = 'transparent'; }}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SPRING}>
-          <div style={{ display: 'flex', gap: 4, marginBottom: 24, fontSize: 12, alignItems: 'center' }}>
-            {ALL_TABS.map((tag) => (
-              <TabButton key={tag} active={activeTab === tag} onClick={() => setActiveTab(tag)}>
-                {tag}
-              </TabButton>
-            ))}
-          </div>
-
-          {activeTab === 'work' && <WorkSection work={work} activePost={activePost} setActivePost={setActivePost} />}
-          {activeTab === 'ideas' && <IdeasList onOpenProject={onOpenProject} />}
-          {activeTab === 'life' && <LifeList posts={life} activePost={activePost} setActivePost={setActivePost} />}
-          {activeTab === 'archive' && <ArchiveList posts={archive} activePost={activePost} setActivePost={setActivePost} />}
-        </motion.div>
-      )}
-    </div>
-    </div>
-  );
-}
-
-// ---------- Image gallery (MVP default right panel) ----------
-function ImageGallery({ images, onImageClick }: { images: GalleryImage[]; onImageClick?: (slug: string) => void }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const velocityRef = useRef(0);
-  const targetVelRef = useRef(0.2);
-  const rafRef = useRef<number | null>(null);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setReady(true), 150);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = Math.min(48, now - last);
-      last = now;
-      const k = targetVelRef.current === 0 ? 0.03 : 0.06;
-      velocityRef.current += (targetVelRef.current - velocityRef.current) * k;
-      if (Math.abs(velocityRef.current) > 0.002) {
-        const max = el.scrollHeight - el.clientHeight;
-        let next = el.scrollTop + velocityRef.current * (dt / 16.67);
-        if (max > 0) {
-          if (next >= max - 0.5) next = 0;
-          else if (next < 0) next = max;
-        }
-        el.scrollTop = next;
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
-  }, []);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let timer: number | null = null;
-    const pause = () => {
-      targetVelRef.current = 0;
-      if (timer !== null) clearTimeout(timer);
-      timer = window.setTimeout(() => { if (hoveredIdx === null) targetVelRef.current = 0.2; }, 2000);
-    };
-    el.addEventListener('wheel', pause, { passive: true });
-    el.addEventListener('touchmove', pause, { passive: true });
-    return () => { el.removeEventListener('wheel', pause); el.removeEventListener('touchmove', pause); if (timer !== null) clearTimeout(timer); };
-  }, [hoveredIdx]);
-
-  if (!images.length) return null;
-
-  return (
-    <div style={{ position: 'relative', height: '100%', opacity: ready ? 1 : 0, transition: 'opacity 0.5s ease' }}>
-      <div
-        ref={containerRef}
-        className="hp-scroll"
-        style={{
-          position: 'relative',
-          height: '100%',
-          overflowY: 'auto',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
-          maskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
-          padding: '32px 64px 80px 56px',
-        }}
-      >
-        <style>{`.hp-scroll::-webkit-scrollbar { display: none; } .hp-scroll { scrollbar-width: none; }`}</style>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-          {images.map((img, i) => {
-            const isHovered = hoveredIdx === i;
-            const anyHovered = hoveredIdx !== null;
-            return (
-              <div
-                key={i}
-                onMouseEnter={() => { setHoveredIdx(i); targetVelRef.current = 0; }}
-                onMouseLeave={() => { setHoveredIdx(null); targetVelRef.current = 0.2; }}
-                onClick={() => onImageClick?.(img.slug)}
-                style={{
-                  aspectRatio: '4 / 3',
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  opacity: anyHovered ? (isHovered ? 1 : 0.4) : 0.88,
-                  boxShadow: isHovered ? '0 0 16px rgba(255,255,255,0.12)' : 'none',
-                  transition: 'opacity 0.4s ease, box-shadow 0.3s ease',
-                  background: 'var(--tile)',
-                }}
-              >
-                <img src={img.src} alt="" loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-            );
-          })}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {FILTERS.map((f) => (
+            <FilterPill
+              key={f}
+              active={filter === f}
+              highlight={sweepStage === f}
+              onClick={() => setFilter(filter === f ? 'all' : f)}
+              onMouseEnter={!isMobile ? () => setGhost(f) : undefined}
+              onMouseLeave={!isMobile ? () => setGhost(null) : undefined}
+            >
+              {f}
+            </FilterPill>
+          ))}
         </div>
+        <ViewModeToggle mode={viewMode} setMode={setViewMode} />
       </div>
-    </div>
-  );
-}
 
-// ---------- Tile grid with drift ----------
-function TileGrid({ density, onPick }: { density: string; onPick: (tile: Tile) => void }) {
-  const [cols] = density.split('x').map(Number);
-  const [hoverId, setHoverId] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  const velocityRef = useRef(0);
-  const targetVelRef = useRef(0.25);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = Math.min(48, now - last);
-      last = now;
-      const k = targetVelRef.current === 0 ? 0.03 : 0.06;
-      velocityRef.current = velocityRef.current + (targetVelRef.current - velocityRef.current) * k;
-      if (Math.abs(velocityRef.current) > 0.002) {
-        const max = el.scrollHeight - el.clientHeight;
-        let next = el.scrollTop + velocityRef.current * (dt / 16.67);
-        if (max > 0) {
-          if (next >= max - 0.5) next = 0;
-          else if (next < 0) next = max;
-        }
-        el.scrollTop = next;
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  const handleEnter = useCallback((id: string) => {
-    setHoverId(id);
-    targetVelRef.current = 0;
-  }, []);
-  const handleLeave = useCallback(() => {
-    setHoverId(null);
-    targetVelRef.current = 0.25;
-  }, []);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let timer: number | null = null;
-    const pause = () => {
-      targetVelRef.current = 0;
-      if (timer !== null) clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        if (hoverId === null) targetVelRef.current = 0.25;
-      }, 2000);
-    };
-    el.addEventListener('wheel', pause, { passive: true });
-    el.addEventListener('touchmove', pause, { passive: true });
-    return () => {
-      el.removeEventListener('wheel', pause);
-      el.removeEventListener('touchmove', pause);
-      if (timer !== null) clearTimeout(timer);
-    };
-  }, [hoverId]);
-
-  return (
-    <div style={{ position: 'relative', height: '100%' }}>
-      <div
-        ref={containerRef}
-        className="hp-scroll"
-        style={{
-          position: 'relative',
-          height: '100%',
-          overflowY: 'auto',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
-          maskImage: 'linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 90px), transparent 100%)',
-          padding: '32px 64px 80px 56px',
-        }}
-      >
-        <style>{`.hp-scroll::-webkit-scrollbar { display: none; } .hp-scroll { scrollbar-width: none; }`}</style>
-
-        <div style={{ columnCount: cols, columnGap: '10px' }}>
-          {TILES.map((t) => {
-            const seed = t.id.charCodeAt(1) + t.id.charCodeAt(2);
-            const aspect = [1, 1.25, 1.45, 0.85, 1.1, 1.6, 0.95][seed % 7];
-            const isHovered = hoverId === t.id;
-            const anyHovered = hoverId !== null;
-            return (
-              <button
-                key={t.id}
-                data-tile-id={t.id}
-                onClick={() => onPick(t)}
-                onMouseEnter={() => handleEnter(t.id)}
-                onMouseLeave={handleLeave}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  aspectRatio: `1 / ${aspect}`,
-                  background: t.color,
-                  opacity: anyHovered ? (isHovered ? 1 : 0.3) : 0.88,
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: 2,
-                  transition: 'opacity 0.45s ease',
-                  cursor: 'pointer',
-                  marginBottom: 10,
-                  breakInside: 'avoid',
-                }}
-              >
-                <TileMedia tile={t} />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------- Tile lightbox ----------
-function TileLightbox({ tile, onClose }: { tile: Tile; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
-
-  return (
-    <motion.div
-      {...OVERLAY_FADE}
-      onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.82)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, gap: 18 }}
-    >
-
-      <button
-        onClick={onClose}
-        style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '6px 14px', border: '1px solid rgba(255,255,255,0.25)', borderRadius: 2 }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'; }}
-      >
-        [ close × ]
-      </button>
-
-      <motion.div
-        {...DIALOG_POP}
-        onClick={(e) => e.stopPropagation()}
-        style={{ position: 'relative', width: 'min(78vw, 1100px)', maxHeight: '70vh', aspectRatio: '4 / 3', background: tile.color, overflow: 'hidden', borderRadius: 2, boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}
-      >
-        <TileMedia tile={tile} />
-        {!tile.image && (
-          <div style={{ position: 'absolute', bottom: 12, right: 14, fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
-            fig. 01 / placeholder
-          </div>
-        )}
+      <motion.div key={filter} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SPRING}>
+        <Feed
+          feed={feed}
+          filter={filter}
+          workCategory={workCategory}
+          setWorkCategory={setWorkCategory}
+          activePost={activePost}
+          activeProject={activeProject}
+          setActivePost={setActivePost}
+          openProject={onOpenProject}
+          viewMode={viewMode}
+        />
       </motion.div>
-
-      <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(78vw, 1100px)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', color: '#fff', paddingTop: 4 }}>
-        <div>
-          <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em' }}>{tile.title}</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{tile.kind} · {tile.medium}</div>
-          {tile.caption && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 10, maxWidth: 520 }}>{tile.caption}</div>}
-          {tile.href && (
-            <a href={tile.href} target="_blank" rel="noopener" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 10, display: 'inline-block', borderBottom: '1px dashed rgba(255,255,255,0.35)' }}>
-              ↗ visit
-            </a>
-          )}
-        </div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontVariantNumeric: 'tabular-nums' }}>{tile.year}</div>
-      </div>
-    </motion.div>
+    </div>
+    </div>
   );
 }
 
@@ -1590,15 +1270,15 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
     return () => el.removeEventListener('click', handleClick);
   }, [postImages]);
 
-  const isLife = post.tag === 'life';
-  const isWork = post.tag === 'work' || post.tag === 'archive';
+  const isLife = post.tags.includes('life');
+  const isWork = post.tags.includes('work') || post.tags.includes('archive');
   const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: '56px 56px 100px 48px', position: 'relative' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
         <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>
-          [{post.tag || 'post'}] · {post.date}
+          [{post.tags.join(', ')}] · {post.date}
         </div>
         {post.slug && (
           <button
@@ -1824,26 +1504,12 @@ function FrameFooter() {
 }
 
 // ---------- App ----------
-interface GalleryImage {
-  src: string;
-  slug: string;
-}
-
 interface PortfolioProps {
-  thoughts?: Post[];
-  life?: Post[];
-  archive?: Post[];
-  work?: Post[];
-  resources?: Post[];
-  galleryImages?: GalleryImage[];
+  feed?: Post[];
 }
 
-export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, archive: archiveProp, work: workProp, resources: resourcesProp }: PortfolioProps) {
-  const thoughts = thoughtsProp ?? [];
-  const life = lifeProp ?? [];
-  const archive = archiveProp ?? [];
-  const work = workProp ?? [];
-  const resources = resourcesProp ?? [];
+export default function Portfolio({ feed: feedProp }: PortfolioProps) {
+  const feed = feedProp ?? [];
 
   // isMobile starts false to match the server render; the mount effect below
   // corrects it on the client before paint-sensitive layout settles.
@@ -1860,8 +1526,11 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
   const [themeLocked, setThemeLocked] = useState(false);
   const [fontLocked, setFontLocked] = useState(false);
-  const [activeTab, setActiveTabRaw] = useState<TabId | null>(null);
-  const handleTabClick = (t: TabId) => setActiveTabRaw(prev => prev === t ? null : t);
+  const [filter, setFilterRaw] = useState<Filter>('all');
+  const [workCategory, setWorkCategory] = useState('all');
+  const setFilter = (f: Filter) => { setFilterRaw(f); setWorkCategory('all'); };
+  const [sweepStage, setSweepStage] = useState<Filter | null>(null);
+  const [ghost, setGhost] = useState<Filter | null>(null);
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
@@ -1878,12 +1547,11 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     else localStorage.removeItem('hp-lock-font');
   };
 
-  const [activeTile, setActiveTileRaw] = useState<Tile | null>(null);
   const [activePost, setActivePostRaw] = useState<Post | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
 
   // Reconcile deferred, client-only state: the theme/font the inline head
-  // script already painted, lock flags, and any ?tab=/?post= deep link.
+  // script already painted, lock flags, and any ?filter=/?cat=/?post= deep link.
   useEffect(() => {
     const initial = readHpInitial();
     if (initial) {
@@ -1894,16 +1562,18 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
     setFontLocked(!!localStorage.getItem('hp-lock-font'));
 
     const params = new URLSearchParams(window.location.search);
-    const tab = params.get('tab');
-    if (tab && (ALL_TABS as string[]).includes(tab)) setActiveTabRaw(tab as TabId);
+    const filterParam = params.get('filter');
+    if (filterParam && (FILTERS as string[]).includes(filterParam)) setFilterRaw(filterParam as Filter);
+    const catParam = params.get('cat');
+    if (catParam) setWorkCategory(catParam);
 
     const postSlug = params.get('post');
     if (postSlug) {
-      const allPosts = [...work, ...thoughts, ...life, ...archive, ...resources];
-      const found = allPosts.find((p) => p.slug === postSlug);
+      const found = feed.find((p) => p.slug === postSlug);
       if (found) {
         setActivePostRaw(found);
-        if (found.tag && (ALL_TABS as string[]).includes(found.tag)) setActiveTabRaw(found.tag as TabId);
+        if (found.tags.includes('life')) setFilterRaw('life');
+        else if (found.tags.some((t) => WORK_TAGS.includes(t))) setFilterRaw('work');
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1911,9 +1581,8 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
   const [bioModal, setBioModal] = useState<string | null>(null);
   const [timeTravelUrl, setTimeTravelUrl] = useState<string | null>(null);
 
-  const setActiveTile = (t: Tile | null) => { setActiveTileRaw(t); setActivePostRaw(null); };
-  const setActivePost = (p: Post | null) => { setActivePostRaw(p); setActiveTileRaw(null); setActiveProject(null); };
-  const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); setActiveTileRaw(null); };
+  const setActivePost = (p: Post | null) => { setActivePostRaw(p); setActiveProject(null); };
+  const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); };
   const closeRightPanel = () => { setActivePostRaw(null); setActiveProject(null); };
 
   useEffect(() => {
@@ -1974,16 +1643,23 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
             height: '100%',
           }}>
             <LeftColumn
-              activeTab={activeTab}
-              setActiveTab={handleTabClick}
+              filter={filter}
+              setFilter={setFilter}
+              workCategory={workCategory}
+              setWorkCategory={setWorkCategory}
               activePost={activePost}
+              activeProject={activeProject}
               setActivePost={setActivePost}
               onOpenProject={openProject}
               onOpenBioModal={setBioModal}
-              onHome={() => { setActiveTabRaw(null); closeRightPanel(); }}
-              life={life}
-              work={work}
-              archive={archive}
+              onHome={() => { setFilter('all'); closeRightPanel(); }}
+              feed={feed}
+              theme={theme}
+              isMobile={isMobile}
+              sweepStage={sweepStage}
+              onSweepStage={setSweepStage}
+              ghost={ghost}
+              setGhost={setGhost}
             />
           </div>
         )}
@@ -2013,7 +1689,7 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
         const chromeProps: ChromeProps = {
           theme, setTheme, font, setFont,
           onTimeTravel: setTimeTravelUrl,
-          onOpenResource: (slug: string) => { const p = resources.find(r => r.slug === slug); if (p) setActivePost(p); },
+          onOpenResource: (slug: string) => { const p = feed.find(r => r.slug === slug); if (p) setActivePost(p); },
           themeLocked, fontLocked,
           onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
         };
@@ -2021,7 +1697,6 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
       })()}
 
       <AnimatePresence>
-        {activeTile && <TileLightbox key="tile" tile={activeTile} onClose={() => setActiveTile(null)} />}
         {bioModal && <BioModal key="bio" modalId={bioModal} onClose={() => setBioModal(null)} />}
       </AnimatePresence>
       {timeTravelUrl && (

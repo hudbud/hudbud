@@ -20,9 +20,11 @@ function entryToMeta(entry: CollectionEntry<'posts'>): Post {
   return {
     title: entry.data.title,
     date: entry.data.dateLabel ?? formatDate(entry.data.date),
+    dateValue: +entry.data.date,
     excerpt: entry.data.excerpt ?? '',
     slug: entry.id,
-    tag: entry.data.tag,
+    tags: entry.data.tags,
+    category: entry.data.category,
     feature_image: entry.data.feature_image,
     roles: entry.data.roles,
     tools: entry.data.tools,
@@ -43,15 +45,22 @@ async function entryToPost(entry: CollectionEntry<'posts'>): Promise<Post> {
 
 /** Metadata only — skips AstroContainer rendering, much cheaper for listing pages. */
 export async function loadPostMeta(tag: Tag): Promise<Post[]> {
-  const entries = await getCollection('posts', (e) => e.data.tag === tag && !e.data.draft);
+  const entries = await getCollection('posts', (e) => e.data.tags.includes(tag) && !e.data.draft);
   entries.sort((a, b) => +b.data.date - +a.data.date);
   return entries.map(entryToMeta);
 }
 
 export async function loadPosts(tag: Tag): Promise<Post[]> {
-  const entries = await getCollection('posts', (e) => e.data.tag === tag && !e.data.draft);
+  const entries = await getCollection('posts', (e) => e.data.tags.includes(tag) && !e.data.draft);
   entries.sort((a, b) => +b.data.date - +a.data.date);
   return Promise.all(entries.map(entryToPost));
+}
+
+/** All non-draft posts, one chronological feed newest-first. */
+export async function loadFeedMeta(): Promise<Post[]> {
+  const entries = await getCollection('posts', (e) => !e.data.draft);
+  entries.sort((a, b) => +b.data.date - +a.data.date);
+  return entries.map(entryToMeta);
 }
 
 export interface GalleryImage {
@@ -111,7 +120,7 @@ export async function loadGraphData(): Promise<GraphPost[]> {
     return {
       slug: entry.id,
       title: entry.data.title,
-      tag: entry.data.tag,
+      tag: entry.data.tags[0],
       featureImage: entry.data.feature_image,
       images,
     };

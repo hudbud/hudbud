@@ -1,7 +1,8 @@
 ---
 title: "Thrill"
 date: "2020-01-06T03:41:44.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 feature_image: "/posts/44/5180fc2e-6f0b-40fa-8129-0e69225741ba_rw_600.png"
 ---
 

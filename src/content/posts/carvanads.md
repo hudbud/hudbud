@@ -1,7 +1,7 @@
 ---
 title: "CarvanaDS"
 date: "2024-05-30T18:21-07:00"
-tag: "work"
+tags: ["work"]
 excerpt: "Building and maintaining Carvana's design system — UI, design ops, engineering collaboration, icons, and the system's long-term upkeep."
 roles: "Senior Product Designer, Design Systems"
 tools: "Figma"

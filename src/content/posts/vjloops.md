@@ -1,7 +1,8 @@
 ---
 title: "VJ Loops"
 date: "2020-08-19T21:32:38.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "motion"
 feature_image: "/posts/31/image-asset.gif"
 ---
 

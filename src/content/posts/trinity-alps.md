@@ -1,7 +1,7 @@
 ---
 title: "Trinity alps"
 date: "2024-05-28T18:23-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/10/IMG_0533-scaled.jpg"
 ---
 Gonna actually do the write up here but check this out:

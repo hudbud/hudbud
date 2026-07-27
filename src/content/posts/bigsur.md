@@ -1,7 +1,8 @@
 ---
 title: "bigsur"
 date: "2020-01-20T20:20:43.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "photo"
 feature_image: "/posts/45/bigsur-35.jpg"
 ---
 

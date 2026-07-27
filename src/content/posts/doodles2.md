@@ -1,7 +1,8 @@
 ---
 title: "Doodles2"
 date: "2020-01-03T00:26:22.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "illustration"
 feature_image: "/posts/43/IMG_0123.png"
 ---
 

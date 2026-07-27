@@ -1,7 +1,8 @@
 ---
 title: "Playlight"
 date: "2020-01-02T23:42:48.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "product"
 feature_image: "/posts/42/final2.jpg"
 excerpt: "A product exploration in gradients and light."
 ---

@@ -1,7 +1,8 @@
 ---
 title: "Savasana Sound"
 date: "2021-03-04"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 excerpt: "Branding and logo design for a sound bath performance group."
 feature_image: "/posts/60/3.png"
 ---

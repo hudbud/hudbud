@@ -1,7 +1,7 @@
 ---
 title: "Ireland"
 date: "2025-11-04T12:00-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/66/ireland-047.jpeg"
 excerpt: "Coming soon."
 ---

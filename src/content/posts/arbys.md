@@ -1,7 +1,7 @@
 ---
 title: "Arby's"
 date: "2021-10-06"
-tag: "work"
+tags: ["work"]
 excerpt: "Animated videos for Arby's franchisee conference at Hathway."
 roles: "Animator"
 tools: "After Effects, Illustrator"

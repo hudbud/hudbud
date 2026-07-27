@@ -1,7 +1,7 @@
 ---
 title: "Building paine.design"
 date: "2026-05-20"
-tag: "work"
+tags: ["work"]
 excerpt: "How this site came together — from architecture decisions to scraping old content to building an image graph that looks like a galaxy."
 feature_image: "/posts/graph-zoomed-in.jpg"
 ---

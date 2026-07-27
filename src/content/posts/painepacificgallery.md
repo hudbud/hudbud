@@ -1,7 +1,8 @@
 ---
 title: "painepacific"
 date: "2019-12-19T05:51:39.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 feature_image: "/posts/36/322dd77a-7945-475b-b2b4-3a3099a283bc_rw_1200.jpg"
 excerpt: "Paine Pacific site redesign — visual design and web layout."
 ---

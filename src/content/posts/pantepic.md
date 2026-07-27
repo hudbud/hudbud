@@ -1,7 +1,7 @@
 ---
 title: "Pantepic"
 date: "2020-09-04"
-tag: "work"
+tags: ["work"]
 excerpt: "Logo, branding, UI design, and mapbox design for a map-based secure messenger. Successfully launched on iOS and Android."
 feature_image: "/posts/61/pantepic_logo_guidelines.png"
 roles: "Logo & Branding, UI Design, Mapbox Design, Marketing Collateral, Web Design"

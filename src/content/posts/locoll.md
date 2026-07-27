@@ -1,7 +1,8 @@
 ---
 title: "Locoll Design Co."
 date: "2020-01-06T18:13:23.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 feature_image: "/posts/34/20180805_165438.jpg"
 excerpt: "Sticker and clothing brand. Small runs, hand-picked drops, mostly for friends."
 ---

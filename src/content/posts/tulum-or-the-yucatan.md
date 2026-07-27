@@ -1,7 +1,7 @@
 ---
 title: "Tulum | the Yucatan"
 date: "2025-02-26T19:30-08:00"
-tag: "life"
+tags: ["life"]
 excerpt: "This was fun. We booked tulum wanting to get away to somewhere warm with beautiful beaches but great adventures. We didn't realize the reputation Tulum has, and we saw a lot of construction in the area, but mostly we totally enjoyed ourselves learning about this&hellip;"
 feature_image: "/posts/23/74560826-2BD1-43A3-BF7A-D794B408CB73_1_105_c.jpeg"
 ---

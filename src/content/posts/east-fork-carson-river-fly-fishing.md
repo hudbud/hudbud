@@ -1,7 +1,7 @@
 ---
 title: "East Fork Carson River Fly Fishing"
 date: "2024-10-22T16:07-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/16/FB495919-7307-4F2B-A2A0-BAAAA6853B8B.jpg"
 ---
 ![](/posts/16/60558510-B237-407B-93A0-890ECBF1CE1F-576x1024.jpg)

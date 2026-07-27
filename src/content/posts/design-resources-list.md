@@ -1,7 +1,7 @@
 ---
 title: "Design Resources List"
 date: "2024-05-28T14:27-07:00"
-tag: "resources"
+tags: ["resources"]
 feature_image: "/posts/8/Frame-2.png"
 ---
 **General Web Inspiration**  

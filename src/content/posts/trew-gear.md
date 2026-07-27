@@ -1,7 +1,8 @@
 ---
 title: "Trew Gear"
 date: "2021-03-23"
-tag: "archive"
+tags: ["archive"]
+category: "product"
 excerpt: "Single page web design for outdoor gear company."
 feature_image: "/posts/64/TREW_TECHNOLOGY_PNW3L_GRID.png"
 ---

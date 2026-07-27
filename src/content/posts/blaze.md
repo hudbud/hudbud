@@ -1,7 +1,7 @@
 ---
 title: "Blaze Pizza"
 date: "2021-10-06"
-tag: "work"
+tags: ["work"]
 excerpt: "Visual refresh, UI design, and art direction for Blaze Pizza's ordering and loyalty experience at Hathway."
 feature_image: "/posts/52/Frame-2.png"
 roles: "UI Design, UI Toolkit Management, Art Direction, Figma Conversion"

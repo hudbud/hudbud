@@ -26,7 +26,7 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
     <a class="back" href="/">← back</a>
     <header>
       <div class="meta-row">
-        <div class="meta">[{entry.data.tag}] · {dateLabel}</div>
+        <div class="meta">[{entry.data.tags.join(', ')}] · {dateLabel}</div>
         <button id="fullscreen-btn" class="fullscreen-btn" type="button">Full screen</button>
       </div>
       <h1>{entry.data.title}</h1>

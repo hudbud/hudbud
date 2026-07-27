@@ -1,7 +1,8 @@
 ---
 title: "Naps"
 date: "2019-12-19T06:42:52.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "motion"
 feature_image: "/posts/38/Artboard+1@2x.png"
 ---
 

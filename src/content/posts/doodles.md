@@ -1,7 +1,8 @@
 ---
 title: "Doodles"
 date: "2020-01-03T00:42:50.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "illustration"
 feature_image: "/posts/35/volcano.png"
 ---
 

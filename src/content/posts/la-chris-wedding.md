@@ -1,7 +1,7 @@
 ---
 title: "LA / Chris Wedding"
 date: "2024-10-13T16:17-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/17/1438A6DE-7754-48C7-97A4-6860781D3187_1_105_c.jpeg"
 ---
 ![](/posts/17/46532A99-0F26-4F52-A03A-0EFAC95AF25F_1_102_o-2-1024x768.jpeg)

@@ -1,7 +1,7 @@
 ---
 title: "Vitarave"
 date: "2025-06-13T09:56-07:00"
-tag: "life"
+tags: ["life"]
 excerpt: "Friday Friday night fdadfhjksafdsakjfdklasjkfhdjsfasd Saturday Saturday night Getting home"
 feature_image: "/posts/30/gallery/05CB47B4-DE6B-40CB-9A8C-A73F0B66478D_4_5005_c.jpeg"
 ---

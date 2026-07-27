@@ -1,7 +1,7 @@
 ---
 title: "Red Robin"
 date: "2021-10-06"
-tag: "work"
+tags: ["work"]
 excerpt: "Mobile ordering app and design systems for Red Robin's digital ordering experience at Hathway."
 feature_image: "/posts/48/Slide-16_9---1.png"
 roles: "UI Design, Design Systems Management"

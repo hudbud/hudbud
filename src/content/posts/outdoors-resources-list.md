@@ -1,7 +1,7 @@
 ---
 title: "Outdoors Resources List"
 date: "2024-05-28T14:25-07:00"
-tag: "resources"
+tags: ["resources"]
 feature_image: "/posts/9/IMG_5764-1-scaled.jpeg"
 ---
 [https://www.campsitephotos.com](https://www.campsitephotos.com)

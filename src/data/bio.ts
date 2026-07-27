@@ -1,5 +1,12 @@
 export const BIO_LEAD = `watch a live stream.\ni'm a curious designer obsessed with nature.\ni like to learn, make stuff, and tinker - computers, bike builds, trout streams, tall rocks, the ocean, and whatever other rabbit holes i can find.`;
 
+// The 30px display line swapped in as the head turns to face each filter.
+export const FILTER_LEADS: Record<'all' | 'work' | 'life', string> = {
+  all: BIO_LEAD.split('\n')[0],
+  work: 'Design leadership.',
+  life: 'I will never stop exploring.',
+};
+
 export const BIO_BODY = `this used to be a serious portfolio. now it's experiments, weird projects, and occasional blog posts.`;
 
 export const BIO_BODY_2 = `I like to`;

@@ -1,7 +1,7 @@
 ---
 title: "Pieology"
 date: "2021-10-05"
-tag: "work"
+tags: ["work"]
 excerpt: "Ordering and loyalty app with hand-drawn iconography for Pieology pizza chain at Hathway."
 feature_image: "/posts/49/Artboard-149@4x.png"
 roles: "UI Support, UI Toolkit Support, Hand-drawn Iconography"

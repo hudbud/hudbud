@@ -1,7 +1,7 @@
 ---
 title: "Osterhout Design Group"
 date: "2020-10-02"
-tag: "work"
+tags: ["work"]
 excerpt: "Branding, marketing, UI/UX, and web design for next-generation AR hardware company."
 feature_image: "/posts/57/banner.png"
 roles: "Branding, Marketing, UI/UX, Web Design"

@@ -1,7 +1,7 @@
 ---
 title: "Bike Ride 03.9.2025"
 date: "2025-03-10T06:32-07:00"
-tag: "life"
+tags: ["life"]
 excerpt: "Trying out my new edit preset before I post pics from Mexi. Big ride. Still loving the camera. nice to just have my phone completely away."
 feature_image: "/posts/25/765AA2E5-762B-481A-AC34-BE3B5B5E11D9_1_201_a-1024x768.jpeg"
 ---

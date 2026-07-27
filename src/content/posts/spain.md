@@ -1,7 +1,7 @@
 ---
 title: "Spain"
 date: "2025-10-27T12:00-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/67/spain-091.jpeg"
 excerpt: "Coming soon."
 ---
