@@ -9,7 +9,7 @@ import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette } from '@phosphor-icons/react';
+import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check } from '@phosphor-icons/react';
 
 type TabId = 'ideas' | 'life' | 'work' | 'archive';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
@@ -1520,6 +1520,16 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
   const [showSpritz, setShowSpritz] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyLink = () => {
+    if (!post.slug) return;
+    const url = `${window.location.origin}/posts/${post.slug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
   const [fetchedHtml, setFetchedHtml] = useState<string | null>(
     post.html ?? (post.slug ? postHtmlCache.get(post.slug) ?? null : null)
   );
@@ -1586,8 +1596,21 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: '56px 56px 100px 48px', position: 'relative' }}>
-      <div style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 8 }}>
-        [{post.tag || 'post'}] · {post.date}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+        <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>
+          [{post.tag || 'post'}] · {post.date}
+        </div>
+        {post.slug && (
+          <button
+            onClick={copyLink}
+            aria-label="copy link to post"
+            style={{ display: 'flex', alignItems: 'center', color: copied ? 'var(--accent)' : 'var(--fg-faint)' }}
+            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-dim)'; }}
+            onMouseLeave={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-faint)'; }}
+          >
+            {copied ? <Check size={12} weight="bold" /> : <Copy size={12} />}
+          </button>
+        )}
       </div>
       <div style={{ fontSize: 26, color: 'var(--accent)', marginBottom: 14, lineHeight: 1.2, letterSpacing: '-0.005em' }}>
         {post.title}
@@ -1767,6 +1790,39 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
   );
 }
 
+// ---------- FrameFooter ----------
+// Lives in the outer border padding around the site (desktop only).
+function FrameFooter() {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const date = `${pad(now.getMonth() + 1)}.${pad(now.getDate())}.${now.getFullYear()}`;
+
+  return (
+    <div
+      className="hp-frame-footer"
+      style={{
+        position: 'absolute',
+        right: 20,
+        bottom: 3,
+        fontSize: 10,
+        letterSpacing: 0.2,
+        color: 'var(--fg-faint)',
+        userSelect: 'none',
+        pointerEvents: 'none',
+      }}
+    >
+      &copy;&nbsp; {time} {date} &nbsp;|&nbsp; this website subject to change
+    </div>
+  );
+}
+
 // ---------- App ----------
 interface GalleryImage {
   src: string;
@@ -1891,7 +1947,8 @@ export default function Portfolio({ thoughts: thoughtsProp, life: lifeProp, arch
       : null;
 
   return (
-    <div style={{ height: '100dvh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden' }}>
+    <div style={{ height: '100dvh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
+      {!isMobile && <FrameFooter />}
       <div
         style={{
           height: isMobile ? '100dvh' : 'calc(100dvh - 40px)',
