@@ -174,3 +174,8 @@ img { max-width: 100%; display: block; }
   object-fit: cover;
   border-radius: 2px;
 }
+
+/* ---------- Frame footer (always mono, regardless of active font) ---------- */
+.hp-frame-footer {
+  font-family: 'Geist Mono', ui-monospace, Menlo, monospace !important;
+}
