@@ -6,6 +6,7 @@ import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
+import { groupImagesIntoGrid } from '../lib/imageGrid';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
 import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon } from '@phosphor-icons/react';
@@ -1144,34 +1145,6 @@ function Lightbox({ images, index, onClose, onChange }: { images: string[]; inde
   );
 }
 
-function groupConsecutiveImages(html: string): string {
-  const imgParagraph = /^<p>\s*<img\s[^>]*>\s*<\/p>$/;
-  const lines = html.split('\n');
-  const result: string[] = [];
-  let group: string[] = [];
-
-  const flushGroup = () => {
-    if (group.length >= 2) {
-      result.push(`<div style="display:grid;grid-template-columns:repeat(${Math.min(group.length, 3)},1fr);gap:8px;margin:12px 0">${group.join('')}</div>`);
-    } else if (group.length === 1) {
-      result.push(group[0]);
-    }
-    group = [];
-  };
-
-  for (const line of lines) {
-    if (imgParagraph.test(line.trim())) {
-      const img = line.trim().replace(/^<p>\s*/, '').replace(/\s*<\/p>$/, '');
-      group.push(img.replace('<img ', '<img style="width:100%;height:auto;border-radius:2px;display:block" '));
-    } else {
-      flushGroup();
-      result.push(line);
-    }
-  }
-  flushGroup();
-  return result.join('\n');
-}
-
 const postHtmlCache = new Map<string, string>();
 
 // Mobile-only escape hatch at the top of a full-screen panel; the sticky
@@ -1348,7 +1321,7 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
       {isLoadingHtml ? (
         <div style={{ color: 'var(--fg-dim)', fontSize: 13, padding: '8px 0 20px' }}>loading…</div>
       ) : (
-        <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: groupConsecutiveImages(postHtml) }} />
+        <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: groupImagesIntoGrid(postHtml) }} />
       )}
       <style>{`.prose img { cursor: pointer; }`}</style>
 

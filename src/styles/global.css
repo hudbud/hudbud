@@ -175,6 +175,30 @@ img { max-width: 100%; display: block; }
   border-radius: 2px;
 }
 
+/* ---------- Post image gallery (emitted by groupImagesIntoGrid) ---------- */
+.post-img-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+
+@media (min-width: 768px) {
+  .post-img-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.post-img-grid img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+  margin: 0;
+}
+
 /* ---------- Frame footer (always mono, regardless of active font) ---------- */
 .hp-frame-footer {
   font-family: 'Geist Mono', ui-monospace, Menlo, monospace !important;
