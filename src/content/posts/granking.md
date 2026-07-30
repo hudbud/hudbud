@@ -48,6 +48,7 @@ Also, happy birthday Brendan "Squire" Dolan. Below are some pics of us and B-- M
 ![](/posts/19/D5075F31-00BF-4639-BAD1-E06D783EDAFF_1_105_c.jpeg)
 ![](/posts/19/D0D51A26-87C5-44A3-B72D-8EF5451D2B70_1_105_c.jpeg)
 ![](/posts/19/D3FB8D87-A506-4E07-8956-072D606D26B3_1_105_c.jpeg)
+
 https://open.spotify.com/album/2dIGnmEIy1WZIcZCFSj6i8?si=21IpTgHJTS-GKLm1A42sUg
 https://open.spotify.com/album/0yPLNfI8WPJWFoJugr0KAv?si=Uc-AiQnHSjWQDJbtCzxWpg
 https://open.spotify.com/album/0bUTHlWbkSQysoM3VsWldT?si=6vWLtL24RV2-uQLOsFb1TA

@@ -1,7 +1,9 @@
 ---
 export const prerender = true;
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { renderPostHtml } from '../../lib/posts';
+import { groupImagesIntoGrid } from '../../lib/imageGrid';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', (e) => !e.data.draft);
@@ -9,7 +11,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const html = groupImagesIntoGrid(await renderPostHtml(entry));
 
 const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -34,9 +36,7 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
     {entry.data.feature_image && (
       <img class="hero" src={entry.data.feature_image} alt="" decoding="async" />
     )}
-    <article class="prose">
-      <Content />
-    </article>
+    <article class="prose" set:html={html} />
   </main>
 </Layout>
 
@@ -233,23 +233,9 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
     border-radius: 2px;
     margin: 12px 0;
   }
-  .prose :global(p:has(> img)) {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin: 0 0 1em;
-  }
-  @media (min-width: 480px) {
-    .prose :global(p:has(> img)) {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-  }
-  .prose :global(p:has(> img) > img) {
-    width: 100%;
+  .prose :global(.post-img-grid img) {
     height: 100%;
     margin: 0;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
   }
   .prose :global(h2),
   .prose :global(h3) {
