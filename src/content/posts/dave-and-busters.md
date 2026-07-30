@@ -2,14 +2,15 @@
 title: "Dave and Buster's"
 date: "2021-10-06"
 tags: ["work"]
-excerpt: "Design systems, UI design, 3D reward illustrations for Dave & Buster's loyalty and ordering experience at Hathway."
+category: "portfolio"
+excerpt: "Bringing the pulse of the arcade to the palm of your hand."
 feature_image: "/posts/47/Slide-16_9---1.png"
 roles: "Design Systems Manager, UI Designer, UX Support, Motion Graphics, 3D Specialist"
 tools: "Figma, After Effects, Blender, Illustrator"
 agency: "Hathway"
 ---
 
-Dave & Buster's, a USA restaurant and entertainment chain, engaged Hathway to enhance their digital offerings. The focus was improving engagement and UX for their rewards and loyalty program. Deliverables included a custom arcade app replacing physical tickets, a phone-based menu system, and a mobile ordering platform. I created two integrated design systems, served as UI designer for the ordering app with full prototyping, and developed 3D reward illustrations (enamel pins) that influenced the client's manufacturing decisions.
+**Bringing the pulse of the arcade to the palm of your hand.**
 
 **Roles:** Design Systems Manager, UI Designer, UX Support, Motion Graphics, 3D Specialist
 
@@ -17,8 +18,52 @@ Dave & Buster's, a USA restaurant and entertainment chain, engaged Hathway to en
 
 **Agency:** Hathway
 
-![](/posts/47/Slide-16_9---1.png)
+Dave & Buster's isn't just a place to play—it's a neon-lit, high-energy world of competition, camaraderie, and celebration. Tasked with translating this electric in-venue energy into the digital space, I led the UX and visual transformation of their loyalty and food service apps, reimagining the experience to make every visit feel like a win. Building upon the foundational brand identity developed by Mother Design, I extended its vibrant visual language into the product space, crafting a digital ecosystem that felt as dynamic and immersive as the IRL experience. The challenge was not just to modernize functionality but to amplify the rush of play—turning routine app interactions into moments of excitement, engagement, and reward.
 
-![](/posts/47/dingdingding-7.png)
+To achieve this, we designed a custom badge system and motion kit that celebrated player achievements, fueling deeper engagement and brand loyalty. Every interaction was designed to channel the thrill of competition, from game-inspired animations to seamless reward tracking that made progress feel tangible and exciting. The client was deeply invested in capturing the spirit of being inside a Dave & Buster's, and we ensured the app reflected that—delivering bold, energetic content that resonated with users and kept them coming back. By streamlining the platform and injecting it with a sense of play, we created an experience that was an extension of the brand's core promise: bringing people together through the joy of gaming.
 
-![](/posts/47/MAIN.gif)
+<div style="margin:12px 0"><video src="/posts/47/01_D&amp;B_3x2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/2;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="margin:12px 0"><video src="/posts/47/02_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<video src="/posts/47/03_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+<video src="/posts/47/04_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+</div>
+
+<div style="margin:12px 0"><video src="/posts/47/05_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<video src="/posts/47/06_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<video src="/posts/47/07_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+</div>
+
+<div style="margin:12px 0"><video src="/posts/47/08_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<img src="/posts/47/09_D&amp;B_3x4.png" alt="" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block" />
+<video src="/posts/47/10_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+</div>
+
+<div style="margin:12px 0"><video src="/posts/47/11_D&amp;B_3x2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/2;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<video src="/posts/47/12_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<img src="/posts/47/13_D&amp;B_1x1.png" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
+</div>
+
+<div style="margin:12px 0"><video src="/posts/47/14_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<img src="/posts/47/15_D&amp;B_3x4.png" alt="" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block" />
+<video src="/posts/47/16_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+</div>
+
+<div style="margin:12px 0"><video src="/posts/47/17_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="margin:12px 0"><img src="/posts/47/17_D&amp;B_16x9.gif" alt="" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block" /></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<img src="/posts/47/18_D&amp;B_1x1.png" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
+<video src="/posts/47/19_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+</div>

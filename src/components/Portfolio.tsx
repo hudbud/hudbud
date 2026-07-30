@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Menu } from 'bloom-menu';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, FILTER_LEADS, MODAL_CONTENT } from '../data/bio';
+import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import HeadScene from './HeadScene';
 import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon } from '@phosphor-icons/react';
 
 type Filter = 'all' | 'work' | 'life';
@@ -425,7 +424,7 @@ const STATUS_LABEL: Record<IdeaStatus, string> = {
 // Every entry — post or idea — renders through this one row, in one flat
 // chronological list. A row's only variance is: does it have an image
 // (shown when viewMode is 'roomy'), and what its click does.
-const CATEGORY_CHIPS = ['all', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
+const CATEGORY_CHIPS = ['all', 'portfolio', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
 type ViewMode = 'compact' | 'roomy';
 
 interface Row {
@@ -462,6 +461,8 @@ function buildRows({ feed, filter, workCategory, activePost, activeProject, setA
   openProject: (id: string) => void;
 }): Row[] {
   const postRows: Row[] = feed
+    // Resources live only in the "..." chrome menu, not the chronological list.
+    .filter((p) => !p.tags.includes('resources'))
     .filter((p) => matchesFilter(p, filter) && (filter !== 'work' || workCategory === 'all' || p.category === workCategory))
     .map((p) => ({
       key: p.slug ?? p.title,
@@ -720,7 +721,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, theme, isMobile, sweepStage, onSweepStage, ghost, setGhost }: {
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed }: {
   filter: Filter;
   setFilter: (f: Filter) => void;
   workCategory: string;
@@ -732,44 +733,24 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   onOpenBioModal: (id: string) => void;
   onHome: () => void;
   feed: Post[];
-  theme: string;
-  isMobile: boolean;
-  sweepStage: Filter | null;
-  onSweepStage: (stage: Filter | null) => void;
-  ghost: Filter | null;
-  setGhost: (f: Filter | null) => void;
 }) {
   const [showMore, setShowMore] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('compact');
   // Apple-style type scale: one big, tight display line; supporting lines a
   // step down with relaxed leading. (500 is the heaviest weight all five
   // site fonts actually ship, so it stays true rather than synthesizing.)
-  const [, ...leadRest] = BIO_LEAD.split('\n');
+  const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
       <div>
-        <HeadScene facing={filter} ghost={ghost} onSweepStage={onSweepStage} theme={theme} height={isMobile ? 120 : 180} />
         <div style={{ marginBottom: 14 }}>
           <HudMark size={46} onClick={onHome} />
         </div>
         <h1 style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}>
           <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
         </h1>
-        <div style={{ marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.p
-              key={filter}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={SPRING}
-              style={{ color: 'var(--fg)', margin: 0 }}
-            >
-              {FILTER_LEADS[filter]}
-            </motion.p>
-          </AnimatePresence>
-        </div>
+        <p style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>{leadDisplay}</p>
         {leadRest.length > 0 && (
           <p style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}>{leadRest.join('\n')}</p>
         )}
@@ -807,10 +788,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
             <FilterPill
               key={f}
               active={filter === f}
-              highlight={sweepStage === f}
               onClick={() => setFilter(filter === f ? 'all' : f)}
-              onMouseEnter={!isMobile ? () => setGhost(f) : undefined}
-              onMouseLeave={!isMobile ? () => setGhost(null) : undefined}
             >
               {f}
             </FilterPill>
@@ -1270,12 +1248,31 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
     return () => el.removeEventListener('click', handleClick);
   }, [postImages]);
 
+  // Autoplaying <video> tags in post content: browsers pause them once they
+  // scroll out of view and never resume automatically, so drive play/pause
+  // off actual visibility instead of relying on the autoplay attribute alone.
+  useEffect(() => {
+    const el = proseRef.current;
+    if (!el) return;
+    const videos = Array.from(el.querySelectorAll('video'));
+    if (!videos.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const video = entry.target as HTMLVideoElement;
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      }
+    }, { threshold: 0.25 });
+    videos.forEach((v) => observer.observe(v));
+    return () => observer.disconnect();
+  }, [postHtml]);
+
   const isLife = post.tags.includes('life');
   const isWork = post.tags.includes('work') || post.tags.includes('archive');
   const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: '56px 56px 100px 48px', position: 'relative' }}>
+    <div style={{ height: '100%', overflowY: 'auto', padding: '56px 56px 100px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
         <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>
           [{post.tags.join(', ')}] · {post.date}
@@ -1362,7 +1359,7 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
         )}
       </div>
 
-      <div style={{ position: 'sticky', bottom: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+      <div style={{ position: 'sticky', bottom: 24, marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
         <button
           onClick={onClose}
           style={{ pointerEvents: 'auto', background: 'var(--fg)', color: 'var(--bg)', borderRadius: 20, padding: '8px 18px', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
@@ -1393,7 +1390,7 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
 
   if (projectId === 'freezer-martini') {
     return (
-      <div style={{ height: '100%', overflowY: 'auto', padding: '32px 24px 100px', position: 'relative' }}>
+      <div style={{ height: '100%', overflowY: 'auto', padding: '32px 24px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16, padding: '0 8px' }}>
           <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>[project] · tool</div>
           <a
@@ -1406,7 +1403,7 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
           </a>
         </div>
         <FreezerMartini embedded />
-        <div style={{ position: 'sticky', bottom: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+        <div style={{ position: 'sticky', bottom: 24, marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
           <button
             onClick={onClose}
             style={{ pointerEvents: 'auto', background: 'var(--fg)', color: 'var(--bg)', borderRadius: 20, padding: '8px 18px', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
@@ -1424,7 +1421,7 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
   if (!project) return null;
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: '56px 48px 100px', position: 'relative' }}>
+    <div style={{ height: '100%', overflowY: 'auto', padding: '56px 48px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <div style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 8 }}>
         [project] · {project.subtitle || ''}
       </div>
@@ -1456,7 +1453,7 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
 
       <div className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: project.html }} />
 
-      <div style={{ position: 'sticky', bottom: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+      <div style={{ position: 'sticky', bottom: 24, marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
         <button
           onClick={onClose}
           style={{ pointerEvents: 'auto', background: 'var(--fg)', color: 'var(--bg)', borderRadius: 20, padding: '8px 18px', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
@@ -1529,8 +1526,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const [filter, setFilterRaw] = useState<Filter>('all');
   const [workCategory, setWorkCategory] = useState('all');
   const setFilter = (f: Filter) => { setFilterRaw(f); setWorkCategory('all'); };
-  const [sweepStage, setSweepStage] = useState<Filter | null>(null);
-  const [ghost, setGhost] = useState<Filter | null>(null);
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
@@ -1654,12 +1649,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
               onOpenBioModal={setBioModal}
               onHome={() => { setFilter('all'); closeRightPanel(); }}
               feed={feed}
-              theme={theme}
-              isMobile={isMobile}
-              sweepStage={sweepStage}
-              onSweepStage={setSweepStage}
-              ghost={ghost}
-              setGhost={setGhost}
             />
           </div>
         )}

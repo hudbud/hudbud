@@ -8,7 +8,7 @@ const posts = defineCollection({
     date: z.coerce.date(),
     dateLabel: z.string().optional(),
     tags: z.array(z.enum(['thoughts', 'life', 'resources', 'archive', 'work'])).min(1),
-    category: z.enum(['branding', 'motion', 'illustration', 'product', 'film', 'photo']).optional(),
+    category: z.enum(['portfolio', 'branding', 'motion', 'illustration', 'product', 'film', 'photo']).optional(),
     excerpt: z.string().optional(),
     feature_image: z.string().optional(),
     draft: z.boolean().default(false),

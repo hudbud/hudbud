@@ -107,6 +107,21 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
   } else {
     fullscreenBtn?.remove();
   }
+
+  // Autoplaying <video> tags: browsers pause them once they scroll out of
+  // view and never resume automatically, so drive play/pause off actual
+  // visibility instead of relying on the autoplay attribute alone.
+  const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('.prose video'));
+  if (videos.length) {
+    const videoObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const video = entry.target as HTMLVideoElement;
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      }
+    }, { threshold: 0.25 });
+    videos.forEach((v) => videoObserver.observe(v));
+  }
 </script>
 
 <style is:global>
