@@ -197,6 +197,59 @@ export const MT_THEMES: MonkeytypeTheme[] = [
   { name: "witch_girl", bg: "#f3dbda", bgInner: "#e7c8be", fg: "#56786a", dim: "#ddb4a7", accent: "#56786a" },
 ];
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  hex = hex.replace(/^#/, '');
+  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  if (hex.length !== 6) return null;
+  return { r: parseInt(hex.slice(0, 2), 16), g: parseInt(hex.slice(2, 4), 16), b: parseInt(hex.slice(4, 6), 16) };
+}
+
+function relativeLuminance(hex: string): number {
+  const c = hexToRgb(hex);
+  if (!c) return 0;
+  const [rs, gs, bs] = [c.r / 255, c.g / 255, c.b / 255].map((v) =>
+    v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+  );
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+function contrastRatio(a: string, b: string): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const lighter = Math.max(la, lb);
+  const darker = Math.min(la, lb);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function mixHex(fgHex: string, bgHex: string, pct: number): string {
+  const fg = hexToRgb(fgHex);
+  const bg = hexToRgb(bgHex);
+  if (!fg || !bg) return bgHex;
+  const r = Math.round(fg.r * pct + bg.r * (1 - pct));
+  const g = Math.round(fg.g * pct + bg.g * (1 - pct));
+  const b = Math.round(fg.b * pct + bg.b * (1 - pct));
+  return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+
+const AA_TEXT = 4.5;
+const AA_UI = 3.0;
+
+function passesContrastFloor(t: MonkeytypeTheme): boolean {
+  const tile = mixHex(t.fg, t.bg, 0.08);
+  const fgMin = Math.min(contrastRatio(t.fg, t.bg), contrastRatio(t.fg, t.bgInner));
+  const dimMin = Math.min(contrastRatio(t.dim, t.bg), contrastRatio(t.dim, t.bgInner));
+  const accentMax = Math.max(
+    contrastRatio(t.accent, t.bg),
+    contrastRatio(t.accent, t.bgInner),
+    contrastRatio(t.accent, tile)
+  );
+  return fgMin >= AA_TEXT && dimMin >= AA_TEXT && accentMax >= AA_UI;
+}
+
+export const SAFE_THEME_NAMES: string[] = MT_THEMES.filter(
+  (t) => t.name !== "rainbow_trail" && passesContrastFloor(t)
+).map((t) => t.name);
+
 // Themes with light/dark variants
 export const THEME_PAIRS: Record<string, string> = {
   "blueberry_light": "blueberry_dark",
