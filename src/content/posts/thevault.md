@@ -1,7 +1,8 @@
 ---
 title: "thevault"
 date: "2020-01-06T03:28:40.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "product"
 feature_image: "/posts/41/materials.JPG"
 ---
 

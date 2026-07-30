@@ -1,7 +1,8 @@
 ---
 title: "D4"
 date: "2020-01-03T00:39:44.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 feature_image: "/posts/33/export12tan@3x_3.png"
 excerpt: "Branding and identity exploration — logo grid, patches, and a landing page design."
 ---

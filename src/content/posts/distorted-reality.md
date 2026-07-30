@@ -1,7 +1,7 @@
 ---
 title: "Distorted Reality"
 date: "2024-07-23T00:33-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/14/EFD78CEE-0A93-4DFE-932E-F4F08960DEFC_1_102_o.jpeg"
 ---
 -   Have we gone too far?

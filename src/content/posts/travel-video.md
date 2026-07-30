@@ -1,7 +1,8 @@
 ---
 title: "Travel Video"
 date: "2021-11-29T23:12:59.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "film"
 feature_image: "/posts/46/image-asset.jpeg"
 ---
 

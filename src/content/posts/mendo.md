@@ -1,7 +1,7 @@
 ---
 title: "Mendo"
 date: "2024-08-20T21:08-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/15/8A7A36EE-0F9E-42EF-8FEC-418E1BF1E2FE_1_105_c.jpeg"
 ---
 After an exhausting weekend in the park at Outsidelands 2024, it was time for some healing & relaxation. Not without a bit of adventure, however. So, although we had initially planned to drive to Montana and back within 5 days, we decided to switch plans and head our own California coast.

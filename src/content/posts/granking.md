@@ -1,7 +1,7 @@
 ---
 title: "Granking"
 date: "2024-11-13T17:16-08:00"
-tag: "life"
+tags: ["life"]
 excerpt: "A ranking of Gorillaz albums. Just want to say this is impossible. Literally every album has bangers on it and I love all of them. I was forced to do this by Brendan Dolan so if you have hate comments direct them at him. He's&hellip;"
 feature_image: "/posts/19/2FFD076E-3EDC-4062-83C3-76F1508CB12F_1_105_c.jpeg"
 ---

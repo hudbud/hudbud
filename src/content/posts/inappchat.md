@@ -1,7 +1,7 @@
 ---
 title: "In-App Chat"
 date: "2021-03-10"
-tag: "work"
+tags: ["work"]
 excerpt: "UX/UI design, web design, and motion graphics for a messaging SDK WebApp."
 feature_image: "/posts/56/features.jpg"
 roles: "UX/UI Design, Web Design, Motion Graphics"

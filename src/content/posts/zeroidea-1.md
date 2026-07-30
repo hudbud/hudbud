@@ -1,7 +1,8 @@
 ---
 title: "zeroidea"
 date: "2020-01-20T20:54:25.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 feature_image: "/posts/39/0001-0120.gif"
 ---
 

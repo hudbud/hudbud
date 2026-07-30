@@ -3,7 +3,7 @@ export const prerender = true;
 import { getCollection, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-const entries = await getCollection('posts', (e) => e.data.tag === 'resources' && !e.data.draft);
+const entries = await getCollection('posts', (e) => e.data.tags.includes('resources') && !e.data.draft);
 entries.sort((a, b) => +b.data.date - +a.data.date);
 
 const rendered = await Promise.all(

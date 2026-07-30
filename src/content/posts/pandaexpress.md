@@ -1,7 +1,7 @@
 ---
 title: "Panda Express"
 date: "2021-10-06"
-tag: "work"
+tags: ["work"]
 excerpt: "Animation and UI support for Panda Express ordering experience at Hathway."
 feature_image: "/posts/54/Frame-2.png"
 roles: "Animation, UI Support"

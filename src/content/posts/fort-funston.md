@@ -1,7 +1,7 @@
 ---
 title: "Fort Funston"
 date: "2025-03-02T00:26-08:00"
-tag: "life"
+tags: ["life"]
 excerpt: "Finally got the camera back out. Loving the way these pics ended up. Shot with the TG-7. Found a workflow that's compatible with how I like to organize my photos. Feels good to do it again. hp"
 feature_image: "/posts/24/5CA02C77-006D-46A2-BC9E-00CAD74F7566_1_201_a-scaled.jpeg"
 ---

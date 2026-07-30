@@ -1,7 +1,8 @@
 ---
 title: "TheBigPellowski"
 date: "2020-09-02"
-tag: "archive"
+tags: ["archive"]
+category: "motion"
 excerpt: "Twitch streamer branding — animated intros, stream overlays, motion graphics, and Streamlabs deployment."
 feature_image: "/posts/58/mainlogoscene.png"
 ---

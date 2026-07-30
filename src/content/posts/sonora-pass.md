@@ -1,7 +1,7 @@
 ---
 title: "Sonora Pass"
 date: "2025-05-29T21:48-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/1/gallery/P5240029-2.jpeg"
 ---
 ![](/posts/1/gallery/P5240029-2.jpeg)

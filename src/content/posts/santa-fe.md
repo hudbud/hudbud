@@ -1,7 +1,7 @@
 ---
 title: "Santa Fe"
 date: "2024-09-22T20:06-07:00"
-tag: "life"
+tags: ["life"]
 feature_image: "/posts/18/9C350171-95AC-4252-93CB-597B591F3F38_1_105_c.jpeg"
 ---
 ![](/posts/18/6ED06FC0-B851-4808-9656-DFB340A3D8F8_1_105_c.jpeg)

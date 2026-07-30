@@ -1,7 +1,8 @@
 ---
 title: "Everything Else"
 date: "2020-01-13T08:15:58.000Z"
-tag: "archive"
+tags: ["archive"]
+category: "illustration"
 feature_image: "/posts/32/Artboard+1-100.jpg"
 ---
 

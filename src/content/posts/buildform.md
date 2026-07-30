@@ -1,7 +1,8 @@
 ---
 title: "BuildForm"
 date: "2020-09-04"
-tag: "archive"
+tags: ["archive"]
+category: "branding"
 excerpt: "Logo and branding concepts for a custom home building company."
 feature_image: "/posts/59/logo.png"
 ---

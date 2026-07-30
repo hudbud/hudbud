@@ -106,7 +106,7 @@ function main() {
     '---',
     `title: "${args.title}"`,
     `date: "${date}"`,
-    `tag: "${tag}"`,
+    `tags: ["${tag}"]`,
     args.excerpt ? `excerpt: "${args.excerpt}"` : null,
     `feature_image: "${featureImage}"`,
     '---',

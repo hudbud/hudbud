@@ -1,7 +1,7 @@
 ---
 title: "Denny's"
 date: "2021-10-06"
-tag: "work"
+tags: ["work"]
 excerpt: "Design system management and UI screens for Denny's mobile and desktop ordering platforms at Hathway."
 feature_image: "/posts/51/Slide-16_9---1.png"
 roles: "UI Design, UI Toolkit Support"

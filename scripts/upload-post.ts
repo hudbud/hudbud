@@ -122,7 +122,7 @@ async function main() {
     '---',
     `title: "${args.title}"`,
     `date: "${date}"`,
-    `tag: "${args.tag}"`,
+    `tags: ["${args.tag}"]`,
     args.excerpt ? `excerpt: "${args.excerpt}"` : null,
     featureImage ? `feature_image: "${featureImage}"` : null,
     args.draft ? `draft: true` : null,

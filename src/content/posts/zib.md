@@ -1,7 +1,7 @@
 ---
 title: "Zib Messenger"
 date: "2021-03-10"
-tag: "work"
+tags: ["work"]
 excerpt: "Lead product design for Zib — a Slack-competitor messaging app with 3D workspace environments. Branding, UX/UI, web design."
 feature_image: "/posts/55/portfolio-1.png"
 roles: "Product Design (Lead), Branding, 3D Graphics, UX/UI Design, Web Design"

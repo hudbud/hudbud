@@ -2,20 +2,14 @@
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Portfolio from '../components/Portfolio.tsx';
-import { loadPostMeta } from '../lib/posts';
+import { loadFeedMeta } from '../lib/posts';
 
-const [thoughts, life, archive, work, resources] = await Promise.all([
-  loadPostMeta('thoughts'),
-  loadPostMeta('life'),
-  loadPostMeta('archive'),
-  loadPostMeta('work'),
-  loadPostMeta('resources'),
-]);
+const feed = await loadFeedMeta();
 ---
 <Layout
   title="Hudson Paine"
   description="design bike fish climb — Hudson Paine's personal site. Product design case studies, life posts, and weird little web experiments."
   image="/posts/graph-zoomed-in.jpg"
 >
-  <Portfolio client:load thoughts={thoughts} life={life} archive={archive} work={work} resources={resources} />
+  <Portfolio client:load feed={feed} />
 </Layout>
