@@ -28,3 +28,5 @@ The harder problem was adoption. I built a five-module, thirty-eight-lesson onbo
 <div style="margin:16px 0"><img src="/posts/68/by-the-numbers.png" alt="" style="width:100%;border-radius:2px;display:block" /></div>
 
 Four products became one library — 56+ components, 1,084+ variants, 16+ patterns, covering every vertical in the business.
+
+Most of the detail behind this work is private. Contact me if you'd like to dive in.

@@ -742,7 +742,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'flex-start' }}>
       <div>
         <div style={{ marginBottom: 14 }}>
           <HudMark size={46} onClick={onHome} />
@@ -1174,7 +1174,20 @@ function groupConsecutiveImages(html: string): string {
 
 const postHtmlCache = new Map<string, string>();
 
-function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
+// Mobile-only escape hatch at the top of a full-screen panel; the sticky
+// "✕ Close" pill at the bottom remains the primary close affordance.
+function PanelBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{ alignSelf: 'flex-start', fontSize: 12, color: 'var(--fg-dim)', padding: 0, marginBottom: 18 }}
+    >
+      ← back
+    </button>
+  );
+}
+
+function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: () => void; isMobile?: boolean }) {
   const [showSpritz, setShowSpritz] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -1272,7 +1285,8 @@ function PostPanel({ post, onClose }: { post: Post; onClose: () => void }) {
   const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: '56px 56px 100px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '28px 24px 100px' : '56px 56px 100px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      {isMobile && <PanelBackButton onClick={onClose} />}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
         <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>
           [{post.tags.join(', ')}] · {post.date}
@@ -1378,7 +1392,7 @@ const PROJECT_CONTENT: Record<string, { title: string; html: string; subtitle?: 
   'split-keyboard': { title: 'A Better Mechanical Keyboard', html: KEYBOARD_HTML, subtitle: 'senior project, 2019' },
 };
 
-function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () => void }) {
+function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: string; onClose: () => void; isMobile?: boolean }) {
   const [showSpritz, setShowSpritz] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
 
@@ -1391,6 +1405,7 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
   if (projectId === 'freezer-martini') {
     return (
       <div style={{ height: '100%', overflowY: 'auto', padding: '32px 24px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        {isMobile && <PanelBackButton onClick={onClose} />}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16, padding: '0 8px' }}>
           <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>[project] · tool</div>
           <a
@@ -1421,7 +1436,8 @@ function ProjectPanel({ projectId, onClose }: { projectId: string; onClose: () =
   if (!project) return null;
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: '56px 48px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '28px 24px 100px' : '56px 48px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      {isMobile && <PanelBackButton onClick={onClose} />}
       <div style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 8 }}>
         [project] · {project.subtitle || ''}
       </div>
@@ -1605,9 +1621,9 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
   const panelOpen = !!(activePost || activeProject);
   const rightContent = activePost
-    ? <PostPanel post={activePost} onClose={closeRightPanel} />
+    ? <PostPanel post={activePost} onClose={closeRightPanel} isMobile={isMobile} />
     : activeProject
-      ? <ProjectPanel projectId={activeProject} onClose={closeRightPanel} />
+      ? <ProjectPanel projectId={activeProject} onClose={closeRightPanel} isMobile={isMobile} />
       : null;
 
   return (
