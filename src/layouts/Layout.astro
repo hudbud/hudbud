@@ -1,5 +1,5 @@
 ---
-import { MT_THEMES } from '../data/themes';
+import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 
 interface Props {
   title?: string;
@@ -55,7 +55,7 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
   </style>
 </head>
 <body data-font="apfel">
-  <script is:inline define:vars={{ themeData: THEME_DATA, themeNames: THEME_NAMES, fontIds: FONT_IDS }}>
+  <script is:inline define:vars={{ themeData: THEME_DATA, themeNames: THEME_NAMES, safeThemeNames: SAFE_THEME_NAMES, fontIds: FONT_IDS }}>
     (function () {
       try {
         var DEFAULT_THEME = 'earthsong';
@@ -64,7 +64,7 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
         var themeLocked = localStorage.getItem('hp-lock-theme');
         var theme = themeLocked
           ? (localStorage.getItem('hp-theme') || DEFAULT_THEME)
-          : themeNames[Math.floor(Math.random() * themeNames.length)];
+          : safeThemeNames[Math.floor(Math.random() * safeThemeNames.length)];
 
         var fontLocked = localStorage.getItem('hp-lock-font');
         var font = fontLocked
