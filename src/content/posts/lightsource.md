@@ -1,6 +1,7 @@
 ---
 title: "LightSource"
-date: "2025-06-01"
+date: "2099-12-30T09:00-07:00"
+dateLabel: "leading design"
 tags: ["work"]
 category: "portfolio"
 excerpt: "Design Lead at LightSource — access to this work is restricted."

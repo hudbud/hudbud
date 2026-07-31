@@ -5,9 +5,12 @@ export interface MonkeytypeTheme {
   fg: string;
   dim: string;
   accent: string;
+  videoBackground?: boolean;
 }
 
 export const MT_THEMES: MonkeytypeTheme[] = [
+  { name: "livestream", bg: "#000000", bgInner: "#0a0a0a", fg: "#ffffff", dim: "#888888", accent: "#ffffff", videoBackground: true },
+  { name: "livestream_bw", bg: "#000000", bgInner: "#0a0a0a", fg: "#ffffff", dim: "#888888", accent: "#ffffff", videoBackground: true },
   { name: "8008", bg: "#333a45", bgInner: "#2e343d", fg: "#e9ecf0", dim: "#939eae", accent: "#f44c7f" },
   { name: "9009", bg: "#eeebe2", bgInner: "#d3cfc1", fg: "#080909", dim: "#99947f", accent: "#080909" },
   { name: "80s_after_dark", bg: "#1b1d36", bgInner: "#17182c", fg: "#e1e7ec", dim: "#99d6ea", accent: "#fca6d1" },
