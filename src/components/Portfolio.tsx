@@ -9,6 +9,7 @@ import { type Post } from '../data/posts';
 import { groupImagesIntoGrid } from '../lib/imageGrid';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
+import IntroLoader from './IntroLoader';
 import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon } from '@phosphor-icons/react';
 
 type Filter = 'all' | 'design' | 'world';
@@ -59,26 +60,42 @@ function readHpInitial(): HpInitial | null {
 // Original artwork supplied as a fixed-color SVG; fills are remapped to the
 // theme tokens so the mark recolors with every theme. The three arc colors
 // become stepped opacities of the single theme accent.
-function HudMark({ size = 44, onClick }: { size?: number; onClick?: () => void }) {
+function HudMark({ size = 44, onClick, introMode = false }: { size?: number; onClick?: () => void; introMode?: boolean }) {
+  const fills = introMode
+    ? {
+        faint: 'rgba(255,255,255,0.3)',
+        dim: 'rgba(255,255,255,0.5)',
+        fg: 'rgba(255,255,255,0.8)',
+        accentMix: 'rgba(255,255,255,0.9)',
+        accent: '#ffffff',
+      }
+    : {
+        faint: 'var(--fg-faint)',
+        dim: 'var(--fg-dim)',
+        fg: 'var(--fg)',
+        accentMix: 'color-mix(in srgb, var(--accent) 50%, var(--fg))',
+        accent: 'var(--accent)',
+      };
+
   return (
-    <button onClick={onClick} aria-label="home" style={{ display: 'block', padding: 0, cursor: 'pointer', lineHeight: 0 }}>
+    <button onClick={onClick} aria-label="home" style={{ display: 'block', padding: 0, cursor: onClick ? 'pointer' : 'default', lineHeight: 0 }}>
       <svg width={size} height={size} viewBox="0 0 330 329" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fillRule="evenodd" clipRule="evenodd" d="M203.833 290.257L126.128 290.242L119.865 283.999L210.104 284.006L203.833 290.257Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M191.322 302.728L138.66 302.729L132.395 296.484L197.579 296.491L191.322 302.728Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M178.794 315.217L151.188 315.219L144.924 308.974L185.051 308.979L178.794 315.217Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M164.992 328.975L157.453 321.46L172.526 321.465L164.992 328.975Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M113.13 177.859L51.2288 177.843L64.4456 190.991L45.5201 209.857L-1.88858e-05 164.479L45.4981 119.124L64.4263 137.993L51.2179 151.16L85.8397 151.164C91.5678 117.699 118.013 91.3369 151.569 85.6408L151.564 51.1284L138.356 64.2946L119.428 45.4259L164.94 0.0566261L210.526 45.3858L191.6 64.2519L178.389 51.0819L178.393 85.595C211.958 91.3071 238.414 117.68 244.144 151.14L278.712 151.147L265.502 137.978L284.427 119.112L329.929 164.556L284.431 209.911L265.503 191.042L278.705 177.899L256.937 177.893L256.929 177.885L216.79 177.868C217.914 173.586 218.518 169.097 218.527 164.467C218.518 135.182 194.334 111.074 164.956 111.064C135.563 111.067 111.388 135.166 111.399 164.452C111.406 169.069 112.003 173.567 113.13 177.859Z" fill="var(--fg-dim)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M178.362 277.76L151.603 277.758L151.606 271.51L178.365 271.512L178.362 277.76Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M178.355 265.278L151.61 265.262L151.6 259.027L178.359 259.029L178.355 265.278Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M213.96 227.823L116.013 227.796C113.499 225.854 111.096 223.771 108.822 221.561L221.142 221.575C218.881 223.789 216.486 225.871 213.96 227.823Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M148.757 215.326L103.083 215.307C101.421 213.311 99.8655 211.223 98.4078 209.062L135.706 209.076C139.718 211.717 144.107 213.83 148.757 215.326Z" fill="var(--fg)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M190.673 240.308L139.325 240.291C134.462 238.639 129.804 236.54 125.4 234.046L204.58 234.061C200.19 236.558 195.541 238.655 190.673 240.308Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M127.879 202.832L94.5861 202.822C93.4634 200.797 92.4287 198.719 91.4989 196.576L122.317 196.58C124.009 198.804 125.86 200.904 127.879 202.832Z" fill="color-mix(in srgb, var(--accent) 50%, var(--fg))"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M178.363 252.779L151.604 252.778L151.607 246.53L178.367 246.531L178.363 252.779Z" fill="var(--fg-faint)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M118.212 190.334L89.0445 190.336C88.3474 188.284 87.716 186.211 87.1793 184.092L115.212 184.091C116.071 186.248 117.079 188.328 118.212 190.334Z" fill="var(--accent)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M226.884 215.331L181.14 215.327C185.798 213.833 190.181 211.724 194.201 209.084L231.551 209.093C230.103 211.242 228.538 213.331 226.884 215.331Z" fill="var(--fg)"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M235.375 202.84L202.035 202.839C204.044 200.91 205.915 198.816 207.606 196.598L238.454 196.604C237.521 198.728 236.49 200.811 235.375 202.84Z" fill="color-mix(in srgb, var(--accent) 50%, var(--fg))"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M240.901 190.358L211.723 190.35C212.842 188.354 213.845 186.27 214.716 184.112L242.76 184.122C242.233 186.227 241.603 188.315 240.901 190.358Z" fill="var(--accent)"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M203.833 290.257L126.128 290.242L119.865 283.999L210.104 284.006L203.833 290.257Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M191.322 302.728L138.66 302.729L132.395 296.484L197.579 296.491L191.322 302.728Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M178.794 315.217L151.188 315.219L144.924 308.974L185.051 308.979L178.794 315.217Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M164.992 328.975L157.453 321.46L172.526 321.465L164.992 328.975Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M113.13 177.859L51.2288 177.843L64.4456 190.991L45.5201 209.857L-1.88858e-05 164.479L45.4981 119.124L64.4263 137.993L51.2179 151.16L85.8397 151.164C91.5678 117.699 118.013 91.3369 151.569 85.6408L151.564 51.1284L138.356 64.2946L119.428 45.4259L164.94 0.0566261L210.526 45.3858L191.6 64.2519L178.389 51.0819L178.393 85.595C211.958 91.3071 238.414 117.68 244.144 151.14L278.712 151.147L265.502 137.978L284.427 119.112L329.929 164.556L284.431 209.911L265.503 191.042L278.705 177.899L256.937 177.893L256.929 177.885L216.79 177.868C217.914 173.586 218.518 169.097 218.527 164.467C218.518 135.182 194.334 111.074 164.956 111.064C135.563 111.067 111.388 135.166 111.399 164.452C111.406 169.069 112.003 173.567 113.13 177.859Z" fill={fills.dim}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M178.362 277.76L151.603 277.758L151.606 271.51L178.365 271.512L178.362 277.76Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M178.355 265.278L151.61 265.262L151.6 259.027L178.359 259.029L178.355 265.278Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M213.96 227.823L116.013 227.796C113.499 225.854 111.096 223.771 108.822 221.561L221.142 221.575C218.881 223.789 216.486 225.871 213.96 227.823Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M148.757 215.326L103.083 215.307C101.421 213.311 99.8655 211.223 98.4078 209.062L135.706 209.076C139.718 211.717 144.107 213.83 148.757 215.326Z" fill={fills.fg}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M190.673 240.308L139.325 240.291C134.462 238.639 129.804 236.54 125.4 234.046L204.58 234.061C200.19 236.558 195.541 238.655 190.673 240.308Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M127.879 202.832L94.5861 202.822C93.4634 200.797 92.4287 198.719 91.4989 196.576L122.317 196.58C124.009 198.804 125.86 200.904 127.879 202.832Z" fill={fills.accentMix}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M178.363 252.779L151.604 252.778L151.607 246.53L178.367 246.531L178.363 252.779Z" fill={fills.faint}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M118.212 190.334L89.0445 190.336C88.3474 188.284 87.716 186.211 87.1793 184.092L115.212 184.091C116.071 186.248 117.079 188.328 118.212 190.334Z" fill={fills.accent}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M226.884 215.331L181.14 215.327C185.798 213.833 190.181 211.724 194.201 209.084L231.551 209.093C230.103 211.242 228.538 213.331 226.884 215.331Z" fill={fills.fg}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M235.375 202.84L202.035 202.839C204.044 200.91 205.915 198.816 207.606 196.598L238.454 196.604C237.521 198.728 236.49 200.811 235.375 202.84Z" fill={fills.accentMix}/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M240.901 190.358L211.723 190.35C212.842 188.354 213.845 186.27 214.716 184.112L242.76 184.122C242.233 186.227 241.603 188.315 240.901 190.358Z" fill={fills.accent}/>
       </svg>
     </button>
   );
@@ -515,6 +532,7 @@ function FeedRow({ row, index, showImage }: { row: Row; index: number; showImage
         borderRadius: 2,
         opacity: clickable ? 1 : 0.6,
         cursor: clickable ? 'pointer' : 'default',
+        width: '100%',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -563,7 +581,7 @@ function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMo
   );
 }
 
-function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode }: {
+function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, introComplete, hasRenderedPosts }: {
   feed: Post[];
   filter: Filter;
   workCategory: string;
@@ -573,15 +591,21 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   setActivePost: (p: Post | null) => void;
   openProject: (id: string) => void;
   viewMode: ViewMode;
+  introComplete: boolean;
+  hasRenderedPosts: boolean;
 }) {
   const rows = useMemo(
     () => buildRows({ feed, filter, workCategory, activePost, activeProject, setActivePost, openProject }),
     [feed, filter, workCategory, activePost, activeProject, setActivePost, openProject]
   );
 
+  // On first render: cascade after filter pills start (0.6s) + small gap = 0.8s
+  // On filter changes: animate instantly (0s)
+  const baseDelay = hasRenderedPosts ? 0 : 0.8;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {filter === 'design' && (
+      {filter === 'design' && introComplete && (
         <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {CATEGORY_CHIPS.map((chip) => (
             <button
@@ -599,8 +623,20 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
           ))}
         </div>
       )}
-      {rows.map((row, i) => (
-        <FeedRow key={row.key} row={row} index={i} showImage={viewMode === 'roomy'} />
+      {introComplete && rows.map((row, i) => (
+        <motion.div
+          key={row.key}
+          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 0.9,
+            delay: baseDelay + (i * 0.06),
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          style={{ width: '100%' }}
+        >
+          <FeedRow row={row} index={i} showImage={viewMode === 'roomy'} />
+        </motion.div>
       ))}
     </div>
   );
@@ -721,7 +757,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 }
 
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed }: {
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, introComplete, showedIntroThisSession }: {
   filter: Filter;
   setFilter: (f: Filter) => void;
   workCategory: string;
@@ -733,6 +769,8 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   onOpenBioModal: (id: string) => void;
   onHome: () => void;
   feed: Post[];
+  introComplete: boolean;
+  showedIntroThisSession: boolean;
 }) {
   const [showMore, setShowMore] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('compact');
@@ -740,28 +778,80 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   // step down with relaxed leading. (500 is the heaviest weight all five
   // site fonts actually ship, so it stays true rather than synthesizing.)
   const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
+
+  // Track if this is the first time posts are rendering (persists across filter changes)
+  const hasRenderedPostsRef = useRef(false);
+  useEffect(() => {
+    if (introComplete) {
+      hasRenderedPostsRef.current = true;
+    }
+  }, [introComplete]);
+
   return (
     <div style={{ height: '100%', overflowY: 'auto' }}>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 40, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'flex-start' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'flex-start' }}>
       <div>
-        <div style={{ marginBottom: 14 }}>
-          <HudMark size={46} onClick={onHome} />
-        </div>
-        <h1 style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}>
-          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
-        </h1>
-        <p style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}>{leadDisplay}</p>
-        {leadRest.length > 0 && (
-          <p style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}>{leadRest.join('\n')}</p>
+        {/* Logo */}
+        {introComplete && (
+          <motion.div
+            style={{ marginBottom: 14 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <HudMark size={46} onClick={onHome} />
+          </motion.div>
         )}
-        <button
-          onClick={() => setShowMore(v => !v)}
-          style={{ fontSize: 12, color: 'var(--fg-dim)', padding: 0, transition: 'color 0.15s' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; }}
-        >
-          {showMore ? 'less' : 'more'}
-        </button>
+
+        {/* Name */}
+        {introComplete && (
+          <motion.h1
+            style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
+          </motion.h1>
+        )}
+
+        {/* Lead text */}
+        {introComplete && (
+          <motion.p
+            style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {leadDisplay}
+          </motion.p>
+        )}
+
+        {/* Bio text */}
+        {leadRest.length > 0 && introComplete && (
+          <motion.p
+            style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 0.85, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {leadRest.join('\n')}
+          </motion.p>
+        )}
+
+        {introComplete && (
+          <motion.button
+            onClick={() => setShowMore(v => !v)}
+            style={{ fontSize: 12, color: 'var(--fg-dim)', padding: 0, transition: 'color 0.15s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {showMore ? 'less' : 'more'}
+          </motion.button>
+        )}
         {showMore && (
           <div style={{ marginTop: 12 }}>
             <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY}</p>
@@ -782,22 +872,34 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
         )}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {FILTERS.map((f) => (
-            <FilterPill
-              key={f}
-              active={filter === f}
-              onClick={() => setFilter(filter === f ? 'all' : f)}
-            >
-              {f}
-            </FilterPill>
-          ))}
-        </div>
-        <ViewModeToggle mode={viewMode} setMode={setViewMode} />
-      </div>
+      {introComplete && (
+        <motion.div
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {FILTERS.map((f) => (
+              <FilterPill
+                key={f}
+                active={filter === f}
+                onClick={() => setFilter(filter === f ? 'all' : f)}
+              >
+                {f}
+              </FilterPill>
+            ))}
+          </div>
+          <ViewModeToggle mode={viewMode} setMode={setViewMode} />
+        </motion.div>
+      )}
 
-      <motion.div key={filter} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SPRING}>
+      <motion.div
+        key={filter}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={SPRING}
+      >
         <Feed
           feed={feed}
           filter={filter}
@@ -808,6 +910,8 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
           setActivePost={setActivePost}
           openProject={onOpenProject}
           viewMode={viewMode}
+          introComplete={introComplete}
+          hasRenderedPosts={hasRenderedPostsRef.current}
         />
       </motion.div>
     </div>
@@ -1533,9 +1637,23 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const [activePost, setActivePostRaw] = useState<Post | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
 
+  // Intro sequence state
+  const [showIntro, setShowIntro] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
+  const [showedIntroThisSession, setShowedIntroThisSession] = useState(false);
+
   // Reconcile deferred, client-only state: the theme/font the inline head
   // script already painted, lock flags, and any ?filter=/?cat=/?post= deep link.
   useEffect(() => {
+    // Check if intro has been shown this session
+    const introShown = sessionStorage.getItem('hp-intro-shown');
+    if (!introShown) {
+      setShowIntro(true);
+      setShowedIntroThisSession(true);
+      sessionStorage.setItem('hp-intro-shown', '1');
+    } else {
+      setIntroComplete(true);
+    }
     const initial = readHpInitial();
     if (initial) {
       setThemeRaw(initial.theme);
@@ -1568,6 +1686,14 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); };
   const closeRightPanel = () => { setActivePostRaw(null); setActiveProject(null); };
 
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+    // Wait for exit animation, then show UI
+    setTimeout(() => {
+      setIntroComplete(true);
+    }, 1200);
+  };
+
   useEffect(() => {
     const mt = MT_THEMES.find((t) => t.name === theme) || MT_THEMES[0];
     const root = document.documentElement;
@@ -1586,6 +1712,9 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       document.body.classList.remove('rainbow-trail');
     }
   }, [theme]);
+
+  const currentTheme = MT_THEMES.find((t) => t.name === theme);
+  const showVideoBackground = currentTheme?.videoBackground ?? false;
 
   useEffect(() => {
     document.body.dataset.font = font;
@@ -1611,9 +1740,31 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
           overflow: 'hidden',
         }}
       >
+        {/* Video background for livestream themes */}
+        {showVideoBackground && (
+          <video
+            autoPlay
+            muted
+            playsInline
+            loop
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: theme === 'livestream' ? 0.4 : 0.15,
+              pointerEvents: 'none',
+              zIndex: 0,
+              filter: theme === 'livestream' ? 'none' : 'grayscale(1)',
+            }}
+          >
+            <source src="/intro/intro.mp4" type="video/mp4" />
+          </video>
+        )}
         {/* Left spacer: centers left column when panel closed (desktop only) */}
         {!isMobile && (
-          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 1 }} />
         )}
 
         {/* Left column */}
@@ -1624,6 +1775,8 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
             transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1)',
             overflowY: 'auto',
             height: '100%',
+            position: 'relative',
+            zIndex: 1,
           }}>
             <LeftColumn
               filter={filter}
@@ -1637,6 +1790,8 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
               onOpenBioModal={setBioModal}
               onHome={() => { setFilter('all'); closeRightPanel(); }}
               feed={feed}
+              introComplete={introComplete}
+              showedIntroThisSession={showedIntroThisSession}
             />
           </div>
         )}
@@ -1651,6 +1806,8 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
             opacity: panelOpen ? 1 : 0,
             transform: (!isMobile && !panelOpen) ? 'translateX(16px)' : undefined,
             transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s, transform 0.35s ease 0.08s',
+            position: 'relative',
+            zIndex: 1,
           }}>
             {rightContent}
           </div>
@@ -1658,7 +1815,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
         {/* Right spacer: mirrors left spacer (desktop only) */}
         {!isMobile && (
-          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 1 }} />
         )}
       </div>
 
@@ -1674,6 +1831,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       })()}
 
       <AnimatePresence>
+        {showIntro && <IntroLoader onComplete={handleIntroComplete} />}
         {bioModal && <BioModal key="bio" modalId={bioModal} onClose={() => setBioModal(null)} />}
       </AnimatePresence>
       {timeTravelUrl && (
