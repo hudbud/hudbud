@@ -5,5 +5,6 @@ tags: ["work"]
 category: "product"
 dateLabel: "-"
 draft: false
+excerpt: "I just wanted to make water bottles that I thought were cool. Now they're all over the city!"
 ---
-Coming soon.
+I just wanted to make water bottles that I thought were cool. Now they're all over the city! Contact me if you want one, I have a few left!

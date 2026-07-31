@@ -11,17 +11,17 @@ import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
 import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon } from '@phosphor-icons/react';
 
-type Filter = 'all' | 'work' | 'life';
+type Filter = 'all' | 'design' | 'world';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
 
-const FILTERS: Filter[] = ['all', 'work', 'life'];
-// A post's facing direction: life -> Life, anything else (work, archive,
-// resources, thoughts) -> Work — archive/resources/ideas sink into the same
+const FILTERS: Filter[] = ['all', 'design', 'world'];
+// A post's facing direction: world -> World (life), anything else (work, archive,
+// resources, thoughts) -> Design — archive/resources/ideas sink into the same
 // bucket as active client work rather than getting their own filter.
 const WORK_TAGS = ['work', 'archive', 'resources', 'thoughts'];
 function matchesFilter(p: Post, f: Filter): boolean {
   if (f === 'all') return true;
-  if (f === 'life') return p.tags.includes('life');
+  if (f === 'world') return p.tags.includes('life');
   return p.tags.some((t) => WORK_TAGS.includes(t));
 }
 
@@ -464,7 +464,7 @@ function buildRows({ feed, filter, workCategory, activePost, activeProject, setA
   const postRows: Row[] = feed
     // Resources live only in the "..." chrome menu, not the chronological list.
     .filter((p) => !p.tags.includes('resources'))
-    .filter((p) => matchesFilter(p, filter) && (filter !== 'work' || workCategory === 'all' || p.category === workCategory))
+    .filter((p) => matchesFilter(p, filter) && (filter !== 'design' || workCategory === 'all' || p.category === workCategory))
     .map((p) => ({
       key: p.slug ?? p.title,
       title: p.title,
@@ -476,9 +476,9 @@ function buildRows({ feed, filter, workCategory, activePost, activeProject, setA
       onClick: () => setActivePost(activePost && activePost.title === p.title ? null : p),
     }));
 
-  // Ideas map to the Work bucket; a specific category chip has nothing to
+  // Ideas map to the Design bucket; a specific category chip has nothing to
   // match against, so they only show under "all".
-  const ideaRows: Row[] = (filter === 'life' || (filter === 'work' && workCategory !== 'all'))
+  const ideaRows: Row[] = (filter === 'world' || (filter === 'design' && workCategory !== 'all'))
     ? []
     : IDEAS.map((idea) => {
         const slug = idea.internal && idea.href.startsWith('#') ? idea.href.slice(1) : null;
@@ -528,7 +528,6 @@ function FeedRow({ row, index, showImage }: { row: Row; index: number; showImage
       )}
       <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
         <span style={{ fontSize: 13 }}>{row.title}</span>
-        {row.meta && <span style={{ fontSize: 11, color: 'var(--fg-dim)' }}>{row.meta}</span>}
       </span>
       <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{row.date}</span>
     </button>
@@ -582,7 +581,7 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {filter === 'work' && (
+      {filter === 'design' && (
         <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {CATEGORY_CHIPS.map((chip) => (
             <button
@@ -1556,8 +1555,8 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       const found = feed.find((p) => p.slug === postSlug);
       if (found) {
         setActivePostRaw(found);
-        if (found.tags.includes('life')) setFilterRaw('life');
-        else if (found.tags.some((t) => WORK_TAGS.includes(t))) setFilterRaw('work');
+        if (found.tags.includes('life')) setFilterRaw('world');
+        else if (found.tags.some((t) => WORK_TAGS.includes(t))) setFilterRaw('design');
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
