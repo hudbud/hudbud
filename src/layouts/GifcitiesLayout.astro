@@ -1,0 +1,211 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'GifCities for iMessage',
+  description = "Search the internet's GIF attic, right from iMessage.",
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ctext x='16' y='23' font-family='monospace' font-weight='bold' font-size='16' fill='%2300ff00' text-anchor='middle'%3EG%3C/text%3E%3C/svg%3E" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+
+  <style>
+    :root {
+      --gold: #ffcc00;
+      --green: #00ff66;
+      --cyan: #00ffff;
+      --magenta: #ff33cc;
+      --link: #66aaff;
+      --link-visited: #cc99ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: auto;
+    }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 18px;
+      color: #eeeeee;
+      background-color: #04030b;
+      background-image: url('/images/gifcities/neb1.jpg');
+      background-repeat: repeat;
+    }
+
+    a { color: var(--link); }
+    a:visited { color: var(--link-visited); }
+    a:hover { color: var(--gold); }
+
+    hr.gold {
+      border: none;
+      border-top: 3px solid var(--gold);
+      max-width: 860px;
+      margin: 18px auto;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+      text-align: center;
+    }
+
+    .logo {
+      font-family: "Times New Roman", Times, serif;
+      font-style: italic;
+      font-weight: bold;
+      font-size: 42px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-shadow: 3px 3px 0 #660066;
+      margin: 10px 0 4px;
+    }
+
+    nav.top-nav {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    nav.top-nav a {
+      margin: 0 8px;
+      text-decoration: underline;
+    }
+
+    .ticker-bar {
+      background: #000;
+      border-top: 2px solid var(--green);
+      border-bottom: 2px solid var(--green);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 4px 0;
+      margin: 10px 0;
+    }
+
+    .ticker-bar span {
+      display: inline-block;
+      padding-left: 100%;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 14px;
+      color: var(--green);
+      animation: marquee 14s linear infinite;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    main {
+      text-align: left;
+    }
+
+    main h1, main h2 {
+      font-family: "Times New Roman", Times, serif;
+      text-align: center;
+    }
+
+    main h2 {
+      color: var(--cyan);
+      font-size: 22px;
+    }
+
+    main p, main li {
+      font-size: 19px;
+      line-height: 1.5;
+    }
+
+    .blink {
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    footer.site-footer {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 14px;
+      color: #aaaaaa;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    footer.site-footer .info-bar {
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    footer.site-footer .info-bar a {
+      color: var(--green);
+    }
+
+    .hit-counter {
+      display: inline-block;
+      background: #000;
+      color: #00ff00;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 18px;
+      padding: 2px 8px;
+      border: 1px solid #333;
+      margin: 10px 0;
+      letter-spacing: 2px;
+    }
+
+    .webring-line {
+      margin: 8px 0;
+    }
+
+    .webring-line a {
+      margin: 0 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <hr class="gold" />
+    <a href="/gifcities/" class="logo">GifCities for iMessage</a>
+    <nav class="top-nav">
+      <a href="/gifcities/">home</a>|<a href="/gifcities/privacy">privacy</a>|<a href="/gifcities/support">support</a>
+    </nav>
+    <div class="ticker-bar" aria-hidden="true">
+      <span>*** SEARCH THE INTERNET'S GIF ATTIC *** NO ACCOUNT NEEDED *** TAP TO SEND *** POWERED BY GIFCITIES ***</span>
+    </div>
+    <hr class="gold" />
+    <main>
+      <slot />
+    </main>
+    <hr class="gold" />
+    <footer class="site-footer">
+      <div class="info-bar">
+        <a href="mailto:hudbud@gmail.com">email me</a> - <a href="/gifcities/privacy">privacy policy</a> - <a href="/gifcities/support">support</a>
+      </div>
+      <div class="hit-counter" aria-hidden="true">visitors: 003147</div>
+      <div class="webring-line">
+        [<a href="/gifcities/">prev</a>] webring of one, est. forever [<a href="/gifcities/">next</a>]
+      </div>
+      <div>an independent project by <a href="https://hudbud.net">hudbud.net</a></div>
+    </footer>
+  </div>
+</body>
+</html>
