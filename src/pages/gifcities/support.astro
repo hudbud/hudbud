@@ -1,0 +1,38 @@
+---
+export const prerender = true;
+import GifcitiesLayout from '../../layouts/GifcitiesLayout.astro';
+---
+<GifcitiesLayout
+  title="Support — GifCities for iMessage"
+  description="FAQ and support contact for GifCities for iMessage."
+>
+  <h1>support</h1>
+
+  <h2>how do I enable the extension?</h2>
+  <p>
+    Open Messages, start a conversation, and tap the App Store icon (grey circle with an "A")
+    next to the text field to open the app drawer. Tap the GifCities icon to launch it.
+    If you don't see it, tap the ••• "More" button in the drawer, tap "Edit", and switch
+    GifCities on.
+  </p>
+
+  <h2>why might a GIF fail to load?</h2>
+  <p>
+    GIFs are fetched live from the Internet Archive's servers, not stored in the app.
+    Some archived files are slow to load or occasionally unavailable. If one doesn't load,
+    try again in a moment or pick a different result.
+  </p>
+
+  <h2>how do I report an issue?</h2>
+  <p>
+    Email <a href="mailto:hudbud@gmail.com">hudbud@gmail.com</a>, or open an issue on
+    <a href="https://github.com/hudbud/gifcities-imessage">GitHub</a>.
+  </p>
+</GifcitiesLayout>
+
+<style>
+  h1 { font-size: 28px; margin: 0 0 20px; text-align: center; }
+  h2 { font-size: 19px; margin: 22px 0 6px; }
+  h2:first-of-type { margin-top: 0; }
+  p { max-width: 620px; margin: 0 auto; }
+</style>

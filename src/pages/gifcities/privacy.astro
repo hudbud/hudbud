@@ -1,0 +1,30 @@
+---
+export const prerender = true;
+import GifcitiesLayout from '../../layouts/GifcitiesLayout.astro';
+---
+<GifcitiesLayout
+  title="Privacy Policy — GifCities for iMessage"
+  description="Privacy policy for GifCities for iMessage."
+>
+  <h1>privacy policy</h1>
+  <p class="updated">last updated August 8, 2026</p>
+
+  <p>GifCities for iMessage is built to collect as little as possible. Plainly:</p>
+  <ul>
+    <li><strong>No personal data is collected.</strong> The app doesn't gather names, contacts, device identifiers, or anything else about you.</li>
+    <li><strong>No account or login is required.</strong> There's nothing to sign up for and nothing to sign in to.</li>
+    <li><strong>No analytics or tracking SDKs.</strong> Nothing in the app watches how you use it or reports back to anyone.</li>
+    <li><strong>Search queries go straight to GifCities.</strong> When you search, your query is sent directly to <a href="https://gifcities.org">gifcities.org</a> (the Internet Archive) to fetch results. We don't store or see your queries or usage — they never pass through a server we run.</li>
+    <li><strong>Selected GIFs are temporary.</strong> When you tap a GIF to send it, it's downloaded briefly so it can be inserted into your message. It isn't retained, logged, or transmitted anywhere else.</li>
+  </ul>
+  <p>
+    Questions about this policy? Contact <a href="mailto:hudbud@gmail.com">hudbud@gmail.com</a>.
+  </p>
+</GifcitiesLayout>
+
+<style>
+  h1 { font-size: 28px; margin: 0 0 4px; text-align: center; }
+  .updated { color: #aaaaaa; font-size: 15px; text-align: center; margin: 0 0 20px; }
+  ul { padding-left: 22px; margin: 0 0 16px; max-width: 620px; margin-left: auto; margin-right: auto; }
+  li { margin-bottom: 10px; }
+</style>

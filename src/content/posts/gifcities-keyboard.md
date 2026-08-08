@@ -8,4 +8,6 @@ excerpt: "The children yearn for 90s raster gifs"
 ---
 The children yearn for 90s raster gifs
 
+[hudbud.net/gifcities](https://hudbud.net/gifcities)
+
 [github.com/hudbud/gifcities-imessage](https://github.com/hudbud/gifcities-imessage)
