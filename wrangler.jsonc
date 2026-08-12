@@ -1,0 +1,9 @@
+// Cloudflare Workers config — static hosting of the Astro build output.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hudbud",
+  "compatibility_date": "2026-08-12",
+  "assets": {
+    "directory": "./dist"
+  }
+}
