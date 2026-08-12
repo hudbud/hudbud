@@ -3,73 +3,73 @@ title: "Doodles"
 date: "2020-01-03T00:42:50.000Z"
 tags: ["archive"]
 category: "illustration"
-feature_image: "/posts/35/volcano.png"
+feature_image: "https://media.hudbud.net/posts/35/volcano.png"
 ---
 
-![](/posts/35/volcano.png)
+![](https://media.hudbud.net/posts/35/volcano.png)
 
-![](/posts/35/blobs_lines_psychedellic.png)
+![](https://media.hudbud.net/posts/35/blobs_lines_psychedellic.png)
 
-![](/posts/35/flying+beanbag.png)
+![](https://media.hudbud.net/posts/35/flying-beanbag.png)
 
-![](/posts/35/stop+and+go.png)
+![](https://media.hudbud.net/posts/35/stop-and-go.png)
 
-![](/posts/35/shapey2345.png)
+![](https://media.hudbud.net/posts/35/shapey2345.webp)
 
-![](/posts/35/Artboard+1@4x.png)
+![](https://media.hudbud.net/posts/35/artboard-1-4x.webp)
 
-![](/posts/35/eye.png)
+![](https://media.hudbud.net/posts/35/eye.png)
 
-![](/posts/35/pink_energy.png)
+![](https://media.hudbud.net/posts/35/pink_energy.png)
 
-![](/posts/35/squiq.png)
+![](https://media.hudbud.net/posts/35/squiq.png)
 
-![](/posts/35/bloop.png)
+![](https://media.hudbud.net/posts/35/bloop.webp)
 
-![](/posts/35/eightfoldpath.png)
+![](https://media.hudbud.net/posts/35/eightfoldpath.webp)
 
-![](/posts/35/Artboard+1-100.jpg)
+![](https://media.hudbud.net/posts/35/artboard-1-100.webp)
 
-![](/posts/35/HAILSATAN.png)
+![](https://media.hudbud.net/posts/35/hailsatan.webp)
 
-![](/posts/35/tigereye.png)
+![](https://media.hudbud.net/posts/35/tigereye.png)
 
-![](/posts/35/tyler_piano.png)
+![](https://media.hudbud.net/posts/35/tyler_piano.webp)
 
-![](/posts/35/over_around.png)
+![](https://media.hudbud.net/posts/35/over_around.png)
 
-![](/posts/35/onion.png)
+![](https://media.hudbud.net/posts/35/onion.png)
 
-![](/posts/35/love!.png)
+![](https://media.hudbud.net/posts/35/love-.png)
 
-![](/posts/35/stretchy.png)
+![](https://media.hudbud.net/posts/35/stretchy.webp)
 
-![](/posts/35/doodlres.png)
+![](https://media.hudbud.net/posts/35/doodlres.webp)
 
-![](/posts/35/Artboard+1+copy@4x.png)
+![](https://media.hudbud.net/posts/35/artboard-1-copy-4x.webp)
 
-![](/posts/35/Artboard1.png)
+![](https://media.hudbud.net/posts/35/artboard1.webp)
 
-![](/posts/35/spook.png)
+![](https://media.hudbud.net/posts/35/spook.png)
 
-![](/posts/35/texture_blob.png)
+![](https://media.hudbud.net/posts/35/texture_blob.webp)
 
-![](/posts/35/jastity.png)
+![](https://media.hudbud.net/posts/35/jastity.webp)
 
-![](/posts/35/cantstopme.png)
+![](https://media.hudbud.net/posts/35/cantstopme.webp)
 
-![](/posts/35/glasses.png)
+![](https://media.hudbud.net/posts/35/glasses.png)
 
-![](/posts/35/blobs3.png)
+![](https://media.hudbud.net/posts/35/blobs3.png)
 
-![](/posts/35/wavey.jpg)
+![](https://media.hudbud.net/posts/35/wavey-jpg.webp)
 
-![](/posts/35/Artboard2.png)
+![](https://media.hudbud.net/posts/35/artboard2.webp)
 
-![](/posts/35/swirlybop.png)
+![](https://media.hudbud.net/posts/35/swirlybop.png)
 
-![](/posts/35/whirl2.png)
+![](https://media.hudbud.net/posts/35/whirl2.webp)
 
-![](/posts/35/wavey.png)
+![](https://media.hudbud.net/posts/35/wavey.png)
 
-![](/posts/35/artboard+1@2x.jpeg)
+![](https://media.hudbud.net/posts/35/artboard-1-2x.webp)

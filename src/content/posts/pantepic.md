@@ -3,7 +3,7 @@ title: "Pantepic"
 date: "2020-09-04"
 tags: ["work"]
 excerpt: "Logo, branding, UI design, and mapbox design for a map-based secure messenger. Successfully launched on iOS and Android."
-feature_image: "/posts/61/pantepic_logo_guidelines.png"
+feature_image: "https://media.hudbud.net/posts/61/pantepic_logo_guidelines.webp"
 roles: "Logo & Branding, UI Design, Mapbox Design, Marketing Collateral, Web Design"
 tools: "Figma, Illustrator, Mapbox"
 ---
@@ -14,22 +14,22 @@ Pantepic is a map-based secure messenger that successfully launched on iOS and A
 
 **Tools:** Figma, Illustrator, Mapbox
 
-![](/posts/61/pantepic_logo_guidelines.png)
+![](https://media.hudbud.net/posts/61/pantepic_logo_guidelines.webp)
 
-![](/posts/61/Annotation-2020-08-19-142915.png)
+![](https://media.hudbud.net/posts/61/annotation-2020-08-19-142915.webp)
 
-![](/posts/61/Stationery-Mockup---Free-Version.png)
+![](https://media.hudbud.net/posts/61/stationery-mockup-free-version.webp)
 
-![](/posts/61/PANTEPIC-LOGO.png)
+![](https://media.hudbud.net/posts/61/pantepic-logo.webp)
 
-![](/posts/61/scheduled.jpg)
+![](https://media.hudbud.net/posts/61/scheduled.webp)
 
-![](/posts/61/selfdestruct.png)
+![](https://media.hudbud.net/posts/61/selfdestruct.webp)
 
-![](/posts/61/pantepic-scheduled.png)
+![](https://media.hudbud.net/posts/61/pantepic-scheduled.webp)
 
-![](/posts/61/SOS.png)
+![](https://media.hudbud.net/posts/61/sos.webp)
 
-![](/posts/61/banner.png)
+![](https://media.hudbud.net/posts/61/banner.webp)
 
-![](/posts/61/final.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/61/final.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video></div>

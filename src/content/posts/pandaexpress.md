@@ -3,7 +3,7 @@ title: "Panda Express"
 date: "2021-10-06"
 tags: ["work"]
 excerpt: "Animation and UI support for Panda Express ordering experience at Hathway."
-feature_image: "/posts/54/Frame-2.png"
+feature_image: "https://media.hudbud.net/posts/54/frame-2.webp"
 roles: "Animation, UI Support"
 tools: "After Effects, Sketch, Lottie, Illustrator"
 agency: "Hathway"
@@ -17,4 +17,4 @@ Panda Express is a quick-service American Chinese restaurant chain. The project 
 
 **Agency:** Hathway
 
-![](/posts/54/Frame-2.png)
+![](https://media.hudbud.net/posts/54/frame-2.webp)

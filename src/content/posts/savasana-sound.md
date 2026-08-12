@@ -4,7 +4,7 @@ date: "2021-03-04"
 tags: ["archive"]
 category: "branding"
 excerpt: "Branding and logo design for a sound bath performance group."
-feature_image: "/posts/60/3.png"
+feature_image: "https://media.hudbud.net/posts/60/3.webp"
 ---
 
 Branding and logo design for a sound bath performance group.
@@ -13,38 +13,38 @@ Branding and logo design for a sound bath performance group.
 
 **Tools:** Illustrator, Figma
 
-![](/posts/60/3.png)
+![](https://media.hudbud.net/posts/60/3.webp)
 
-![](/posts/60/2.png)
+![](https://media.hudbud.net/posts/60/2.png)
 
-![](/posts/60/3.5.png)
+![](https://media.hudbud.net/posts/60/3.5.png)
 
-![](/posts/60/1.png)
+![](https://media.hudbud.net/posts/60/1.webp)
 
-![](/posts/60/4.png)
+![](https://media.hudbud.net/posts/60/4.webp)
 
-![](/posts/60/8.png)
+![](https://media.hudbud.net/posts/60/8.webp)
 
-![](/posts/60/5a.png)
+![](https://media.hudbud.net/posts/60/5a.webp)
 
-![](/posts/60/4a.png)
+![](https://media.hudbud.net/posts/60/4a.webp)
 
-![](/posts/60/5.png)
+![](https://media.hudbud.net/posts/60/5.webp)
 
-![](/posts/60/8.5.png)
+![](https://media.hudbud.net/posts/60/8.5.png)
 
-![](/posts/60/9.png)
+![](https://media.hudbud.net/posts/60/9.webp)
 
-![](/posts/60/14.png)
+![](https://media.hudbud.net/posts/60/14.webp)
 
-![](/posts/60/13.5.png)
+![](https://media.hudbud.net/posts/60/13.5.png)
 
-![](/posts/60/15.png)
+![](https://media.hudbud.net/posts/60/15.webp)
 
-![](/posts/60/18.png)
+![](https://media.hudbud.net/posts/60/18.png)
 
-![](/posts/60/21.png)
+![](https://media.hudbud.net/posts/60/21.webp)
 
-![](/posts/60/Artboard-1.png)
+![](https://media.hudbud.net/posts/60/artboard-1.png)
 
-![](/posts/60/20.png)
+![](https://media.hudbud.net/posts/60/20.webp)

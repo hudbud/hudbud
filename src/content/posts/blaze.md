@@ -3,7 +3,7 @@ title: "Blaze Pizza"
 date: "2021-10-06"
 tags: ["work"]
 excerpt: "Visual refresh, UI design, and art direction for Blaze Pizza's ordering and loyalty experience at Hathway."
-feature_image: "/posts/52/Frame-2.png"
+feature_image: "https://media.hudbud.net/posts/52/frame-2.webp"
 roles: "UI Design, UI Toolkit Management, Art Direction, Figma Conversion"
 tools: "Sketch, Figma, Illustrator, Photoshop"
 agency: "Hathway"
@@ -17,32 +17,32 @@ Blaze Pizza approached Hathway to create an ordering and loyalty app and web exp
 
 **Agency:** Hathway
 
-![](/posts/52/Frame-2.png)
+![](https://media.hudbud.net/posts/52/frame-2.webp)
 
-![](/posts/52/Frame-5.png)
+![](https://media.hudbud.net/posts/52/frame-5.webp)
 
-![](/posts/52/Frame-1.png)
+![](https://media.hudbud.net/posts/52/frame-1.webp)
 
-![](/posts/52/Frame-4.png)
+![](https://media.hudbud.net/posts/52/frame-4.webp)
 
-![](/posts/52/image-13.png)
+![](https://media.hudbud.net/posts/52/image-13.webp)
 
-![](/posts/52/Frame-8.png)
+![](https://media.hudbud.net/posts/52/frame-8.webp)
 
-![](/posts/52/Frame-9.png)
+![](https://media.hudbud.net/posts/52/frame-9.webp)
 
-![](/posts/52/Frame-10.png)
+![](https://media.hudbud.net/posts/52/frame-10.webp)
 
-![](/posts/52/Frame-7.png)
+![](https://media.hudbud.net/posts/52/frame-7.webp)
 
-![](/posts/52/Frame-6.png)
+![](https://media.hudbud.net/posts/52/frame-6.webp)
 
-![](/posts/52/Frame-13.png)
+![](https://media.hudbud.net/posts/52/frame-13.webp)
 
-![](/posts/52/Frame-12.png)
+![](https://media.hudbud.net/posts/52/frame-12.webp)
 
-![](/posts/52/Frame-15.png)
+![](https://media.hudbud.net/posts/52/frame-15.webp)
 
-![](/posts/52/image-13-1.png)
+![](https://media.hudbud.net/posts/52/image-13-1.webp)
 
-![](/posts/52/Frame-3.png)
+![](https://media.hudbud.net/posts/52/frame-3.webp)

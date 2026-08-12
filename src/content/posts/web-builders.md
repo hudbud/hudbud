@@ -3,7 +3,7 @@ title: "Web Builders"
 date: "2025-02-27T19:37-08:00"
 tags: ["resources"]
 excerpt: "An exhaustive list of every one I've found. note: this is a work in progress, but I'm publishing before it's done! There are an insane amount of web builders out today, and more coming quickly. I am going to update this to keep a running&hellip;"
-feature_image: "/posts/22/5E663569-3DC5-4919-A3D8-71B35517FC30_1_105_c.jpeg"
+feature_image: "https://media.hudbud.net/posts/22/5e663569-3dc5-4919-a3d8-71b35517fc30_1_105_c.webp"
 ---
 An exhaustive list of every one I've found.
 

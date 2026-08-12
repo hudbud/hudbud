@@ -3,7 +3,7 @@ title: "D4"
 date: "2020-01-03T00:39:44.000Z"
 tags: ["archive"]
 category: "branding"
-feature_image: "/posts/33/export12tan@3x_3.png"
+feature_image: "https://media.hudbud.net/posts/33/export12tan-3x_3.webp"
 excerpt: "Branding and identity exploration — logo grid, patches, and a landing page design."
 ---
 
@@ -11,64 +11,64 @@ excerpt: "Branding and identity exploration — logo grid, patches, and a landin
      dump only); wrote a placeholder guess from the image filenames, please
      rewrite with the real project context. -->
 
-![](/posts/33/export12tan@3x_3.png)
+![](https://media.hudbud.net/posts/33/export12tan-3x_3.webp)
 
-![](/posts/33/climbingaddraft1.png)
+![](https://media.hudbud.net/posts/33/climbingaddraft1.webp)
 
-![](/posts/33/patch-1.jpg)
+![](https://media.hudbud.net/posts/33/patch-1.webp)
 
-![](/posts/33/n.png)
+![](https://media.hudbud.net/posts/33/n.webp)
 
-![](/posts/33/corners.png)
+![](https://media.hudbud.net/posts/33/corners.webp)
 
-![](/posts/33/gridlogo.png)
+![](https://media.hudbud.net/posts/33/gridlogo.webp)
 
-![](/posts/33/Landing+Page.png)
+![](https://media.hudbud.net/posts/33/landing-page.webp)
 
-![](/posts/33/LOGOLAYOUT2.png)
+![](https://media.hudbud.net/posts/33/logolayout2.webp)
 
-![](/posts/33/Big+Wall+Gear+Combination+Logo.png)
+![](https://media.hudbud.net/posts/33/big-wall-gear-combination-logo.webp)
 
-![](/posts/33/Merchandise_other.png)
+![](https://media.hudbud.net/posts/33/merchandise_other.webp)
 
-![](/posts/33/tubing.png)
+![](https://media.hudbud.net/posts/33/tubing.webp)
 
-![](/posts/33/The+Rescue+on+Halfdome.png)
+![](https://media.hudbud.net/posts/33/the-rescue-on-halfdome.webp)
 
-![](/posts/33/LandingPage-1.png)
+![](https://media.hudbud.net/posts/33/landingpage-1.webp)
 
-![](/posts/33/combined2.png)
+![](https://media.hudbud.net/posts/33/combined2.webp)
 
-![](/posts/33/2new.png)
+![](https://media.hudbud.net/posts/33/2new.webp)
 
-![](/posts/33/The+D4+Story.png)
+![](https://media.hudbud.net/posts/33/the-d4-story.webp)
 
-![](/posts/33/D4+Innovation.png)
+![](https://media.hudbud.net/posts/33/d4-innovation.webp)
 
-![](/posts/33/4label.png)
+![](https://media.hudbud.net/posts/33/4label.webp)
 
-![](/posts/33/About.png)
+![](https://media.hudbud.net/posts/33/about.webp)
 
-![](/posts/33/logo3.png)
+![](https://media.hudbud.net/posts/33/logo3.webp)
 
-![](/posts/33/1kickstarter.png)
+![](https://media.hudbud.net/posts/33/1kickstarter.webp)
 
-![](/posts/33/LOGOLAYOUT.png)
+![](https://media.hudbud.net/posts/33/logolayout.webp)
 
-![](/posts/33/tag+designs.png)
+![](https://media.hudbud.net/posts/33/tag-designs.png)
 
-![](/posts/33/Landing+Page+v2.png)
+![](https://media.hudbud.net/posts/33/landing-page-v2.webp)
 
-![](/posts/33/suspension.png)
+![](https://media.hudbud.net/posts/33/suspension.webp)
 
-![](/posts/33/foldability.png)
+![](https://media.hudbud.net/posts/33/foldability.webp)
 
-![](/posts/33/404+page.png)
+![](https://media.hudbud.net/posts/33/404-page.webp)
 
-![](/posts/33/Merchandise.png)
+![](https://media.hudbud.net/posts/33/merchandise.webp)
 
-![](/posts/33/embroidered.png)
+![](https://media.hudbud.net/posts/33/embroidered.webp)
 
-![](/posts/33/Adjustments.jpeg)
+![](https://media.hudbud.net/posts/33/adjustments.webp)
 
-![](/posts/33/3rev.png)
+![](https://media.hudbud.net/posts/33/3rev.webp)

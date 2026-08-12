@@ -3,7 +3,7 @@ title: "Dutch Bros Coffee"
 date: "2022-01-24"
 tags: ["work"]
 excerpt: "Design systems management, Sketch-to-Figma conversion, and UI support for Dutch Bros loyalty app at Hathway."
-feature_image: "/posts/50/Typography.png"
+feature_image: "https://media.hudbud.net/posts/50/typography.webp"
 roles: "Design Systems Management, UI Support, Graphic Design"
 tools: "Figma, Sketch, Photoshop, Illustrator"
 agency: "Hathway"
@@ -17,28 +17,28 @@ Dutch Bros is a coffee chain in the western USA which approached Hathway with th
 
 **Agency:** Hathway
 
-![](/posts/50/Typography.png)
+![](https://media.hudbud.net/posts/50/typography.webp)
 
-![](/posts/50/Color-Palette.png)
+![](https://media.hudbud.net/posts/50/color-palette.webp)
 
-![](/posts/50/Molecules.png)
+![](https://media.hudbud.net/posts/50/molecules.png)
 
-![](/posts/50/Atoms.png)
+![](https://media.hudbud.net/posts/50/atoms.webp)
 
-![](/posts/50/Frame-229.png)
+![](https://media.hudbud.net/posts/50/frame-229.webp)
 
-![](/posts/50/Frame-230.png)
+![](https://media.hudbud.net/posts/50/frame-230.webp)
 
-![](/posts/50/Organisms.png)
+![](https://media.hudbud.net/posts/50/organisms.webp)
 
-![](/posts/50/slice3.png)
+![](https://media.hudbud.net/posts/50/slice3.webp)
 
-![](/posts/50/slice1.png)
+![](https://media.hudbud.net/posts/50/slice1.webp)
 
-![](/posts/50/Slide-16_9---1.png)
+![](https://media.hudbud.net/posts/50/slide-16_9-1.webp)
 
-![](/posts/50/slice5.png)
+![](https://media.hudbud.net/posts/50/slice5.webp)
 
-![](/posts/50/slice2.png)
+![](https://media.hudbud.net/posts/50/slice2.webp)
 
-![](/posts/50/MAIN.png)
+![](https://media.hudbud.net/posts/50/main.webp)

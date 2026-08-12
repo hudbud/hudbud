@@ -2,7 +2,7 @@
 title: "Design Resources List"
 date: "2024-05-28T14:27-07:00"
 tags: ["resources"]
-feature_image: "/posts/8/Frame-2.png"
+feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 ---
 **General Web Inspiration**  
 \* [Page Collective](https://pagecollective.com/)  

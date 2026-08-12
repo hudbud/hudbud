@@ -2,7 +2,7 @@
 title: "Distorted Reality"
 date: "2024-07-23T00:33-07:00"
 tags: ["life"]
-feature_image: "/posts/14/EFD78CEE-0A93-4DFE-932E-F4F08960DEFC_1_102_o.jpeg"
+feature_image: "https://media.hudbud.net/posts/14/efd78cee-0a93-4dfe-932e-f4f08960defc_1_102_o.webp"
 ---
 -   Have we gone too far?
 -   When social media becomes a big part of your life, what does reality become?

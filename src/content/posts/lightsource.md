@@ -5,7 +5,7 @@ dateLabel: "leading design"
 tags: ["work"]
 category: "portfolio"
 excerpt: "Design Lead at LightSource — access to this work is restricted."
-feature_image: "/posts/69/cover.webp"
+feature_image: "https://media.hudbud.net/posts/69/cover.webp"
 ---
 
 Access to this work is restricted. Contact me to learn more.

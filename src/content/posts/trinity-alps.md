@@ -2,7 +2,7 @@
 title: "Trinity alps"
 date: "2024-05-28T18:23-07:00"
 tags: ["life"]
-feature_image: "/posts/10/IMG_0533-scaled.jpg"
+feature_image: "https://media.hudbud.net/posts/10/img_0533-scaled.webp"
 ---
 Gonna actually do the write up here but check this out:
 
@@ -23,13 +23,13 @@ Lumarians
 
 ^^literally an art gallery in shasta that the artist claims to be in contact with spiritual powers
 
-![](/posts/10/image-8.png)
-![](/posts/10/image-9.png)
-![](/posts/10/image-10.png)
-![](/posts/10/image-6.png)
-![](/posts/10/image-7.png)
-![](/posts/10/image-5.png)
-![](/posts/10/image-1.png)
-![](/posts/10/image.png)
-![](/posts/10/image-2.png)
-![](/posts/10/image-3.png)
+![](https://media.hudbud.net/posts/10/image-8.webp)
+![](https://media.hudbud.net/posts/10/image-9.webp)
+![](https://media.hudbud.net/posts/10/image-10.webp)
+![](https://media.hudbud.net/posts/10/image-6.webp)
+![](https://media.hudbud.net/posts/10/image-7.webp)
+![](https://media.hudbud.net/posts/10/image-5.webp)
+![](https://media.hudbud.net/posts/10/image-1.webp)
+![](https://media.hudbud.net/posts/10/image.webp)
+![](https://media.hudbud.net/posts/10/image-2.webp)
+![](https://media.hudbud.net/posts/10/image-3.webp)
