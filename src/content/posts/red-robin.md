@@ -3,7 +3,7 @@ title: "Red Robin"
 date: "2021-10-06"
 tags: ["work"]
 excerpt: "Mobile ordering app and design systems for Red Robin's digital ordering experience at Hathway."
-feature_image: "/posts/48/Slide-16_9---1.png"
+feature_image: "https://media.hudbud.net/posts/48/slide-16_9-1.webp"
 roles: "UI Design, Design Systems Management"
 tools: "Figma, Photoshop"
 agency: "Hathway"
@@ -17,4 +17,4 @@ Red Robin sought to enhance their online ordering experience. The team developed
 
 **Agency:** Hathway
 
-![](/posts/48/Slide-16_9---1.png)
+![](https://media.hudbud.net/posts/48/slide-16_9-1.webp)

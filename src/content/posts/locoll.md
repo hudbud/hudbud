@@ -3,125 +3,125 @@ title: "Locoll Design Co."
 date: "2020-01-06T18:13:23.000Z"
 tags: ["archive"]
 category: "branding"
-feature_image: "/posts/34/20180805_165438.jpg"
+feature_image: "https://media.hudbud.net/posts/34/20180805_165438.webp"
 excerpt: "Sticker and clothing brand. Small runs, hand-picked drops, mostly for friends."
 ---
 
 <!-- DRAFT excerpt — Hudson: reused the description from src/data/ideas.ts,
      please confirm it fits this archive gallery too. -->
 
-![](/posts/34/20180805_165438.jpg)
+![](https://media.hudbud.net/posts/34/20180805_165438.webp)
 
-![](/posts/34/fullytorquedinsta.png)
+![](https://media.hudbud.net/posts/34/fullytorquedinsta.webp)
 
-![](/posts/34/lost_square@2x-100.jpg)
+![](https://media.hudbud.net/posts/34/lost_square-2x-100.webp)
 
-![](/posts/34/Sticker1-01.png)
+![](https://media.hudbud.net/posts/34/sticker1-01.png)
 
-![](/posts/34/Design+V1.png)
+![](https://media.hudbud.net/posts/34/design-v1.webp)
 
-![](/posts/34/snowglobe.png)
+![](https://media.hudbud.net/posts/34/snowglobe.webp)
 
-![](/posts/34/Lost_combo@2x-100.jpg)
+![](https://media.hudbud.net/posts/34/lost_combo-2x-100.webp)
 
-![](/posts/34/BWNP.png)
+![](https://media.hudbud.net/posts/34/bwnp.webp)
 
-![](/posts/34/patch_design.png)
+![](https://media.hudbud.net/posts/34/patch_design.webp)
 
-![](/posts/34/lcb_badge@2x-100.jpg)
+![](https://media.hudbud.net/posts/34/lcb_badge-2x-100.webp)
 
-![](/posts/34/hunter2-100.jpg)
+![](https://media.hudbud.net/posts/34/hunter2-100.webp)
 
-![](/posts/34/Square.png)
+![](https://media.hudbud.net/posts/34/square.webp)
 
-![](/posts/34/final+air+max+2.jpg)
+![](https://media.hudbud.net/posts/34/final-air-max-2.webp)
 
-![](/posts/34/logo_reconstruction.png)
+![](https://media.hudbud.net/posts/34/logo_reconstruction.webp)
 
-![](/posts/34/locoll-product-photos-3.jpg)
+![](https://media.hudbud.net/posts/34/locoll-product-photos-3.webp)
 
-![](/posts/34/instagram.png)
+![](https://media.hudbud.net/posts/34/instagram.webp)
 
-![](/posts/34/20180413_204647_HDR.jpg)
+![](https://media.hudbud.net/posts/34/20180413_204647_hdr.webp)
 
-![](/posts/34/lost+curl+logo.png)
+![](https://media.hudbud.net/posts/34/lost-curl-logo.webp)
 
-![](/posts/34/Artboard1.png)
+![](https://media.hudbud.net/posts/34/artboard1.webp)
 
-![](/posts/34/locoll-product-photos-11.jpg)
+![](https://media.hudbud.net/posts/34/locoll-product-photos-11.webp)
 
-![](/posts/34/LCB_retro_videogamestyle.png)
+![](https://media.hudbud.net/posts/34/lcb_retro_videogamestyle.webp)
 
-![](/posts/34/20171115_221456.jpg)
+![](https://media.hudbud.net/posts/34/20171115_221456.webp)
 
-![](/posts/34/final+air+max+4.jpg)
+![](https://media.hudbud.net/posts/34/final-air-max-4.webp)
 
-![](/posts/34/SLO.png)
+![](https://media.hudbud.net/posts/34/slo.webp)
 
-![](/posts/34/logo1.png)
+![](https://media.hudbud.net/posts/34/logo1.webp)
 
-![](/posts/34/concentric4.jpg)
+![](https://media.hudbud.net/posts/34/concentric4.webp)
 
-![](/posts/34/b_blue_1.png)
+![](https://media.hudbud.net/posts/34/b_blue_1.webp)
 
-![](/posts/34/Lost+Clean@2x-100.jpg)
+![](https://media.hudbud.net/posts/34/lost-clean-2x-100.webp)
 
-![](/posts/34/Mockup-Square_Poster.png)
+![](https://media.hudbud.net/posts/34/mockup-square_poster.webp)
 
-![](/posts/34/locoll-product-photos-5.jpg)
+![](https://media.hudbud.net/posts/34/locoll-product-photos-5.webp)
 
-![](/posts/34/20180909_193320.jpg)
+![](https://media.hudbud.net/posts/34/20180909_193320.webp)
 
-![](/posts/34/Stationery+Mockup+-+Free+Version.png)
+![](https://media.hudbud.net/posts/34/stationery-mockup-free-version.webp)
 
-![](/posts/34/fullytorqued.png)
+![](https://media.hudbud.net/posts/34/fullytorqued.webp)
 
-![](/posts/34/final+air+max+1.jpg)
+![](https://media.hudbud.net/posts/34/final-air-max-1.webp)
 
-![](/posts/34/lost_wavey@2x-100.jpg)
+![](https://media.hudbud.net/posts/34/lost_wavey-2x-100.webp)
 
-![](/posts/34/locollfun@3x-100.jpg)
+![](https://media.hudbud.net/posts/34/locollfun-3x-100.webp)
 
-![](/posts/34/THE_ICE_CREAM_MAN@3x.png)
+![](https://media.hudbud.net/posts/34/the_ice_cream_man-3x.webp)
 
-![](/posts/34/chromeo.png)
+![](https://media.hudbud.net/posts/34/chromeo.webp)
 
-![](/posts/34/lost_shield.png)
+![](https://media.hudbud.net/posts/34/lost_shield.webp)
 
-![](/posts/34/beer_die_sticker-5.jpg)
+![](https://media.hudbud.net/posts/34/beer_die_sticker-5.webp)
 
-![](/posts/34/locoll_script_digital_banner.png)
+![](https://media.hudbud.net/posts/34/locoll_script_digital_banner.webp)
 
-![](/posts/34/Artboard1_2.png)
+![](https://media.hudbud.net/posts/34/artboard1_2.webp)
 
-![](/posts/34/lost_trapezoid.png)
+![](https://media.hudbud.net/posts/34/lost_trapezoid.webp)
 
-![](/posts/34/LOCOLL+TENNIS+2.png)
+![](https://media.hudbud.net/posts/34/locoll-tennis-2.webp)
 
-![](/posts/34/500pxlogo.png)
+![](https://media.hudbud.net/posts/34/500pxlogo.webp)
 
-![](/posts/34/beerdie.png)
+![](https://media.hudbud.net/posts/34/beerdie.webp)
 
-![](/posts/34/LSTCLCTV@2x-100.jpg)
+![](https://media.hudbud.net/posts/34/lstclctv-2x-100.webp)
 
-![](/posts/34/instragrapm2.png)
+![](https://media.hudbud.net/posts/34/instragrapm2.webp)
 
-![](/posts/34/crow.png)
+![](https://media.hudbud.net/posts/34/crow.webp)
 
-![](/posts/34/instastory.png)
+![](https://media.hudbud.net/posts/34/instastory.webp)
 
-![](/posts/34/coachella+new.png)
+![](https://media.hudbud.net/posts/34/coachella-new.webp)
 
-![](/posts/34/18673278-A0cdUbfn.jpeg)
+![](https://media.hudbud.net/posts/34/18673278-a0cdubfn.webp)
 
-![](/posts/34/profile2.jpg)
+![](https://media.hudbud.net/posts/34/profile2.webp)
 
-![](/posts/34/final+air+max+3.jpg)
+![](https://media.hudbud.net/posts/34/final-air-max-3.webp)
 
-![](/posts/34/HPTM.png)
+![](https://media.hudbud.net/posts/34/hptm.webp)
 
-![](/posts/34/HnuJg.png)
+![](https://media.hudbud.net/posts/34/hnujg.webp)
 
-![](/posts/34/locoll-product-photos-1.jpg)
+![](https://media.hudbud.net/posts/34/locoll-product-photos-1.webp)
 
-![](/posts/34/18673278-rkCgHKF9.jpeg)
+![](https://media.hudbud.net/posts/34/18673278-rkcghkf9.webp)

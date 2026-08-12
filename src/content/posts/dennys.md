@@ -3,7 +3,7 @@ title: "Denny's"
 date: "2021-10-06"
 tags: ["work"]
 excerpt: "Design system management and UI screens for Denny's mobile and desktop ordering platforms at Hathway."
-feature_image: "/posts/51/Slide-16_9---1.png"
+feature_image: "https://media.hudbud.net/posts/51/slide-16_9-1.webp"
 roles: "UI Design, UI Toolkit Support"
 tools: "Figma, Illustrator"
 agency: "Hathway"
@@ -17,4 +17,4 @@ Denny's is an American diner-style restaurant chain that engaged Hathway to rede
 
 **Agency:** Hathway
 
-![](/posts/51/Slide-16_9---1.png)
+![](https://media.hudbud.net/posts/51/slide-16_9-1.webp)

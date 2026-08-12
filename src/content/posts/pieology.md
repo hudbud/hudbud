@@ -3,7 +3,7 @@ title: "Pieology"
 date: "2021-10-05"
 tags: ["work"]
 excerpt: "Ordering and loyalty app with hand-drawn iconography for Pieology pizza chain at Hathway."
-feature_image: "/posts/49/Artboard-149@4x.png"
+feature_image: "https://media.hudbud.net/posts/49/artboard-149-4x.png"
 roles: "UI Support, UI Toolkit Support, Hand-drawn Iconography"
 tools: "Sketch, Illustrator, Procreate, Figma"
 agency: "Hathway"
@@ -17,18 +17,18 @@ Pieology is a QSR pizza chain that commissioned Hathway to develop an ordering a
 
 **Agency:** Hathway
 
-![](/posts/49/Artboard-149@4x.png)
+![](https://media.hudbud.net/posts/49/artboard-149-4x.png)
 
-![](/posts/49/Vectary-texture-2.png)
+![](https://media.hudbud.net/posts/49/vectary-texture-2.webp)
 
-![](/posts/49/Screen-Shot-2021-10-05-at-4.15-1.png)
+![](https://media.hudbud.net/posts/49/screen-shot-2021-10-05-at-4.15-1.webp)
 
-![](/posts/49/Frame-4.png)
+![](https://media.hudbud.net/posts/49/frame-4.webp)
 
-![](/posts/49/Vectary-texture.png)
+![](https://media.hudbud.net/posts/49/vectary-texture.webp)
 
-![](/posts/49/Frame-5.png)
+![](https://media.hudbud.net/posts/49/frame-5.webp)
 
-![](/posts/49/Vectary-texture-1.png)
+![](https://media.hudbud.net/posts/49/vectary-texture-1.webp)
 
-![](/posts/49/image-3.png)
+![](https://media.hudbud.net/posts/49/image-3.webp)

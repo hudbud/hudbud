@@ -11,7 +11,10 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "media:optimize": "tsx scripts/optimize-media.ts",
+    "media:upload": "tsx scripts/upload-r2.ts",
+    "media:rewrite": "tsx scripts/rewrite-media.ts"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.5",
@@ -30,10 +33,13 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1109.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vercel/blob": "^2.3.3",
     "agentation": "^3.0.2",
-    "cheerio": "^1.2.0"
+    "cheerio": "^1.2.0",
+    "sharp": "^0.35.3",
+    "tsx": "^4.23.12"
   }
 }

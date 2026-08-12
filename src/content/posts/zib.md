@@ -3,7 +3,7 @@ title: "Zib Messenger"
 date: "2021-03-10"
 tags: ["work"]
 excerpt: "Lead product design for Zib — a Slack-competitor messaging app with 3D workspace environments. Branding, UX/UI, web design."
-feature_image: "/posts/55/portfolio-1.png"
+feature_image: "https://media.hudbud.net/posts/55/portfolio-1.png"
 roles: "Product Design (Lead), Branding, 3D Graphics, UX/UI Design, Web Design"
 tools: "Figma, Blender, Unity"
 ---
@@ -14,70 +14,70 @@ Zib is a Slack-competitor messaging app with 3D workspace environments. As lead 
 
 **Tools:** Figma, Blender, Unity
 
-![](/posts/55/portfolio-1.png)
+![](https://media.hudbud.net/posts/55/portfolio-1.png)
 
-![](/posts/55/palette.png)
+![](https://media.hudbud.net/posts/55/palette.webp)
 
-![](/posts/55/mainlogo.png)
+![](https://media.hudbud.net/posts/55/mainlogo.webp)
 
-![](/posts/55/Website---Signed-Out.png)
+![](https://media.hudbud.net/posts/55/website-signed-out.webp)
 
-![](/posts/55/Template.jpg)
+![](https://media.hudbud.net/posts/55/template.webp)
 
-![](/posts/55/portfolio-2.png)
+![](https://media.hudbud.net/posts/55/portfolio-2.webp)
 
-![](/posts/55/Settings-Home.png)
+![](https://media.hudbud.net/posts/55/settings-home.webp)
 
-![](/posts/55/Threads.jpg)
+![](https://media.hudbud.net/posts/55/threads.webp)
 
-![](/posts/55/Settings-Home---Nav.png)
+![](https://media.hudbud.net/posts/55/settings-home-nav.webp)
 
-![](/posts/55/Manage-Members.png)
+![](https://media.hudbud.net/posts/55/manage-members.png)
 
-![](/posts/55/Permissions.png)
+![](https://media.hudbud.net/posts/55/permissions.png)
 
-![](/posts/55/Floor-Plans.png)
+![](https://media.hudbud.net/posts/55/floor-plans.webp)
 
-![](/posts/55/Channels.png)
+![](https://media.hudbud.net/posts/55/channels.png)
 
-![](/posts/55/Settings.png)
+![](https://media.hudbud.net/posts/55/settings.webp)
 
-![](/posts/55/Frame-2.png)
+![](https://media.hudbud.net/posts/55/frame-2.webp)
 
-![](/posts/55/Frame-3.png)
+![](https://media.hudbud.net/posts/55/frame-3.webp)
 
-![](/posts/55/Frame-4.png)
+![](https://media.hudbud.net/posts/55/frame-4.webp)
 
-![](/posts/55/Frame-5.png)
+![](https://media.hudbud.net/posts/55/frame-5.webp)
 
-![](/posts/55/Frame-7.png)
+![](https://media.hudbud.net/posts/55/frame-7.webp)
 
-![](/posts/55/Frame-6.png)
+![](https://media.hudbud.net/posts/55/frame-6.webp)
 
-![](/posts/55/Frame-8.png)
+![](https://media.hudbud.net/posts/55/frame-8.webp)
 
-![](/posts/55/Frame-15.png)
+![](https://media.hudbud.net/posts/55/frame-15.webp)
 
-![](/posts/55/Frame-16.png)
+![](https://media.hudbud.net/posts/55/frame-16.webp)
 
-![](/posts/55/Frame-17.png)
+![](https://media.hudbud.net/posts/55/frame-17.webp)
 
-![](/posts/55/Frame-11.png)
+![](https://media.hudbud.net/posts/55/frame-11.webp)
 
-![](/posts/55/Frame-10.png)
+![](https://media.hudbud.net/posts/55/frame-10.webp)
 
-![](/posts/55/Frame-12.png)
+![](https://media.hudbud.net/posts/55/frame-12.webp)
 
-![](/posts/55/Frame-13.png)
+![](https://media.hudbud.net/posts/55/frame-13.webp)
 
-![](/posts/55/Frame-18.png)
+![](https://media.hudbud.net/posts/55/frame-18.webp)
 
-![](/posts/55/dotsrender1.png)
+![](https://media.hudbud.net/posts/55/dotsrender1.webp)
 
-![](/posts/55/render3-1.png)
+![](https://media.hudbud.net/posts/55/render3-1.webp)
 
-![](/posts/55/unityscreenshot.png)
+![](https://media.hudbud.net/posts/55/unityscreenshot.webp)
 
-![](/posts/55/render6.png)
+![](https://media.hudbud.net/posts/55/render6.webp)
 
-![](/posts/55/newmodels1.png)
+![](https://media.hudbud.net/posts/55/newmodels1.webp)

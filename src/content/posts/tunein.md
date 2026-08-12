@@ -4,7 +4,7 @@ date: "2020-06-09"
 tags: ["archive"]
 category: "branding"
 excerpt: "Brand design and style guide for a silent disco application."
-feature_image: "/posts/62/styleguide1.jpg"
+feature_image: "https://media.hudbud.net/posts/62/styleguide1.webp"
 ---
 
 Brand design and style guide for a silent disco application.
@@ -13,6 +13,6 @@ Brand design and style guide for a silent disco application.
 
 **Tools:** Illustrator, Figma
 
-![](/posts/62/styleguide1.jpg)
+![](https://media.hudbud.net/posts/62/styleguide1.webp)
 
-![](/posts/62/Mockup.png)
+![](https://media.hudbud.net/posts/62/mockup.webp)

@@ -4,7 +4,7 @@ date: "2020-09-02"
 tags: ["archive"]
 category: "motion"
 excerpt: "Twitch streamer branding — animated intros, stream overlays, motion graphics, and Streamlabs deployment."
-feature_image: "/posts/58/mainlogoscene.png"
+feature_image: "https://media.hudbud.net/posts/58/mainlogoscene.webp"
 ---
 
 Twitch streamer branding — animated intros, stream overlays, motion graphics, and Streamlabs deployment.
@@ -13,18 +13,18 @@ Twitch streamer branding — animated intros, stream overlays, motion graphics, 
 
 **Tools:** After Effects, Illustrator, Streamlabs
 
-![](/posts/58/mainlogoscene.png)
+![](https://media.hudbud.net/posts/58/mainlogoscene.webp)
 
-![](/posts/58/streamstartingsoon.png)
+![](https://media.hudbud.net/posts/58/streamstartingsoon.webp)
 
-![](/posts/58/brb.png)
+![](https://media.hudbud.net/posts/58/brb.webp)
 
-![](/posts/58/streamover.png)
+![](https://media.hudbud.net/posts/58/streamover.webp)
 
-![](/posts/58/Annotation-2020-09-02-161326.png)
+![](https://media.hudbud.net/posts/58/annotation-2020-09-02-161326.webp)
 
-![](/posts/58/YT_intro_main_1.gif)
+![](https://media.hudbud.net/posts/58/yt_intro_main_1.webp)
 
-![](/posts/58/yt_outro.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/yt_outro.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/406;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](/posts/58/2020_09_02_15_34_45.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/2020_09_02_15_34_45.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/406;height:auto;border-radius:2px;display:block;background:#000"></video></div>

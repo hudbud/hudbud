@@ -3,7 +3,7 @@ title: "Granking"
 date: "2024-11-13T17:16-08:00"
 tags: ["life"]
 excerpt: "A ranking of Gorillaz albums. Just want to say this is impossible. Literally every album has bangers on it and I love all of them. I was forced to do this by Brendan Dolan so if you have hate comments direct them at him. He's&hellip;"
-feature_image: "/posts/19/2FFD076E-3EDC-4062-83C3-76F1508CB12F_1_105_c.jpeg"
+feature_image: "https://media.hudbud.net/posts/19/2ffd076e-3edc-4062-83c3-76f1508cb12f_1_105_c.webp"
 ---
 A ranking of Gorillaz albums.
 
@@ -32,22 +32,22 @@ Just want to say this is impossible. Literally every album has bangers on it and
 
 Also, happy birthday Brendan "Squire" Dolan. Below are some pics of us and B-- M-------. (would like to remain anonymous) at/after the SF show in 2022.
 
-![](/posts/19/BA5921CB-AA6B-470D-9BE7-827E7FF3FDE8_1_105_c-559x1024.jpeg)
-![](/posts/19/A69CC94F-133E-4FAC-90F5-B543428812FE_1_105_c.jpeg)
-![](/posts/19/521FF8A6-0E53-46E7-995A-E3D61EFE9D59_1_105_c.jpeg)
-![](/posts/19/F8D1D289-DAF4-469E-9929-7E5989252CAD_1_105_c.jpeg)
-![](/posts/19/21977BD5-4A71-4EF6-A96F-E4A30C355821_1_105_c.jpeg)
-![](/posts/19/0DFED01D-85D2-434A-BA58-043B042D7A9B_1_105_c.jpeg)
-![](/posts/19/B76942F2-22E0-4790-8524-5B8F905A1A78_1_105_c.jpeg)
-![](/posts/19/E59E5FF9-32B9-42D4-BF9F-6A45F598668E_1_105_c.jpeg)
-![](/posts/19/5B1C7911-3C29-4509-B7DC-FE34BE68DE31_1_105_c.jpeg)
-![](/posts/19/1E3CBB3C-9B9E-4DB8-8F8E-B32EF4CF2EE1_1_105_c-559x1024.jpeg)
-![](/posts/19/D8E91723-45DC-4A27-AF61-FCDEEC9892D5_1_105_c-2.jpeg)
-![](/posts/19/A5A8EC34-4C54-47F0-9F77-6F90CDE2A942_1_105_c-474x1024.jpeg)
-![](/posts/19/F6B371B4-3A57-4C36-87B6-BD4D813F0278_1_105_c.jpeg)
-![](/posts/19/D5075F31-00BF-4639-BAD1-E06D783EDAFF_1_105_c.jpeg)
-![](/posts/19/D0D51A26-87C5-44A3-B72D-8EF5451D2B70_1_105_c.jpeg)
-![](/posts/19/D3FB8D87-A506-4E07-8956-072D606D26B3_1_105_c.jpeg)
+![](https://media.hudbud.net/posts/19/ba5921cb-aa6b-470d-9be7-827e7ff3fde8_1_105_c-559x1024.webp)
+![](https://media.hudbud.net/posts/19/a69cc94f-133e-4fac-90f5-b543428812fe_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/521ff8a6-0e53-46e7-995a-e3d61efe9d59_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/f8d1d289-daf4-469e-9929-7e5989252cad_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/21977bd5-4a71-4ef6-a96f-e4a30c355821_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/0dfed01d-85d2-434a-ba58-043b042d7a9b_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/b76942f2-22e0-4790-8524-5b8f905a1a78_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/e59e5ff9-32b9-42d4-bf9f-6a45f598668e_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/5b1c7911-3c29-4509-b7dc-fe34be68de31_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/1e3cbb3c-9b9e-4db8-8f8e-b32ef4cf2ee1_1_105_c-559x1024.webp)
+![](https://media.hudbud.net/posts/19/d8e91723-45dc-4a27-af61-fcdeec9892d5_1_105_c-2.webp)
+![](https://media.hudbud.net/posts/19/a5a8ec34-4c54-47f0-9f77-6f90cde2a942_1_105_c-474x1024.webp)
+![](https://media.hudbud.net/posts/19/f6b371b4-3a57-4c36-87b6-bd4d813f0278_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/d5075f31-00bf-4639-bad1-e06d783edaff_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/d0d51a26-87c5-44a3-b72d-8ef5451d2b70_1_105_c.webp)
+![](https://media.hudbud.net/posts/19/d3fb8d87-a506-4e07-8956-072d606d26b3_1_105_c.webp)
 
 https://open.spotify.com/album/2dIGnmEIy1WZIcZCFSj6i8?si=21IpTgHJTS-GKLm1A42sUg
 https://open.spotify.com/album/0yPLNfI8WPJWFoJugr0KAv?si=Uc-AiQnHSjWQDJbtCzxWpg

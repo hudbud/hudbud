@@ -4,7 +4,7 @@ date: "2020-09-04"
 tags: ["archive"]
 category: "branding"
 excerpt: "Logo and branding concepts for a custom home building company."
-feature_image: "/posts/59/logo.png"
+feature_image: "https://media.hudbud.net/posts/59/logo.webp"
 ---
 
 Logo and branding concepts for a custom home building company.
@@ -13,28 +13,28 @@ Logo and branding concepts for a custom home building company.
 
 **Tools:** Illustrator, Figma
 
-![](/posts/59/logo.png)
+![](https://media.hudbud.net/posts/59/logo.webp)
 
-![](/posts/59/3.png)
+![](https://media.hudbud.net/posts/59/3.webp)
 
-![](/posts/59/2.png)
+![](https://media.hudbud.net/posts/59/2.webp)
 
-![](/posts/59/3-1.png)
+![](https://media.hudbud.net/posts/59/3-1.webp)
 
-![](/posts/59/5.png)
+![](https://media.hudbud.net/posts/59/5.webp)
 
-![](/posts/59/4-1.png)
+![](https://media.hudbud.net/posts/59/4-1.webp)
 
-![](/posts/59/buildform_rd1_delivery_3.png)
+![](https://media.hudbud.net/posts/59/buildform_rd1_delivery_3.webp)
 
-![](/posts/59/11.png)
+![](https://media.hudbud.net/posts/59/11.webp)
 
-![](/posts/59/13.png)
+![](https://media.hudbud.net/posts/59/13.webp)
 
-![](/posts/59/12.png)
+![](https://media.hudbud.net/posts/59/12.webp)
 
-![](/posts/59/4.png)
+![](https://media.hudbud.net/posts/59/4.webp)
 
-![](/posts/59/6.png)
+![](https://media.hudbud.net/posts/59/6.webp)
 
-![](/posts/59/14.png)
+![](https://media.hudbud.net/posts/59/14.webp)

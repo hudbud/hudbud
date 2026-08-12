@@ -3,7 +3,7 @@ title: "Playlight"
 date: "2020-01-02T23:42:48.000Z"
 tags: ["archive"]
 category: "product"
-feature_image: "/posts/42/final2.jpg"
+feature_image: "https://media.hudbud.net/posts/42/final2.webp"
 excerpt: "A product exploration in gradients and light."
 ---
 
@@ -11,12 +11,12 @@ excerpt: "A product exploration in gradients and light."
      dump only); wrote a placeholder guess from the image filenames, please
      rewrite with the real project context. -->
 
-![](/posts/42/final2.jpg)
+![](https://media.hudbud.net/posts/42/final2.webp)
 
-![](/posts/42/gradient_no_bars@3x.png)
+![](https://media.hudbud.net/posts/42/gradient_no_bars-3x.webp)
 
-![](/posts/42/gradient_rainbow@3x.png)
+![](https://media.hudbud.net/posts/42/gradient_rainbow-3x.webp)
 
-![](/posts/42/image-asset.jpeg)
+![](https://media.hudbud.net/posts/42/image-asset.webp)
 
-![](/posts/42/final.jpg)
+![](https://media.hudbud.net/posts/42/final.webp)

@@ -4,7 +4,7 @@ date: "2021-10-06"
 tags: ["work"]
 category: "portfolio"
 excerpt: "Bringing the pulse of the arcade to the palm of your hand."
-feature_image: "/posts/47/Slide-16_9---1.png"
+feature_image: "https://media.hudbud.net/posts/47/slide-16_9-1.webp"
 roles: "Design Systems Manager, UI Designer, UX Support, Motion Graphics, 3D Specialist"
 tools: "Figma, After Effects, Blender, Illustrator"
 agency: "Hathway"
@@ -22,48 +22,48 @@ Dave & Buster's isn't just a place to play—it's a neon-lit, high-energy world 
 
 To achieve this, we designed a custom badge system and motion kit that celebrated player achievements, fueling deeper engagement and brand loyalty. Every interaction was designed to channel the thrill of competition, from game-inspired animations to seamless reward tracking that made progress feel tangible and exciting. The client was deeply invested in capturing the spirit of being inside a Dave & Buster's, and we ensured the app reflected that—delivering bold, energetic content that resonated with users and kept them coming back. By streamlining the platform and injecting it with a sense of play, we created an experience that was an extension of the brand's core promise: bringing people together through the joy of gaming.
 
-<div style="margin:12px 0"><video src="/posts/47/01_D&amp;B_3x2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/2;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/01_d-b_3x2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/2;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-<div style="margin:12px 0"><video src="/posts/47/02_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/02_d-b_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
-<video src="/posts/47/03_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
-<video src="/posts/47/04_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+<video src="https://media.hudbud.net/posts/47/03_d-b_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+<video src="https://media.hudbud.net/posts/47/04_d-b_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
 </div>
 
-<div style="margin:12px 0"><video src="/posts/47/05_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/05_d-b_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
-<video src="/posts/47/06_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
-<video src="/posts/47/07_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<video src="https://media.hudbud.net/posts/47/06_d-b_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<video src="https://media.hudbud.net/posts/47/07_d-b_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
 </div>
 
-<div style="margin:12px 0"><video src="/posts/47/08_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/08_d-b_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
-<img src="/posts/47/09_D&amp;B_3x4.png" alt="" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block" />
-<video src="/posts/47/10_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+<img src="https://media.hudbud.net/posts/47/09_d-b_3x4.webp" alt="" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block" />
+<video src="https://media.hudbud.net/posts/47/10_d-b_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
 </div>
 
-<div style="margin:12px 0"><video src="/posts/47/11_D&amp;B_3x2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/2;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/11_d-b_3x2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/2;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
-<video src="/posts/47/12_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
-<img src="/posts/47/13_D&amp;B_1x1.png" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
+<video src="https://media.hudbud.net/posts/47/12_d-b_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<img src="https://media.hudbud.net/posts/47/13_d-b_1x1.webp" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
 </div>
 
-<div style="margin:12px 0"><video src="/posts/47/14_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/14_d-b_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
-<img src="/posts/47/15_D&amp;B_3x4.png" alt="" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block" />
-<video src="/posts/47/16_D&amp;B_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
+<img src="https://media.hudbud.net/posts/47/15_d-b_3x4.webp" alt="" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block" />
+<video src="https://media.hudbud.net/posts/47/16_d-b_3x4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:3/4;height:auto;border-radius:2px;display:block;background:#000"></video>
 </div>
 
-<div style="margin:12px 0"><video src="/posts/47/17_D&amp;B_16x9.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/17_d-b_16x9-mp4.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-<div style="margin:12px 0"><img src="/posts/47/17_D&amp;B_16x9.gif" alt="" style="width:100%;aspect-ratio:16/9;height:auto;border-radius:2px;display:block" /></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/17_d-b_16x9-gif.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
-<img src="/posts/47/18_D&amp;B_1x1.png" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
-<video src="/posts/47/19_D&amp;B_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<img src="https://media.hudbud.net/posts/47/18_d-b_1x1.webp" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
+<video src="https://media.hudbud.net/posts/47/19_d-b_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
 </div>

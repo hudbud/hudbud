@@ -3,31 +3,31 @@ title: "Travel Video"
 date: "2021-11-29T23:12:59.000Z"
 tags: ["archive"]
 category: "film"
-feature_image: "/posts/46/image-asset.jpeg"
+feature_image: "https://media.hudbud.net/posts/46/image-asset.webp"
 ---
 
-![](/posts/46/image-asset.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset.webp)
 
-![](/posts/46/image-asset-1.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-1.webp)
 
-![](/posts/46/image-asset-2.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-2.jpeg)
 
-![](/posts/46/image-asset-3.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-3.webp)
 
-![](/posts/46/image-asset-4.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-4.webp)
 
-![](/posts/46/image-asset-5.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-5.webp)
 
-![](/posts/46/image-asset-6.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-6.webp)
 
-![](/posts/46/image-asset-7.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-7.jpeg)
 
-![](/posts/46/image-asset-8.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-8.webp)
 
-![](/posts/46/image-asset-9.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-9.webp)
 
-![](/posts/46/image-asset-10.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-10.webp)
 
-![](/posts/46/image-asset-11.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-11.jpeg)
 
-![](/posts/46/image-asset-12.jpeg)
+![](https://media.hudbud.net/posts/46/image-asset-12.jpeg)

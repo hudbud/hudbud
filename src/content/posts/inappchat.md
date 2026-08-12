@@ -3,7 +3,7 @@ title: "In-App Chat"
 date: "2021-03-10"
 tags: ["work"]
 excerpt: "UX/UI design, web design, and motion graphics for a messaging SDK WebApp."
-feature_image: "/posts/56/features.jpg"
+feature_image: "https://media.hudbud.net/posts/56/features.webp"
 roles: "UX/UI Design, Web Design, Motion Graphics"
 tools: "Figma"
 ---
@@ -14,10 +14,10 @@ In-App Chat is a messaging SDK WebApp. I designed the full UX/UI for the messeng
 
 **Tools:** Figma
 
-![](/posts/56/features.jpg)
+![](https://media.hudbud.net/posts/56/features.webp)
 
-![](/posts/56/main.png)
+![](https://media.hudbud.net/posts/56/main.webp)
 
-![](/posts/56/Screenshot-2021-03-09-201704.png)
+![](https://media.hudbud.net/posts/56/screenshot-2021-03-09-201704.webp)
 
-![](/posts/56/main1.png)
+![](https://media.hudbud.net/posts/56/main1.webp)

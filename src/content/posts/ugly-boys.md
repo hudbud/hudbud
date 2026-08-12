@@ -4,7 +4,7 @@ date: "2020-08-28"
 tags: ["archive"]
 category: "branding"
 excerpt: "Running club branding and merchandise. TikTok exceeding 60,000 views, Giphy exceeding 758,818 views."
-feature_image: "/posts/63/front.jpg"
+feature_image: "https://media.hudbud.net/posts/63/front.webp"
 ---
 
 Running club branding and merchandise. TikTok exceeding 60,000 views, Giphy exceeding 758,818 views.
@@ -13,8 +13,8 @@ Running club branding and merchandise. TikTok exceeding 60,000 views, Giphy exce
 
 **Tools:** Illustrator, After Effects
 
-![](/posts/63/front.jpg)
+![](https://media.hudbud.net/posts/63/front.webp)
 
-![](/posts/63/uglyboysrunningclub.gif)
+![](https://media.hudbud.net/posts/63/uglyboysrunningclub.webp)
 
-![](/posts/63/back.jpg)
+![](https://media.hudbud.net/posts/63/back.webp)

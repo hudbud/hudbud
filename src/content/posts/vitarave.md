@@ -3,15 +3,15 @@ title: "Vitarave"
 date: "2025-06-13T09:56-07:00"
 tags: ["life"]
 excerpt: "Friday Friday night fdadfhjksafdsakjfdklasjkfhdjsfasd Saturday Saturday night Getting home"
-feature_image: "/posts/30/gallery/05CB47B4-DE6B-40CB-9A8C-A73F0B66478D_4_5005_c.jpeg"
+feature_image: "https://media.hudbud.net/posts/30/gallery/05cb47b4-de6b-40cb-9a8c-a73f0b66478d_4_5005_c.webp"
 ---
 Friday
 
-![](/posts/30/gallery/05CB47B4-DE6B-40CB-9A8C-A73F0B66478D_4_5005_c.jpeg)
-![](/posts/30/gallery/AD7D08AD-1ADB-4424-9C99-FC7A0AFCC3A5_4_5005_c.jpeg)
-![](/posts/30/gallery/BFDCF36C-BE97-4F4E-A9CA-67898BDD27DF_4_5005_c.jpeg)
-![](/posts/30/gallery/08CC4343-2C83-4ED8-B069-1B07801DF2B0_4_5005_c.jpeg)
-![](/posts/30/gallery/0F7ACAA2-3507-4549-893B-4A6E97B89FB3_4_5005_c.jpeg)
+![](https://media.hudbud.net/posts/30/gallery/05cb47b4-de6b-40cb-9a8c-a73f0b66478d_4_5005_c.webp)
+![](https://media.hudbud.net/posts/30/gallery/ad7d08ad-1adb-4424-9c99-fc7a0afcc3a5_4_5005_c.webp)
+![](https://media.hudbud.net/posts/30/gallery/bfdcf36c-be97-4f4e-a9ca-67898bdd27df_4_5005_c.webp)
+![](https://media.hudbud.net/posts/30/gallery/08cc4343-2c83-4ed8-b069-1b07801df2b0_4_5005_c.webp)
+![](https://media.hudbud.net/posts/30/gallery/0f7acaa2-3507-4549-893b-4a6e97b89fb3_4_5005_c.webp)
 
 Friday night
 

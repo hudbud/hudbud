@@ -2,7 +2,7 @@
 title: "Laos Bag Report"
 date: "2023-11-15T18:33-08:00"
 tags: ["life"]
-feature_image: "/posts/11/bagcontents-scaled.jpg"
+feature_image: "https://media.hudbud.net/posts/11/bagcontents-scaled.webp"
 ---
 ##### Trip context
 
@@ -18,7 +18,7 @@ Bags: 1 bag and 1 cross body (BD Stonehauler 30 and HMG Versa) (gf brought black
 
 _Format: The bag(s), Things I loved, Wish I brought, Wish I left, Other Thoughts, Packing List_
 
-![](/posts/11/comp_2dsa.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/11/comp_2dsa.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1080/1080;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 ##### The bag(s)
 
@@ -167,6 +167,6 @@ _Toiletries, tech, other fit into crossbody_
 -   \[ \] Altras
 -   \[ \] PASSPORT
 
-![](/posts/11/bagcontents-1-1024x824.jpg)
+![](https://media.hudbud.net/posts/11/bagcontents-1-1024x824.webp)
 
 Thanks for reading! I'm really happy to have gone onebag for this trip and will be continuing to optimize into the future!!

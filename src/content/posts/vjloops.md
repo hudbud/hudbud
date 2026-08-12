@@ -3,35 +3,35 @@ title: "VJ Loops"
 date: "2020-08-19T21:32:38.000Z"
 tags: ["archive"]
 category: "motion"
-feature_image: "/posts/31/image-asset.gif"
+feature_image: "https://media.hudbud.net/posts/31/image-asset-gif.webp"
 ---
 
-![](/posts/31/image-asset.gif)
+![](https://media.hudbud.net/posts/31/image-asset-gif.webp)
 
-![](/posts/31/mush5.gif)
+![](https://media.hudbud.net/posts/31/mush5.webp)
 
-![](/posts/31/image-asset.jpeg)
+![](https://media.hudbud.net/posts/31/image-asset-jpeg.webp)
 
-![](/posts/31/PP_Rebrand_Animation_gif.gif)
+![](https://media.hudbud.net/posts/31/pp_rebrand_animation_gif.webp)
 
-![](/posts/31/matrix_animation.gif)
+![](https://media.hudbud.net/posts/31/matrix_animation.webp)
 
-![](/posts/31/image-asset-1.jpeg)
+![](https://media.hudbud.net/posts/31/image-asset-1.webp)
 
-![](/posts/31/image-asset-2.jpeg)
+![](https://media.hudbud.net/posts/31/image-asset-2.webp)
 
-![](/posts/31/spin2.gif)
+![](https://media.hudbud.net/posts/31/spin2.webp)
 
-![](/posts/31/spin1.gif)
+![](https://media.hudbud.net/posts/31/spin1.webp)
 
-![](/posts/31/spin4.gif)
+![](https://media.hudbud.net/posts/31/spin4.webp)
 
-![](/posts/31/Liquified+2.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/31/liquified-2.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:640/640;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](/posts/31/Locoll_L.gif)
+![](https://media.hudbud.net/posts/31/locoll_l.webp)
 
-![](/posts/31/045c42cf-ccf3-4adb-8551-78d874cc1a76_rw_1200.gif)
+![](https://media.hudbud.net/posts/31/045c42cf-ccf3-4adb-8551-78d874cc1a76_rw_1200.webp)
 
-![](/posts/31/spin3.gif)
+![](https://media.hudbud.net/posts/31/spin3.webp)
 
-![](/posts/31/new_mush.gif)
+![](https://media.hudbud.net/posts/31/new_mush.webp)

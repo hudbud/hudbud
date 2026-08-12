@@ -3,7 +3,7 @@ title: "Osterhout Design Group"
 date: "2020-10-02"
 tags: ["work"]
 excerpt: "Branding, marketing, UI/UX, and web design for next-generation AR hardware company."
-feature_image: "/posts/57/banner.png"
+feature_image: "https://media.hudbud.net/posts/57/banner.webp"
 roles: "Branding, Marketing, UI/UX, Web Design"
 tools: "Figma, After Effects, Illustrator"
 ---
@@ -14,18 +14,18 @@ Osterhout Design Group builds next-generation AR hardware. I contributed brandin
 
 **Tools:** Figma, After Effects, Illustrator
 
-![](/posts/57/banner.png)
+![](https://media.hudbud.net/posts/57/banner.webp)
 
-![](/posts/57/magazine.gif)
+![](https://media.hudbud.net/posts/57/magazine.webp)
 
-![](/posts/57/ui_gallery.gif)
+![](https://media.hudbud.net/posts/57/ui_gallery.webp)
 
-![](/posts/57/odg_icons.png)
+![](https://media.hudbud.net/posts/57/odg_icons.webp)
 
-![](/posts/57/musicplayer.gif)
+![](https://media.hudbud.net/posts/57/musicplayer.webp)
 
-![](/posts/57/YouTube---Banner.png)
+![](https://media.hudbud.net/posts/57/youtube-banner.webp)
 
-![](/posts/57/scrollimages.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/57/scrollimages.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:400/300;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](/posts/57/ui_scrollvertically.gif)
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/57/ui_scrollvertically.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/600;height:auto;border-radius:2px;display:block;background:#000"></video></div>
