@@ -41,3 +41,37 @@ export function groupImagesIntoGrid(html: string): string {
     return `<div class="post-img-grid">${imgs.join('')}</div>\n`;
   });
 }
+
+// Roles/Tools/Agency written into the markdown body duplicate the frontmatter
+// that detail pages now render as a spec table — drop those paragraphs.
+export function stripMetaParagraphs(html: string): string {
+  return html.replace(/<p><strong>(Roles|Tools|Agency):<\/strong>[\s\S]*?<\/p>\s*/g, '');
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Editorial figure numbering: every image (or image grid) in the body gets a
+// "fig. nn — title" caption. Run AFTER groupImagesIntoGrid. `start` lets the
+// caller reserve fig. 01 for a hero image rendered outside this HTML.
+export function addFigCaptions(html: string, title: string, start = 1): string {
+  let n = start;
+  const pad = (x: number) => String(x).padStart(2, '0');
+  const label = escapeHtml(title);
+  return html.replace(
+    /<p>\s*(<img\s[^>]*>)\s*<\/p>|<div class="post-img-grid">[\s\S]*?<\/div>/g,
+    (whole, single) => {
+      if (single) {
+        const cap = `<figcaption class="post-fig-caption">fig. ${pad(n++)} — ${label}</figcaption>`;
+        return `<figure class="post-fig">${single}${cap}</figure>`;
+      }
+      const count = (whole.match(/<img/g) ?? []).length;
+      const a = n;
+      const b = n + count - 1;
+      n = b + 1;
+      const range = b > a ? `fig. ${pad(a)}–${pad(b)}` : `fig. ${pad(a)}`;
+      return `<figure class="post-fig">${whole}<figcaption class="post-fig-caption">${range} — ${label}</figcaption></figure>`;
+    }
+  );
+}

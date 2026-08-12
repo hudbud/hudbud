@@ -21,7 +21,9 @@ const THEME_DATA = Object.fromEntries(
   MT_THEMES.map((t) => [t.name, { bg: t.bg, bgInner: t.bgInner, fg: t.fg, dim: t.dim, accent: t.accent }])
 );
 const THEME_NAMES = MT_THEMES.map((t) => t.name);
-const FONT_IDS = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
+// Fonts eligible for the random pick on refresh. OpenDyslexic ('dys') stays
+// available in the font menu but is only ever an explicit choice.
+const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
 ---
 <!DOCTYPE html>
 <html lang="en">

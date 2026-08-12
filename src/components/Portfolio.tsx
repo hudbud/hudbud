@@ -6,11 +6,11 @@ import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES, THEME_PAIRS } from '../data/themes';
 import { type Post } from '../data/posts';
-import { groupImagesIntoGrid } from '../lib/imageGrid';
+import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions } from '../lib/imageGrid';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
 import IntroLoader from './IntroLoader';
-import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon } from '@phosphor-icons/react';
+import { Lock, LockOpen, Shuffle, Moon, Sun, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon, SquaresFour } from '@phosphor-icons/react';
 
 type Filter = 'all' | 'design' | 'world';
 type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
@@ -310,6 +310,8 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
     <>
       <GlassBloom pos={{ left: 16, bottom: mobileBottom }} anchor="start" label="menu" trigger={<span style={{ letterSpacing: '0.08em' }}>···</span>}>
         <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+        <GlassPanelItem href="https://www.linkedin.com/in/hudsonpaine" external>linkedin <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+        <GlassPanelItem href="mailto:hudbud@gmail.com">email</GlassPanelItem>
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <GlassSectionLabel>resources</GlassSectionLabel>
         {RESOURCES.map((r) => (
@@ -350,6 +352,8 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
       <GlassBloom pos={{ left: 124, bottom: 16 }} anchor="start" label="links" trigger={<LinkSimple size={18} weight="bold" />}>
         <GlassSectionLabel>links</GlassSectionLabel>
         <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+        <GlassPanelItem href="https://www.linkedin.com/in/hudsonpaine" external>linkedin <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
+        <GlassPanelItem href="mailto:hudbud@gmail.com">email</GlassPanelItem>
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
       </GlassBloom>
@@ -404,7 +408,7 @@ function ResumeList() {
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--fg-faint)', marginBottom: 10 }}>Select Clients</div>
+        <div style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--fg-faint)', marginBottom: 10 }}>select clients</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px' }}>
           {SELECT_CLIENTS.map((c) => (
             <span key={c} style={{ fontSize: 12, color: 'var(--fg-dim)' }}>{c}</span>
@@ -443,7 +447,7 @@ const STATUS_LABEL: Record<IdeaStatus, string> = {
 // chronological list. A row's only variance is: does it have an image
 // (shown when viewMode is 'roomy'), and what its click does.
 const CATEGORY_CHIPS = ['all', 'portfolio', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
-type ViewMode = 'compact' | 'roomy';
+type ViewMode = 'compact' | 'roomy' | 'gallery';
 
 interface Row {
   key: string;
@@ -451,6 +455,7 @@ interface Row {
   date: string;
   dateValue: number;
   image?: string;
+  images?: string[];
   meta?: string;
   isActive: boolean;
   onClick: (() => void) | null;
@@ -488,6 +493,7 @@ function buildRows({ feed, filter, workCategory, activePost, activeProject, setA
       date: p.date,
       dateValue: p.dateValue,
       image: p.feature_image,
+      images: p.images,
       meta: p.agency || p.roles ? [p.agency, p.roles?.split(',')[0]].filter(Boolean).join(' · ') : p.category,
       isActive: !!(activePost && activePost.title === p.title),
       onClick: () => setActivePost(activePost && activePost.title === p.title ? null : p),
@@ -552,13 +558,68 @@ function FeedRow({ row, index, showImage }: { row: Row; index: number; showImage
   );
 }
 
-const VIEW_MODE_ICON: Record<ViewMode, typeof ListDashes> = { compact: ListDashes, roomy: ImageIcon };
-const VIEW_MODE_LABEL: Record<ViewMode, string> = { compact: 'compact (text only)', roomy: 'roomy (with thumbnails)' };
+// ---------- Gallery (masonry) ----------
+// One randomly-chosen image per post, full-bleed masonry via CSS columns.
+// Selection is driven by a seed so shuffle re-picks images AND re-orders
+// tiles deterministically between renders.
+function mulberry32(a: number) {
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function GalleryGrid({ rows, seed }: { rows: Row[]; seed: number }) {
+  const tiles = useMemo(() => {
+    const rand = mulberry32(seed);
+    const withImages = rows.filter((r) => r.images && r.images.length > 0);
+    const picked = withImages.map((r) => ({
+      row: r,
+      src: r.images![Math.floor(rand() * r.images!.length)],
+    }));
+    for (let i = picked.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [picked[i], picked[j]] = [picked[j], picked[i]];
+    }
+    return picked;
+  }, [rows, seed]);
+
+  return (
+    <div style={{ columnWidth: 380, columnGap: 12 }}>
+      {tiles.map(({ row, src }, i) => (
+        <motion.div
+          key={`${seed}-${row.key}`}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: Math.min(i * 0.02, 0.5), ease: [0.22, 1, 0.36, 1] }}
+          style={{ breakInside: 'avoid', marginBottom: 12 }}
+        >
+          <button
+            onClick={row.onClick ?? undefined}
+            className="hp-gallery-tile"
+            style={{ display: 'block', width: '100%', position: 'relative', cursor: row.onClick ? 'pointer' : 'default', borderRadius: 12, overflow: 'hidden' }}
+          >
+            <img src={src} alt={row.title} loading="lazy" style={{ width: '100%', display: 'block' }} />
+            <span className="hp-gallery-caption">
+              <span>{row.title}</span>
+              <span>{new Date(row.dateValue).getFullYear()}</span>
+            </span>
+          </button>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+const VIEW_MODE_ICON: Record<ViewMode, typeof ListDashes> = { compact: ListDashes, roomy: ImageIcon, gallery: SquaresFour };
+const VIEW_MODE_LABEL: Record<ViewMode, string> = { compact: 'compact (text only)', roomy: 'roomy (with thumbnails)', gallery: 'gallery (image grid)' };
 
 function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMode) => void }) {
   return (
     <div style={{ display: 'flex', gap: 2, padding: 2, background: 'var(--tile)', borderRadius: 8 }}>
-      {(['compact', 'roomy'] as const).map((m) => {
+      {(['compact', 'roomy', 'gallery'] as const).map((m) => {
         const Icon = VIEW_MODE_ICON[m];
         return (
           <button
@@ -581,7 +642,7 @@ function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMo
   );
 }
 
-function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, introComplete, hasRenderedPosts }: {
+function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, introComplete, hasRenderedPosts }: {
   feed: Post[];
   filter: Filter;
   workCategory: string;
@@ -591,6 +652,7 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   setActivePost: (p: Post | null) => void;
   openProject: (id: string) => void;
   viewMode: ViewMode;
+  gallerySeed: number;
   introComplete: boolean;
   hasRenderedPosts: boolean;
 }) {
@@ -602,6 +664,10 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   // On first render: cascade after filter pills start (0.6s) + small gap = 0.8s
   // On filter changes: animate instantly (0s)
   const baseDelay = hasRenderedPosts ? 0 : 0.8;
+
+  if (viewMode === 'gallery') {
+    return introComplete ? <GalleryGrid rows={rows} seed={gallerySeed} /> : null;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -664,7 +730,7 @@ function BioModal({ modalId, onClose }: { modalId: string; onClose: () => void }
       >
         <button
           onClick={onClose}
-          style={{ position: 'absolute', top: 14, right: 16, color: 'var(--fg-dim)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}
+          style={{ position: 'absolute', top: 14, right: 16, color: 'var(--fg-dim)', fontSize: 11, letterSpacing: '0.12em' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
           onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
         >
@@ -756,8 +822,84 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
   );
 }
 
+// Cursor-tracked image preview: hovering the span floats a card of images
+// alongside the pointer. Rendered into a fixed-position div so it can cross
+// the column's overflow without clipping.
+const HOVER_IMAGES: Record<string, string[]> = {
+  cosmo: ['/images/cosmo-1.jpg', '/images/cosmo-2.jpg'],
+};
+
+function CursorImagesHover({ label, images }: { label: string; images: string[] }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  const move = (e: React.MouseEvent) => {
+    // Keep the card inside the viewport: flip to the left of the cursor near
+    // the right edge, and above it near the bottom.
+    const W = 460, H = 240, pad = 16;
+    const x = e.clientX + pad + W > window.innerWidth ? e.clientX - pad - W : e.clientX + pad;
+    const y = e.clientY + pad + H > window.innerHeight ? e.clientY - pad - H : e.clientY + pad;
+    setPos({ x, y });
+  };
+
+  return (
+    <span
+      className="hp-bio-link"
+      style={{ cursor: 'default' }}
+      onMouseMove={move}
+      onMouseLeave={() => setPos(null)}
+    >
+      {label}
+      <AnimatePresence>
+        {pos && (
+          <motion.span
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'fixed', left: pos.x, top: pos.y, zIndex: 250, pointerEvents: 'none',
+              display: 'flex', gap: 8, padding: 8, background: 'var(--bg-inner)',
+              border: '1px solid var(--rule)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
+            }}
+          >
+            {images.map((src) => (
+              <img key={src} src={src} alt="" style={{ height: 224, width: 'auto', borderRadius: 3, display: 'block' }} />
+            ))}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
+  );
+}
+
+// Render [text](url) spans in bio copy as external links; everything else
+// passes through as plain text. An `(hover:key)` target renders a
+// cursor-tracked image preview instead of a link.
+function renderBioInlineLinks(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const re = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    const hoverKey = m[2].startsWith('hover:') ? m[2].slice(6) : null;
+    if (hoverKey && HOVER_IMAGES[hoverKey]) {
+      parts.push(<CursorImagesHover key={m.index} label={m[1]} images={HOVER_IMAGES[hoverKey]} />);
+    } else {
+      parts.push(
+        <a key={m.index} href={m[2]} target="_blank" rel="noopener" className="hp-bio-link">
+          {m[1]}
+        </a>
+      );
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, introComplete, showedIntroThisSession }: {
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, viewMode, setViewMode, introComplete, showedIntroThisSession, scrollRef }: {
   filter: Filter;
   setFilter: (f: Filter) => void;
   workCategory: string;
@@ -769,15 +911,13 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   onOpenBioModal: (id: string) => void;
   onHome: () => void;
   feed: Post[];
+  viewMode: ViewMode;
+  setViewMode: (m: ViewMode) => void;
   introComplete: boolean;
   showedIntroThisSession: boolean;
+  scrollRef?: React.Ref<HTMLDivElement>;
 }) {
-  const [showMore, setShowMore] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('compact');
-  // Apple-style type scale: one big, tight display line; supporting lines a
-  // step down with relaxed leading. (500 is the heaviest weight all five
-  // site fonts actually ship, so it stays true rather than synthesizing.)
-  const [leadDisplay, ...leadRest] = BIO_LEAD.split('\n');
+  const [gallerySeed, setGallerySeed] = useState(1);
 
   // Track if this is the first time posts are rendering (persists across filter changes)
   const hasRenderedPostsRef = useRef(false);
@@ -787,10 +927,29 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
     }
   }, [introComplete]);
 
+  // In gallery mode the column spans the full page so the masonry can go
+  // full-bleed, but the intro block (logo, bio, filter pills) should hold its
+  // usual centered footprint rather than stretching with it. 552 = the normal
+  // 640px column minus its 48+40px horizontal padding.
+  // On the way OUT of gallery the column animates 100% -> 640px over 0.42s;
+  // dropping the constraint immediately would flash the header full-width, so
+  // keep it applied until that width transition has finished.
+  const [constrainHeader, setConstrainHeader] = useState(viewMode === 'gallery');
+  useEffect(() => {
+    if (viewMode === 'gallery') {
+      setConstrainHeader(true);
+      return;
+    }
+    const id = window.setTimeout(() => setConstrainHeader(false), 450);
+    return () => clearTimeout(id);
+  }, [viewMode]);
+  const headerConstraint: CSSProperties | undefined =
+    constrainHeader ? { width: '100%', maxWidth: 552, margin: '0 auto' } : undefined;
+
   return (
-    <div style={{ height: '100%', overflowY: 'auto' }}>
+    <div ref={scrollRef} style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'flex-start' }}>
-      <div>
+      <div style={headerConstraint}>
         {/* Logo */}
         {introComplete && (
           <motion.div
@@ -806,7 +965,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
         {/* Name */}
         {introComplete && (
           <motion.h1
-            style={{ margin: 0, marginBottom: 16, fontSize: 13, fontWeight: 400 }}
+            style={{ margin: 0, marginBottom: 16, fontSize: 15, fontWeight: 400 }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
@@ -815,66 +974,40 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
           </motion.h1>
         )}
 
-        {/* Lead text */}
+        {/* Bio text — each \n-separated line of BIO_LEAD is its own paragraph,
+            all at body size (no display headline). */}
         {introComplete && (
-          <motion.p
-            style={{ color: 'var(--fg)', margin: 0, marginBottom: 10, fontSize: 30, fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.12 }}
+          <motion.div
+            style={{ maxWidth: 600 }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            {leadDisplay}
-          </motion.p>
-        )}
-
-        {/* Bio text */}
-        {leadRest.length > 0 && introComplete && (
-          <motion.p
-            style={{ color: 'var(--fg)', opacity: 0.85, margin: 0, marginBottom: 10, whiteSpace: 'pre-line', fontSize: 17, letterSpacing: '-0.011em', lineHeight: 1.5 }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 0.85, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {leadRest.join('\n')}
-          </motion.p>
+            {BIO_LEAD.split('\n').map((para, i) => (
+              <p key={i} style={{ color: 'var(--fg)', margin: 0, marginBottom: 12, fontSize: 15, letterSpacing: '-0.011em', lineHeight: 1.55 }}>
+                {renderBioInlineLinks(para)}
+              </p>
+            ))}
+          </motion.div>
         )}
 
         {introComplete && (
-          <motion.button
-            onClick={() => setShowMore(v => !v)}
-            style={{ fontSize: 12, color: 'var(--fg-dim)', padding: 0, transition: 'color 0.15s' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--fg)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; }}
+          <motion.a
+            href="mailto:hudbud@gmail.com"
+            className="hp-bio-link"
+            style={{ display: 'inline-block', fontSize: 15 }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            {showMore ? 'less' : 'more'}
-          </motion.button>
-        )}
-        {showMore && (
-          <div style={{ marginTop: 12 }}>
-            <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>{BIO_BODY}</p>
-            <p className="prose" style={{ color: 'var(--fg)', margin: 0, marginBottom: 12 }}>
-              {BIO_BODY_2}{' '}
-              <BioLink label="maker, tinkerer, and serial hobbyist" modalId="hobbyist" onOpenModal={onOpenBioModal} />,{' '}
-              I <BioLink label="love computers" modalId="computers" onOpenModal={onOpenBioModal} />,{' '}
-              I'm an <BioLink label="outdoorsman" modalId="outdoorsman" onOpenModal={onOpenBioModal} />,{' '}
-              and I have strong opinions on just about everything.
-            </p>
-            <p className="prose" style={{ margin: 0, fontSize: 12, fontStyle: 'italic' }}>
-              <BioLink label={`${BIO_ORIGIN} →`} modalId="origin" onOpenModal={onOpenBioModal} />
-            </p>
-            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--rule)' }}>
-              <ResumeList />
-            </div>
-          </div>
+            Contact me
+          </motion.a>
         )}
       </div>
 
       {introComplete && (
         <motion.div
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', ...headerConstraint }}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -890,7 +1023,21 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
               </FilterPill>
             ))}
           </div>
-          <ViewModeToggle mode={viewMode} setMode={setViewMode} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {viewMode === 'gallery' && (
+              <button
+                onClick={() => setGallerySeed((s) => s + 1)}
+                aria-label="shuffle gallery"
+                title="shuffle gallery"
+                style={{ display: 'flex', padding: '8px 10px', borderRadius: 8, background: 'var(--tile)', color: 'var(--fg-dim)', transition: 'color 0.15s' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+              >
+                <Shuffle size={14} weight="fill" />
+              </button>
+            )}
+            <ViewModeToggle mode={viewMode} setMode={setViewMode} />
+          </div>
         </motion.div>
       )}
 
@@ -910,6 +1057,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
           setActivePost={setActivePost}
           openProject={onOpenProject}
           viewMode={viewMode}
+          gallerySeed={gallerySeed}
           introComplete={introComplete}
           hasRenderedPosts={hasRenderedPostsRef.current}
         />
@@ -1250,16 +1398,58 @@ function Lightbox({ images, index, onClose, onChange }: { images: string[]; inde
 
 const postHtmlCache = new Map<string, string>();
 
-// Mobile-only escape hatch at the top of a full-screen panel; the sticky
-// "✕ Close" pill at the bottom remains the primary close affordance.
-function PanelBackButton({ onClick }: { onClick: () => void }) {
+// ---------- Editorial detail-page furniture ----------
+// The minimal case-study look: a short mono-caps spec stack (values only, no
+// labels, left-aligned) under a heavy lowercase display title, images
+// numbered FIG. 01… like plates in a printed portfolio.
+function specRowsFor(post: Post): { label: string; value: string; accent?: boolean }[] {
+  const isWork = post.tags.includes('work') || post.tags.includes('archive');
+  const year = String(new Date(post.dateValue).getFullYear());
+  if (!isWork) {
+    return [{ label: 'date', value: post.date }];
+  }
+  const rows: { label: string; value: string; accent?: boolean }[] = [
+    { label: 'year', value: year },
+  ];
+  if (post.category) rows.push({ label: 'discipline', value: post.category, accent: true });
+  if (post.roles) rows.push({ label: 'role', value: post.roles });
+  if (post.tools) rows.push({ label: 'tools', value: post.tools });
+  return rows;
+}
+
+function SpecTable({ rows }: { rows: { label: string; value: string; accent?: boolean }[] }) {
   return (
-    <button
-      onClick={onClick}
-      style={{ alignSelf: 'flex-start', fontSize: 12, color: 'var(--fg-dim)', padding: 0, marginBottom: 18 }}
-    >
-      ← back
-    </button>
+    <div className="post-spec" style={{ display: 'flex', flexDirection: 'column', gap: 2, margin: '26px 0 30px' }}>
+      {rows.map((r) => (
+        <div key={r.label} className="post-spec-cell" style={{ color: r.accent ? 'var(--accent)' : 'var(--fg-dim)', padding: '5px 0' }}>
+          {r.value}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ClosePill({ onClick }: { onClick: () => void }) {
+  return (
+    <div style={{ position: 'sticky', top: 0, alignSelf: 'flex-end', zIndex: 10, marginBottom: 8 }}>
+      <button
+        onClick={onClick}
+        className="post-spec-cell"
+        style={{ background: 'var(--fg)', color: 'var(--bg)', borderRadius: 999, padding: '10px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent)')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--fg)')}
+      >
+        ✕ close
+      </button>
+    </div>
+  );
+}
+
+function DisplayTitle({ children, isMobile }: { children: React.ReactNode; isMobile: boolean }) {
+  return (
+    <div style={{ fontSize: isMobile ? 34 : 44, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.02, color: 'var(--fg)', margin: '18px 0 0' }}>
+      {children}
+    </div>
   );
 }
 
@@ -1360,33 +1550,29 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
   const isWork = post.tags.includes('work') || post.tags.includes('archive');
   const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
 
-  return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '28px 24px 100px' : '56px 56px 100px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-      {isMobile && <PanelBackButton onClick={onClose} />}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-        <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>
-          [{post.tags.join(', ')}] · {post.date}
-        </div>
-        {post.slug && (
-          <button
-            onClick={copyLink}
-            aria-label="copy link to post"
-            style={{ display: 'flex', alignItems: 'center', color: copied ? 'var(--accent)' : 'var(--fg-faint)' }}
-            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-dim)'; }}
-            onMouseLeave={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-faint)'; }}
-          >
-            {copied ? <Check size={12} weight="bold" /> : <Copy size={12} />}
-          </button>
-        )}
-      </div>
-      <div style={{ fontSize: 26, color: 'var(--accent)', marginBottom: 14, lineHeight: 1.2, letterSpacing: '-0.005em' }}>
-        {post.title}
-      </div>
+  // Hero (rendered here) is FIG. 01; figure numbering in the body continues after it.
+  const bodyHtml = useMemo(
+    () => addFigCaptions(groupImagesIntoGrid(stripMetaParagraphs(postHtml)), post.title, post.feature_image && hasImage ? 2 : 1),
+    [postHtml, post.title, post.feature_image, hasImage]
+  );
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+  return (
+    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '24px 24px 80px' : '32px 56px 80px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      <ClosePill onClick={onClose} />
+
+      <DisplayTitle isMobile={isMobile}>{post.title}</DisplayTitle>
+
+      <SpecTable rows={specRowsFor(post)} />
+
+      {post.excerpt && (
+        <p className="prose" style={{ color: 'var(--fg)', fontSize: 15, lineHeight: 1.65, margin: '0 0 28px', maxWidth: 520 }}>{post.excerpt}</p>
+      )}
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24, alignItems: 'center' }}>
         <button
           onClick={() => { setShowSpritz(!showSpritz); setShowTyping(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
+          className="post-spec-cell"
+          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
@@ -1394,19 +1580,31 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
         </button>
         <button
           onClick={() => { setShowTyping(!showTyping); setShowSpritz(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
+          className="post-spec-cell"
+          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
           {showTyping ? 'hide typing test' : <><Keyboard size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />typing test</>}
         </button>
+        {post.slug && (
+          <button
+            onClick={copyLink}
+            aria-label="copy link to post"
+            style={{ display: 'flex', alignItems: 'center', color: copied ? 'var(--accent)' : 'var(--fg-faint)', marginLeft: 'auto' }}
+            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-dim)'; }}
+            onMouseLeave={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-faint)'; }}
+          >
+            {copied ? <Check size={12} weight="bold" /> : <Copy size={12} />}
+          </button>
+        )}
       </div>
 
       {showSpritz && <SpritzReader html={postHtml} onClose={() => setShowSpritz(false)} />}
       {showTyping && <TypingTest html={postHtml} onClose={() => setShowTyping(false)} />}
 
       {hasImage && (
-        <div style={{ marginBottom: 24 }}>
+        <figure className="post-fig" style={{ margin: '0 0 24px' }}>
           {post.feature_image ? (
             <img
               src={post.feature_image}
@@ -1418,13 +1616,14 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
           ) : (
             <LifeImage color={post.img || '#3a434e'} seed={post.title.length} height={260} />
           )}
-        </div>
+          <figcaption className="post-fig-caption">fig. 01 — {post.title}</figcaption>
+        </figure>
       )}
 
       {isLoadingHtml ? (
         <div style={{ color: 'var(--fg-dim)', fontSize: 13, padding: '8px 0 20px' }}>loading…</div>
       ) : (
-        <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: groupImagesIntoGrid(postHtml) }} />
+        <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />
       )}
       <style>{`.prose img { cursor: pointer; }`}</style>
 
@@ -1434,9 +1633,8 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
         )}
       </AnimatePresence>
 
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)', fontSize: 11, color: 'var(--fg-dim)' }}>
-        <em>~{minutes} min read</em>
+      <div className="post-spec-cell" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 36, paddingTop: 18, borderTop: '1px solid var(--rule)', color: 'var(--fg-dim)' }}>
+        <span>~{minutes} min read</span>
         {post.slug && (
           <a
             href={`/posts/${post.slug}`}
@@ -1444,20 +1642,9 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
           >
-            Read full post →
+            full post ↗
           </a>
         )}
-      </div>
-
-      <div style={{ position: 'sticky', bottom: 24, marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <button
-          onClick={onClose}
-          style={{ pointerEvents: 'auto', background: 'var(--fg)', color: 'var(--bg)', borderRadius: 20, padding: '8px 18px', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--fg)')}
-        >
-          ✕ Close
-        </button>
       </div>
     </div>
   );
@@ -1480,13 +1667,14 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
 
   if (projectId === 'freezer-martini') {
     return (
-      <div style={{ height: '100%', overflowY: 'auto', padding: '32px 24px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-        {isMobile && <PanelBackButton onClick={onClose} />}
+      <div style={{ height: '100%', overflowY: 'auto', padding: '24px 24px 80px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <ClosePill onClick={onClose} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16, padding: '0 8px' }}>
-          <div style={{ color: 'var(--fg-faint)', fontSize: 11 }}>[project] · tool</div>
+          <div className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>project · tool</div>
           <a
             href="/freezer-martini"
-            style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
+            className="post-spec-cell"
+            style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
           >
@@ -1494,16 +1682,6 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
           </a>
         </div>
         <FreezerMartini embedded />
-        <div style={{ position: 'sticky', bottom: 24, marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-          <button
-            onClick={onClose}
-            style={{ pointerEvents: 'auto', background: 'var(--fg)', color: 'var(--bg)', borderRadius: 20, padding: '8px 18px', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--fg)')}
-          >
-            ✕ Close
-          </button>
-        </div>
       </div>
     );
   }
@@ -1512,19 +1690,18 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
   if (!project) return null;
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '28px 24px 100px' : '56px 48px 100px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-      {isMobile && <PanelBackButton onClick={onClose} />}
-      <div style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 8 }}>
-        [project] · {project.subtitle || ''}
-      </div>
-      <div style={{ fontSize: 26, color: 'var(--accent)', marginBottom: 14, lineHeight: 1.2, letterSpacing: '-0.005em' }}>
-        {project.title}
-      </div>
+    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '24px 24px 80px' : '32px 48px 80px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      <ClosePill onClick={onClose} />
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <DisplayTitle isMobile={isMobile}>{project.title}</DisplayTitle>
+
+      <SpecTable rows={project.subtitle ? [{ label: 'context', value: project.subtitle }] : []} />
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
         <button
           onClick={() => { setShowSpritz(!showSpritz); setShowTyping(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
+          className="post-spec-cell"
+          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
@@ -1532,7 +1709,8 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
         </button>
         <button
           onClick={() => { setShowTyping(!showTyping); setShowSpritz(false); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}
+          className="post-spec-cell"
+          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
         >
@@ -1544,17 +1722,6 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
       {showTyping && <TypingTest html={project.html} onClose={() => setShowTyping(false)} />}
 
       <div className="prose" style={{ color: 'var(--fg)', fontSize: 14, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: project.html }} />
-
-      <div style={{ position: 'sticky', bottom: 24, marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <button
-          onClick={onClose}
-          style={{ pointerEvents: 'auto', background: 'var(--fg)', color: 'var(--bg)', borderRadius: 20, padding: '8px 18px', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--fg)')}
-        >
-          ✕ Close
-        </button>
-      </div>
     </div>
   );
 }
@@ -1636,6 +1803,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
   const [activePost, setActivePostRaw] = useState<Post | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('compact');
 
   // Intro sequence state
   const [showIntro, setShowIntro] = useState(false);
@@ -1720,6 +1888,23 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     document.body.dataset.font = font;
   }, [font]);
 
+  // Wheel events over dead zones (centering spacers, outer frame) should
+  // still scroll the feed. If the event originated inside any element that
+  // scrolls on its own (feed column, detail panel, glass menus), native
+  // scrolling already handles it — only forward the leftovers.
+  const leftScrollRef = useRef<HTMLDivElement | null>(null);
+  const handleFrameWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    let el = e.target as HTMLElement | null;
+    while (el && el !== e.currentTarget) {
+      if (el.scrollHeight > el.clientHeight) {
+        const oy = getComputedStyle(el).overflowY;
+        if (oy === 'auto' || oy === 'scroll') return;
+      }
+      el = el.parentElement;
+    }
+    leftScrollRef.current?.scrollBy({ top: e.deltaY });
+  };
+
   const panelOpen = !!(activePost || activeProject);
   const rightContent = activePost
     ? <PostPanel post={activePost} onClose={closeRightPanel} isMobile={isMobile} />
@@ -1728,7 +1913,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       : null;
 
   return (
-    <div style={{ height: '100dvh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
+    <div onWheel={handleFrameWheel} style={{ height: '100dvh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
       {!isMobile && <FrameFooter />}
       <div
         style={{
@@ -1762,16 +1947,17 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
             <source src="/intro/intro.mp4" type="video/mp4" />
           </video>
         )}
-        {/* Left spacer: centers left column when panel closed (desktop only) */}
+        {/* Left spacer: centers left column when panel closed (desktop only).
+            Gallery view wants full width, so the spacers collapse there too. */}
         {!isMobile && (
-          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 1 }} />
+          <div style={{ flexGrow: panelOpen || viewMode === 'gallery' ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 1 }} />
         )}
 
         {/* Left column */}
         {(!isMobile || !panelOpen) && (
           <div style={{
             flexShrink: 0,
-            width: isMobile ? '100%' : (panelOpen ? '50%' : 640),
+            width: isMobile ? '100%' : (panelOpen ? '50%' : (viewMode === 'gallery' ? '100%' : 640)),
             transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1)',
             overflowY: 'auto',
             height: '100%',
@@ -1790,8 +1976,11 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
               onOpenBioModal={setBioModal}
               onHome={() => { setFilter('all'); closeRightPanel(); }}
               feed={feed}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
               introComplete={introComplete}
               showedIntroThisSession={showedIntroThisSession}
+              scrollRef={leftScrollRef}
             />
           </div>
         )}
@@ -1815,7 +2004,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
         {/* Right spacer: mirrors left spacer (desktop only) */}
         {!isMobile && (
-          <div style={{ flexGrow: panelOpen ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 1 }} />
+          <div style={{ flexGrow: panelOpen || viewMode === 'gallery' ? 0 : 1, flexShrink: 0, flexBasis: 0, transition: 'flex-grow 0.42s cubic-bezier(0.4, 0, 0.2, 1)', zIndex: 1 }} />
         )}
       </div>
 
