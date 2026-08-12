@@ -199,6 +199,70 @@ img { max-width: 100%; display: block; }
   margin: 0;
 }
 
+/* ---------- Detail-page editorial furniture ---------- */
+/* Small mono for spec rows, fig captions, and small controls — always Geist
+   Mono regardless of the active site font, like the frame footer. */
+.post-spec-cell {
+  font-family: 'Geist Mono', ui-monospace, Menlo, monospace !important;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.post-spec > div + div {
+  border-top: 1px solid transparent; /* rows separated by rhythm, not rules */
+}
+
+.post-fig {
+  margin: 12px 0 20px;
+}
+
+.post-fig-caption {
+  font-family: 'Geist Mono', ui-monospace, Menlo, monospace !important;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--fg-dim);
+  margin-top: 8px;
+}
+
+/* ---------- Bio inline links ---------- */
+.hp-bio-link {
+  color: var(--accent);
+  border-bottom: 1px dashed var(--fg-faint);
+  padding-bottom: 1px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.hp-bio-link:hover {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
+  border-bottom-style: solid;
+}
+
+/* ---------- Gallery view (masonry tiles) ---------- */
+.hp-gallery-tile .hp-gallery-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 22px 12px 10px;
+  text-align: left;
+  font-size: 13px;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.hp-gallery-tile:hover .hp-gallery-caption,
+.hp-gallery-tile:focus-visible .hp-gallery-caption {
+  opacity: 1;
+}
+
 /* ---------- Frame footer (always mono, regardless of active font) ---------- */
 .hp-frame-footer {
   font-family: 'Geist Mono', ui-monospace, Menlo, monospace !important;

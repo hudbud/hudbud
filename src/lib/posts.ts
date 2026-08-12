@@ -16,6 +16,17 @@ function formatDate(d: Date): string {
   return `${mm}.${dd}.${d.getFullYear()}`;
 }
 
+const BODY_IMG_REGEX = /!\[.*?\]\(([^)]+)\)/g;
+
+function entryImages(entry: CollectionEntry<'posts'>): string[] {
+  const images: string[] = [];
+  if (entry.data.feature_image) images.push(entry.data.feature_image);
+  for (const match of (entry.body ?? '').matchAll(BODY_IMG_REGEX)) {
+    if (!images.includes(match[1])) images.push(match[1]);
+  }
+  return images;
+}
+
 function entryToMeta(entry: CollectionEntry<'posts'>): Post {
   return {
     title: entry.data.title,
@@ -26,6 +37,7 @@ function entryToMeta(entry: CollectionEntry<'posts'>): Post {
     tags: entry.data.tags,
     category: entry.data.category,
     feature_image: entry.data.feature_image,
+    images: entryImages(entry),
     roles: entry.data.roles,
     tools: entry.data.tools,
     agency: entry.data.agency,

@@ -41,7 +41,6 @@ const styles = {
     fontSize: 11,
     color: 'var(--fg-dim)',
     marginBottom: 6,
-    textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
   } as React.CSSProperties,
   input: {

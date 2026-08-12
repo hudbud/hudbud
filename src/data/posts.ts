@@ -8,6 +8,8 @@ export interface Post {
   tags: string[];
   category?: string;
   feature_image?: string;
+  /** Every image in the post (feature + body), for the gallery view. */
+  images?: string[];
   img?: string;
   roles?: string;
   tools?: string;
