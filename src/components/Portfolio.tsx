@@ -102,7 +102,7 @@ function HudMark({ size = 44, onClick, introMode = false }: { size?: number; onC
 }
 
 // ---------- LifeImage ----------
-function LifeImage({ color, seed = 0, height = 140 }: { color: string; seed?: number; height?: number }) {
+function LifeImage({ color, seed = 0, height = 140 }: { color: string; seed?: number; height?: number | string }) {
   const patterns = [
     `repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 9px, transparent 9px 18px)`,
     `radial-gradient(circle at ${30 + (seed * 7) % 40}% ${40 + (seed * 11) % 30}%, rgba(255,255,255,0.08), transparent 60%)`,
@@ -519,18 +519,20 @@ function buildRows({ feed, filter, workCategory, activePost, activeProject, setA
   return [...postRows, ...ideaRows].sort((a, b) => b.dateValue - a.dateValue);
 }
 
-function FeedRow({ row, index, showImage }: { row: Row; index: number; showImage: boolean }) {
+function FeedRow({ row, index, showImage, isMobile }: { row: Row; index: number; showImage: boolean; isMobile: boolean }) {
   const clickable = !!row.onClick;
   const [hovered, setHovered] = useState(false);
   const lit = row.isActive || (hovered && clickable);
+  const thumbWidth = isMobile ? 72 : 96;
+  const thumbHeight = isMobile ? 44 : 58;
   return (
     <button
       onClick={row.onClick ?? undefined}
       style={{
         display: 'grid',
-        gridTemplateColumns: showImage ? '96px 1fr auto' : '1fr auto',
-        gap: 16,
-        padding: '10px 12px',
+        gridTemplateColumns: showImage ? `${thumbWidth}px 1fr auto` : '1fr auto',
+        gap: isMobile ? 12 : 16,
+        padding: isMobile ? '10px 8px' : '10px 12px',
         textAlign: 'left',
         alignItems: 'center',
         color: lit ? 'var(--accent)' : 'var(--fg)',
@@ -545,15 +547,15 @@ function FeedRow({ row, index, showImage }: { row: Row; index: number; showImage
     >
       {showImage && (
         row.image ? (
-          <img src={row.image} alt="" loading="lazy" style={{ width: 96, height: 58, objectFit: 'cover', borderRadius: 2 }} />
+          <img src={row.image} alt="" loading="lazy" style={{ width: thumbWidth, height: thumbHeight, objectFit: 'cover', borderRadius: 2 }} />
         ) : (
-          <LifeImage color="#3a434e" seed={index} height={58} />
+          <LifeImage color="#3a434e" seed={index} height={thumbHeight} />
         )
       )}
       <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-        <span style={{ fontSize: 13 }}>{row.title}</span>
+        <span style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'nowrap' : undefined }}>{row.title}</span>
       </span>
-      <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{row.date}</span>
+      <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{row.date}</span>
     </button>
   );
 }
@@ -642,7 +644,7 @@ function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMo
   );
 }
 
-function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, introComplete, hasRenderedPosts }: {
+function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, introComplete, hasRenderedPosts, isMobile }: {
   feed: Post[];
   filter: Filter;
   workCategory: string;
@@ -655,6 +657,7 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   gallerySeed: number;
   introComplete: boolean;
   hasRenderedPosts: boolean;
+  isMobile: boolean;
 }) {
   const rows = useMemo(
     () => buildRows({ feed, filter, workCategory, activePost, activeProject, setActivePost, openProject }),
@@ -701,7 +704,7 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
           }}
           style={{ width: '100%' }}
         >
-          <FeedRow row={row} index={i} showImage={viewMode === 'roomy'} />
+          <FeedRow row={row} index={i} showImage={viewMode === 'roomy'} isMobile={isMobile} />
         </motion.div>
       ))}
     </div>
@@ -831,8 +834,12 @@ const HOVER_IMAGES: Record<string, string[]> = {
 
 function CursorImagesHover({ label, images }: { label: string; images: string[] }) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   const move = (e: React.MouseEvent) => {
+    // Touch taps synthesize mousemove right before click; skip the hover card
+    // there so it doesn't flash under the lightbox that the tap opens.
+    if (window.matchMedia('(hover: none)').matches) return;
     // Keep the card inside the viewport: flip to the left of the cursor near
     // the right edge, and above it near the bottom.
     const W = 460, H = 240, pad = 16;
@@ -842,11 +849,20 @@ function CursorImagesHover({ label, images }: { label: string; images: string[] 
   };
 
   return (
+    <>
+    {/* Lightbox lives outside the clickable span so its own clicks (close,
+        prev/next) don't bubble back into the open handler and reopen it. */}
+    <AnimatePresence>
+      {lightboxIdx !== null && (
+        <Lightbox images={images} index={lightboxIdx} onClose={() => setLightboxIdx(null)} onChange={setLightboxIdx} />
+      )}
+    </AnimatePresence>
     <span
       className="hp-bio-link"
-      style={{ cursor: 'default' }}
+      style={{ cursor: 'pointer' }}
       onMouseMove={move}
       onMouseLeave={() => setPos(null)}
+      onClick={() => { setPos(null); setLightboxIdx(0); }}
     >
       {label}
       <AnimatePresence>
@@ -869,6 +885,7 @@ function CursorImagesHover({ label, images }: { label: string; images: string[] 
         )}
       </AnimatePresence>
     </span>
+    </>
   );
 }
 
@@ -899,7 +916,7 @@ function renderBioInlineLinks(text: string): React.ReactNode[] {
 }
 
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, viewMode, setViewMode, introComplete, showedIntroThisSession, scrollRef }: {
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, viewMode, setViewMode, introComplete, showedIntroThisSession, scrollRef, isMobile }: {
   filter: Filter;
   setFilter: (f: Filter) => void;
   workCategory: string;
@@ -916,6 +933,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   introComplete: boolean;
   showedIntroThisSession: boolean;
   scrollRef?: React.Ref<HTMLDivElement>;
+  isMobile: boolean;
 }) {
   const [gallerySeed, setGallerySeed] = useState(1);
 
@@ -948,7 +966,11 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
 
   return (
     <div ref={scrollRef} style={{ height: '100%', overflowY: 'auto' }}>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '56px 40px 80px 48px', minHeight: '100%', justifyContent: 'flex-start' }}>
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 24,
+      padding: isMobile ? '32px 20px 80px' : '56px 40px 80px 48px',
+      minHeight: '100%', justifyContent: 'flex-start',
+    }}>
       <div style={headerConstraint}>
         {/* Logo */}
         {introComplete && (
@@ -1060,6 +1082,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
           gallerySeed={gallerySeed}
           introComplete={introComplete}
           hasRenderedPosts={hasRenderedPostsRef.current}
+          isMobile={isMobile}
         />
       </motion.div>
     </div>
@@ -1557,7 +1580,7 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
   );
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '24px 24px 80px' : '32px 56px 80px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '16px 20px 80px' : '32px 56px 80px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <ClosePill onClick={onClose} />
 
       <DisplayTitle isMobile={isMobile}>{post.title}</DisplayTitle>
@@ -1690,7 +1713,7 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
   if (!project) return null;
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '24px 24px 80px' : '32px 48px 80px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '16px 20px 80px' : '32px 48px 80px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       <ClosePill onClick={onClose} />
 
       <DisplayTitle isMobile={isMobile}>{project.title}</DisplayTitle>
@@ -1729,16 +1752,19 @@ function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: str
 // ---------- FrameFooter ----------
 // Lives in the outer border padding around the site (desktop only).
 function FrameFooter() {
-  const [now, setNow] = useState(() => new Date());
+  // null until mount: the server-rendered time can never match the client's,
+  // and that one stale string used to fail hydration for the whole app.
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
   const pad = (n: number) => String(n).padStart(2, '0');
-  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  const date = `${pad(now.getMonth() + 1)}.${pad(now.getDate())}.${now.getFullYear()}`;
+  const time = now ? `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}` : '--:--:--';
+  const date = now ? `${pad(now.getMonth() + 1)}.${pad(now.getDate())}.${now.getFullYear()}` : '';
 
   return (
     <div
@@ -1850,9 +1876,37 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const [bioModal, setBioModal] = useState<string | null>(null);
   const [timeTravelUrl, setTimeTravelUrl] = useState<string | null>(null);
 
-  const setActivePost = (p: Post | null) => { setActivePostRaw(p); setActiveProject(null); };
-  const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); };
-  const closeRightPanel = () => { setActivePostRaw(null); setActiveProject(null); };
+  // Opening a panel pushes a history entry so the phone's back gesture closes
+  // it instead of leaving the site (the panel is fullscreen on mobile). Only
+  // one entry is pushed no matter how many posts are viewed in a row.
+  const panelOpenRef = useRef(false);
+  const pushPanelState = () => {
+    if (!panelOpenRef.current) {
+      window.history.pushState({ hpPanel: true }, '');
+      panelOpenRef.current = true;
+    }
+  };
+  const setActivePost = (p: Post | null) => {
+    setActivePostRaw(p); setActiveProject(null);
+    if (p) pushPanelState();
+    else if (panelOpenRef.current) { panelOpenRef.current = false; window.history.back(); }
+  };
+  const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); pushPanelState(); };
+  const closeRightPanel = () => {
+    setActivePostRaw(null); setActiveProject(null);
+    if (panelOpenRef.current) { panelOpenRef.current = false; window.history.back(); }
+  };
+  useEffect(() => {
+    const onPop = () => {
+      if (panelOpenRef.current) {
+        panelOpenRef.current = false;
+        setActivePostRaw(null);
+        setActiveProject(null);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const handleIntroComplete = () => {
     setShowIntro(false);
@@ -1981,6 +2035,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
               introComplete={introComplete}
               showedIntroThisSession={showedIntroThisSession}
               scrollRef={leftScrollRef}
+              isMobile={isMobile}
             />
           </div>
         )}
