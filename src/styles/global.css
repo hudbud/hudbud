@@ -224,18 +224,26 @@ img { max-width: 100%; display: block; }
   margin-top: 8px;
 }
 
-/* ---------- Bio inline links ---------- */
-.hp-bio-link {
+/* ---------- Inline content links (bio, post/resource prose) ---------- */
+.hp-bio-link,
+.prose a {
   color: var(--accent);
   border-bottom: 1px dashed var(--fg-faint);
   padding-bottom: 1px;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.hp-bio-link:hover {
+.hp-bio-link:hover,
+.prose a:hover {
   color: var(--fg);
   border-bottom-color: var(--accent);
   border-bottom-style: solid;
+}
+
+/* Image/figure links shouldn't carry the text underline. */
+.prose a:has(> img) {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 /* ---------- Gallery view (masonry tiles) ---------- */
