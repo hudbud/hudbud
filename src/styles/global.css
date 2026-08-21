@@ -224,9 +224,7 @@ img { max-width: 100%; display: block; }
   margin-top: 8px;
 }
 
-/* ---------- Links (one treatment everywhere) ---------- */
-/* Bio links, post/project prose links, and resource-list links all share the
-   accent + dashed-underline look; hover solidifies the underline. */
+/* ---------- Inline content links (bio, post/resource prose) ---------- */
 .hp-bio-link,
 .prose a {
   color: var(--accent);
@@ -242,7 +240,7 @@ img { max-width: 100%; display: block; }
   border-bottom-style: solid;
 }
 
-/* Images wrapped in links shouldn't pick up the underline box. */
+/* Image/figure links shouldn't carry the text underline. */
 .prose a:has(> img) {
   border-bottom: none;
   padding-bottom: 0;

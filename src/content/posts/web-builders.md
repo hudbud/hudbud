@@ -11,7 +11,7 @@ _note: this is a work in progress, but I'm publishing before it's done!_
 
 There are an insane amount of web builders out today, and more coming quickly. I am going to update this to keep a running list of what's out there. I am sure I'm missing some, so reach out to me with those and I'll add them!
 
-I know it's exhausting to pick which one is perfect for you, so if you want to make it as easy as possible, reach out to me at [cosmostud.io](http://cosmostud.io) and I'll help you achieve your web goals with no hassle.
+I know it's exhausting to pick which one is perfect for you, so if you want to make it as easy as possible, reach out to me at [cosmostud.io](https://cosmostud.io) and I'll help you achieve your web goals with no hassle.
 
 <iframe loading="lazy" src="https://app.nocodb.com/#/nc/view/672c8f8f-60d5-49c9-99e8-f7ae5e9b6578" width="100%" height="800px" style="border: none;"></iframe>
 

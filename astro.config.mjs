@@ -17,11 +17,25 @@ function rehypeLazyImages() {
   };
 }
 
+/** Opens external links from markdown in a new tab with rel="noopener". */
+function rehypeExternalLinks() {
+  return (tree) => {
+    const visit = (node) => {
+      if (node.tagName === 'a' && /^https?:\/\//.test(node.properties?.href ?? '')) {
+        node.properties.target = '_blank';
+        node.properties.rel = 'noopener';
+      }
+      if (node.children) node.children.forEach(visit);
+    };
+    visit(tree);
+  };
+}
+
 export default defineConfig({
   output: 'static',
   site: 'https://hudbud.net',
   integrations: [react(), sitemap()],
   markdown: {
-    rehypePlugins: [rehypeLazyImages],
+    rehypePlugins: [rehypeLazyImages, rehypeExternalLinks],
   },
 });

@@ -8,18 +8,18 @@ Gonna actually do the write up here but check this out:
 
 Apparently there's like a cave full of gems in shasta and there is some kind of society of lemurians which are like ancient creatures that roam the shasta area. i love this type of thing so much and i love the weird deep internet articles on random blogs out there. Anywho, at some point this will be replaced by an actual trip log.,.. in the mean time, please read about lumeraisn
 
-Lumarians  
-\- [https://www.treasurenet.com/threads/the-lemurian-legend.143053/](https://www.treasurenet.com/threads/the-lemurian-legend.143053/)  
-\- [https://www.activenorcal.com/whats-a-lemurian-and-why-do-people-believe-they-live-in-mount-shasta/](https://www.activenorcal.com/whats-a-lemurian-and-why-do-people-believe-they-live-in-mount-shasta/)  
-\- [https://www.youtube.com/watch?v=y8tS4JmVovA](https://www.youtube.com/watch?v=y8tS4JmVovA)  
-\- [https://www.activenorcal.com/man-claims-to-have-recently-visited-with-lemurians-inside-mount-shasta/](https://www.activenorcal.com/man-claims-to-have-recently-visited-with-lemurians-inside-mount-shasta/)  
-\- [https://40kftview.com/do-you-wish-to-see-telos/](https://40kftview.com/do-you-wish-to-see-telos/) ⭐⭐⭐⭐⭐  
-\- [https://www.thesnowboardersjournal.com/exclusive/in-search-of-telos/](https://www.thesnowboardersjournal.com/exclusive/in-search-of-telos/)  
-\- [https://californiaadventuredistrict.com/lemurians-and-legends/](https://californiaadventuredistrict.com/lemurians-and-legends/)
+Lumarians
 
-[https://geotripper.blogspot.com/2013/10/searching-for-lemurians-and-atlanteans.html](https://geotripper.blogspot.com/2013/10/searching-for-lemurians-and-atlanteans.html)
+- [The Lemurian legend](https://www.treasurenet.com/threads/the-lemurian-legend.143053/) — TreasureNet forum thread
+- [What's a Lemurian and why do people believe they live in Mount Shasta?](https://www.activenorcal.com/whats-a-lemurian-and-why-do-people-believe-they-live-in-mount-shasta/) — Active NorCal
+- [Lemurians of Mount Shasta](https://www.youtube.com/watch?v=y8tS4JmVovA) — YouTube
+- [Man claims to have recently visited with Lemurians inside Mount Shasta](https://www.activenorcal.com/man-claims-to-have-recently-visited-with-lemurians-inside-mount-shasta/) — Active NorCal
+- [Do you wish to see Telos?](https://40kftview.com/do-you-wish-to-see-telos/) — 40kft View ⭐⭐⭐⭐⭐
+- [In search of Telos](https://www.thesnowboardersjournal.com/exclusive/in-search-of-telos/) — The Snowboarder's Journal
+- [Lemurians and legends](https://californiaadventuredistrict.com/lemurians-and-legends/) — California Adventure District
+- [Searching for Lemurians and Atlanteans](https://geotripper.blogspot.com/2013/10/searching-for-lemurians-and-atlanteans.html) — Geotripper
 
-[https://www.bluestarchildgallery.com/lemurian-retreat-workshop](https://www.bluestarchildgallery.com/lemurian-retreat-workshop)
+[Lemurian retreat workshop — Blue Star Child Gallery](https://www.bluestarchildgallery.com/lemurian-retreat-workshop)
 
 ^^literally an art gallery in shasta that the artist claims to be in contact with spiritual powers
 
