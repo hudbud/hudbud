@@ -11,7 +11,7 @@ feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 
 ### General web
 
-- [Refero](https://refero.design/) — UI reference library; the [styles gallery](https://styles.refero.design/?sort=popular) is 🔥
+- [Refero](https://refero.design/)
 - [Godly](https://godly.website/)
 - [Awwwards](https://www.awwwards.com/)
 - [Site Inspire](https://www.siteinspire.com/)
@@ -29,7 +29,7 @@ feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 
 - [Savee](https://savee.com/)
 - [Cosmos](https://www.cosmos.so/)
-- [Deck Gallery](https://www.deck.gallery/) — pitch and brand decks
+- [Deck Gallery](https://www.deck.gallery/)
 
 ### Landing pages
 
@@ -42,7 +42,7 @@ feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 
 ### UI patterns & components
 
-- [Spotted in Prod](https://www.spottedinprod.com/) — real-world UI patterns
+- [Spotted in Prod](https://www.spottedinprod.com/)
 - [Navbar Gallery](https://navbar.gallery/)
 - [Footer Design](https://footer.design/)
 - [Interfaces](https://interfaces.dev/)
@@ -53,13 +53,13 @@ feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 
 ### Mobile & apps
 
-- [Mobbin](https://mobbin.com/) — app screen reference
+- [Mobbin](https://mobbin.com/)
 - [Screen Lane](https://screenlane.com/)
 
 ### AI UX
 
-- [Shape of AI](https://www.shapeof.ai/) — AI UX patterns
-- [AIverse](https://www.aiverse.design/insights/design-canvas) — AI UX patterns
+- [Shape of AI](https://www.shapeof.ai/)
+- [AIverse](https://www.aiverse.design/insights/design-canvas)
 - [State of AI Design](https://stateofaidesign.com/)
 
 ### Loaders & dot matrix
@@ -67,15 +67,15 @@ feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 - [Loading UI](https://loading-ui.com/)
 - [Loaders WTF](https://www.loaders.wtf/)
 - [Dot Matrix](https://dotmatrix.zzzzshawn.cloud/)
-- [Flicker](https://flicker.laurie.fyi/gallery) — dot-matrix library gallery
+- [Flicker](https://flicker.laurie.fyi/gallery)
 
 ## Craft
 
 ### Typography
 
 - [Typewolf](https://www.typewolf.com/)
-- [CC Type](https://cctype.com/typefaces/cc-timeline) — Koto's type foundry
-- [Velvetyne Libre Friends](https://velvetyne.fr/velvetyne-libre-friends/) — libre/open-source type foundries
+- [CC Type](https://cctype.com/typefaces/cc-timeline)
+- [Velvetyne Libre Friends](https://velvetyne.fr/velvetyne-libre-friends/)
 
 ### Branding
 
@@ -97,28 +97,28 @@ feature_image: "https://media.hudbud.net/posts/8/frame-2.webp"
 
 ## Reading & watching
 
-- [Making Software](https://www.makingsoftware.com/) — visual guide to how software works; start with [How a Screen Works](https://www.makingsoftware.com/chapters/how-a-screen-works)
-- [Design from the inside](https://mattstromawn.com/writing/design-from-the-inside/) — Matt Strom
-- [Stop making colour palettes](https://amymrogers.medium.com/stop-making-colour-palettes-644bbd3256c3) — Amy Rogers
-- [Tools the Vercel product design team actually uses](https://www.hannahhearth.com/posts/tools-the-vercel-product-design-team-actually-uses) — Hannah Hearth
-- [Octalysis gamification framework](https://yukaichou.com/gamification-examples/octalysis-gamification-framework/) — Yu-kai Chou
-- [Cam Worboys at Config](https://www.youtube.com/watch?v=BQXTt-NZ2Bs) — video
+- [Making Software](https://www.makingsoftware.com/)
+- [Design from the inside](https://mattstromawn.com/writing/design-from-the-inside/)
+- [Stop making colour palettes](https://amymrogers.medium.com/stop-making-colour-palettes-644bbd3256c3)
+- [Tools the Vercel product design team actually uses](https://www.hannahhearth.com/posts/tools-the-vercel-product-design-team-actually-uses)
+- [Octalysis gamification framework](https://yukaichou.com/gamification-examples/octalysis-gamification-framework/)
+- [Cam Worboys at Config](https://www.youtube.com/watch?v=BQXTt-NZ2Bs)
 - [Metalab × Robinhood case study](https://www.metalab.com/work/robinhood)
-- [Tables inspo](https://youtu.be/HOS0XqecJrE) — video
+- [Tables inspo](https://youtu.be/HOS0XqecJrE)
 
 ## Tools & plugins
 
-- [AutoSpec](https://www.figma.com/community/plugin/1617583429485136783/autospec-design-system-documentation) — Figma design-system documentation plugin
-- [Lucide Animated](https://lucide-animated.com/) — animated Lucide icons
-- [Picular](https://www.picular.co/) — color search engine
+- [AutoSpec](https://www.figma.com/community/plugin/1617583429485136783/autospec-design-system-documentation)
+- [Lucide Animated](https://lucide-animated.com/)
+- [Picular](https://www.picular.co/)
 
 ## One-off references
 
 Individual sites and pages flagged for craft — landing pages, interaction design, motion.
 
-- [rows.gg](https://rows.gg/) — crazy interaction design
-- [igloo.inc](https://www.igloo.inc/) — scroll experience
-- [flysoar.ai](https://flysoar.ai/) — super AI-native *feeling* experience
+- [rows.gg](https://rows.gg/)
+- [igloo.inc](https://www.igloo.inc/)
+- [flysoar.ai](https://flysoar.ai/)
 - [greptile.com](https://www.greptile.com/)
 - [intercom.com](https://www.intercom.com/)
 - [railway.com](https://railway.com/)
@@ -136,10 +136,10 @@ Individual sites and pages flagged for craft — landing pages, interaction desi
 - [crosby.ai](https://crosby.ai/)
 - [procure.ai](https://www.procure.ai/)
 - [surface-motion.com](https://surface-motion.com/)
-- [SHIPS 50th anniversary](https://www.shipsltd.co.jp/pages/sp_50th_anniversary.aspx) — scroll experience
+- [SHIPS 50th anniversary](https://www.shipsltd.co.jp/pages/sp_50th_anniversary.aspx)
 - [Tearable cloth demo](https://pushmatrix.github.io/tearable/)
-- [ASCII rendering](https://alexharri.com/blog/ascii-rendering) — Alex Harri
-- [Instagram brand system](https://www.itsnicethat.com/features/designing-for-3-billion-how-instagram-built-a-brand-system-that-celebrates-everyones-point-of-view-partnership-170826) — It's Nice That
+- [ASCII rendering](https://alexharri.com/blog/ascii-rendering)
+- [Instagram brand system](https://www.itsnicethat.com/features/designing-for-3-billion-how-instagram-built-a-brand-system-that-celebrates-everyones-point-of-view-partnership-170826)
 - [Koto × Stack Overflow](https://koto.com/projects/stack-overflow)
 - [theoldrobots.com](https://www.theoldrobots.com/index2.html)
-- [arngren.net](https://arngren.net/) — infamous, for laughs
+- [arngren.net](https://arngren.net/)
