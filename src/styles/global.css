@@ -246,6 +246,37 @@ img { max-width: 100%; display: block; }
   padding-bottom: 0;
 }
 
+/* ---------- Hover tooltip (intro social links) ---------- */
+.hp-tip {
+  position: relative;
+}
+
+.hp-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 7px);
+  transform: translateX(-50%) translateY(2px);
+  font-family: 'Geist Mono', ui-monospace, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: var(--fg);
+  background: var(--tile);
+  border: 1px solid var(--fg-faint);
+  border-radius: 6px;
+  padding: 4px 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.hp-tip:hover::after,
+.hp-tip:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ---------- Gallery view (masonry tiles) ---------- */
 .hp-gallery-tile .hp-gallery-caption {
   position: absolute;
