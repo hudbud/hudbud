@@ -1,0 +1,13 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import SvgDimensionTool from '../components/SvgDimensionTool.tsx';
+---
+<Layout title="svg dimension tool — hudbud.net" description="Drop in an SVG, click edges or points, get engineering-style dimension lines. Export the annotated drawing as SVG.">
+  <SvgDimensionTool client:only="react" />
+</Layout>
+<style is:global>
+  body {
+    overflow: hidden;
+  }
+</style>

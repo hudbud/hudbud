@@ -1,5 +1,6 @@
 ---
 import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
+import DialKitRoot from '../components/DialKitRoot';
 
 interface Props {
   title?: string;
@@ -94,5 +95,6 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
     })();
   </script>
   <slot />
+  <DialKitRoot client:load />
 </body>
 </html>
