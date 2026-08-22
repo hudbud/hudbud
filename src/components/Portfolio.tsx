@@ -915,8 +915,106 @@ function renderBioInlineLinks(text: string): React.ReactNode[] {
   return parts;
 }
 
+// ---------- Stream cursor (fish while moving, X when idle) ----------
+function StreamCursor() {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [moving, setMoving] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      if (ref.current) {
+        ref.current.style.left = `${e.clientX}px`;
+        ref.current.style.top = `${e.clientY}px`;
+      }
+      setMoving(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => setMoving(false), 300);
+    };
+    window.addEventListener('mousemove', move);
+    return () => {
+      window.removeEventListener('mousemove', move);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className="hp-stream-cursor" style={{ width: moving ? 64 : 48, height: moving ? 36 : 48, background: moving ? 'transparent' : undefined, backdropFilter: moving ? 'none' : undefined }}>
+      <img
+        src="/images/fish-cursor.gif"
+        alt=""
+        style={{ width: 120, height: 'auto', position: 'absolute', opacity: moving ? 1 : 0, transition: 'opacity 0.3s', maxWidth: 'none' }}
+      />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ position: 'absolute', opacity: moving ? 0 : 1, transition: 'opacity 0.3s' }}>
+        <path d="M4 4L14 14M14 4L4 14" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+// ---------- Watch a Live Stream button ----------
+const STREAM_PATH = "M892.257 25.7287C875.988 31.4617 867.787 30.4086 860.544 21.6555C851.098 10.2425 829.601 16.6224 821.878 33.1311C817.987 41.4489 822.868 42.9142 831.165 35.919C843.955 25.1346 847.296 24.6399 854.903 32.4038C862.157 39.8087 870.564 41.3767 888 38.5784C891.085 38.0832 895.346 37.4711 897.468 37.2185C900.687 36.8344 901.538 36.2431 902.599 33.6507C906.163 24.9456 902.482 22.1261 892.257 25.7287ZM906.975 50.295C905.617 50.4095 900.887 50.727 896.464 51.0016C892.04 51.2749 886.914 51.9821 885.071 52.5719C881.681 53.6574 873.917 51.1913 873.655 48.9456C872.478 38.8439 834.128 48.8775 834.536 59.1804C834.762 64.8391 841.006 66.1096 844.524 61.2132C845.836 59.3873 848.349 57.8271 851.568 56.8413C859.673 54.3601 860.575 54.5124 870.602 60.0636C880.365 65.4686 883.364 65.9259 890.203 63.0509C891.665 62.4366 894.878 61.8706 897.342 61.7947C906.162 61.5222 913.213 57.0123 911.632 52.655C910.797 50.3496 910.158 50.0254 906.975 50.295ZM731.847 16.1383C728.419 16.7382 725.069 20.9306 721.434 29.1665C719.824 32.8151 718.444 35.7719 718.368 35.7363C718.292 35.7007 717.192 32.6381 715.924 28.9317C713.247 21.0979 708.771 19.0999 703.312 23.3007C701.865 24.4143 700.451 24.9737 700.169 24.544C698.216 21.56 694.47 24.736 691.981 31.4872C686.51 46.3262 671.408 51.6262 672.204 38.4279C672.5 33.5309 672.167 32.2798 670.254 31.1003C668.647 30.1088 668.288 29.35 669.068 28.5987C670.433 27.2832 669.71 24.013 667.864 23.149C661 19.9382 645.852 29.4648 640.849 40.137C636.491 49.4323 619.716 54.3527 617.755 46.9114C616.933 43.7923 618.901 38.348 620.935 38.1107C623.473 37.8154 634.42 30.289 635.42 28.1513C640.112 18.1216 628.412 16.2561 616.961 25.208C610.635 30.1535 610.618 30.1575 608.964 27.0235C604.901 19.3264 589.258 19.5419 580.646 27.4124C578.005 29.8268 578.005 29.8268 571.204 26.4261C567.461 24.5562 563.577 22.9964 562.57 22.96C561.201 22.9125 560.593 21.7325 560.157 18.2795C559.507 13.1231 555.79 4.94239 553.641 3.93683C552.87 3.57622 552.18 2.77552 552.108 2.1578C551.908 0.437972 546.681 0.725026 545.85 2.50035C545.459 3.33639 545.872 4.88068 546.766 5.93192C547.662 6.98225 548.768 11.1819 549.226 15.2634C549.683 19.3457 550.302 23.0951 550.599 23.5951C550.897 24.0955 549.751 25.6473 548.054 27.0435C543.419 30.8547 545.011 35.077 550.817 34.3732C552.819 34.1304 553.198 34.4932 553.619 37.0639C554.721 43.7873 560.669 59.1142 562.511 59.9756C570.389 63.6614 571.898 58.8702 566.928 45.9411C562.046 33.2398 562.043 33.0904 566.737 36.0504C570.854 38.6465 573.692 43.1826 573.862 47.4349C574.273 57.8142 584.917 63.0134 587.318 54.0075C587.834 52.0739 588.052 49.6511 587.803 48.6237C585.699 39.942 586.714 35.6477 591.674 32.2526C597.597 28.1994 602.796 29.6403 602.381 35.22C602.271 36.6933 602.904 38.4998 603.787 39.2329C604.669 39.9668 605.597 42.7914 605.85 45.5106C606.93 57.1533 620.524 63.2249 631.509 56.9728C636.677 54.0313 636.576 53.995 638.578 59.5179C641.919 68.7329 654.3 69.0758 661.612 60.1566C665.251 55.7164 667.257 54.8258 669.674 56.58C672.044 58.3005 681.404 55.0031 686.777 50.5558C692.429 45.878 692.28 45.6989 692.781 57.7687C693.558 76.439 705.089 72.1635 705.53 53.0414C705.781 42.1187 706.274 40.0144 708.353 40.9869C709.1 41.3365 709.572 41.9295 709.401 42.3053C707.945 45.5061 714.763 59.5523 718.454 60.9592C723.159 62.7517 723.75 62.1239 725.691 53.2561C726.447 49.8052 727.804 43.8493 728.709 40.0218C729.612 36.1939 730.629 31.7447 730.969 30.1338C731.782 26.276 732.462 27.0389 738.656 38.7559C750.891 61.899 759.766 71.7056 768.602 71.8483C774.287 71.9399 778.581 67.0563 778.323 60.7932C778.061 54.4215 774.594 53.0656 771.717 58.2105C769.036 63.006 766.233 61.9709 761.126 54.2976C759.186 51.383 756.875 47.9426 755.992 46.6517C754.177 44.0019 754.238 44.1054 750.011 36.4114C748.303 33.3038 746.113 28.8604 745.144 26.5369C741.929 18.8205 737.281 15.1865 731.847 16.1383ZM751.472 56.1915C751.356 56.4406 751.057 56.5491 750.808 56.4325C750.559 56.316 750.45 56.0169 750.567 55.7678C750.683 55.5187 750.982 55.4102 751.231 55.5268C751.481 55.6433 751.589 55.9424 751.472 56.1915ZM658.311 45.3301C656.948 53.9873 648.331 59.5983 648.691 51.5949C648.825 48.5994 649.324 47.6702 652.379 44.7131C658.315 38.9685 658.383 38.8509 656.653 37.2568C654.639 35.3995 654.812 35.0541 659.124 32.3085C662.621 30.0807 662.621 30.0807 660.841 35.3201C659.863 38.2021 658.724 42.7068 658.311 45.3301ZM542.073 6.75219C540.687 8.08791 540.856 10.3619 542.329 10.1898C543.808 10.0174 545.29 6.65443 544.127 6.11033C543.613 5.86964 542.688 6.15814 542.073 6.75219ZM528.192 17.1145C501.828 30.4923 497.213 41.9126 517.038 44.7156C519.272 45.0309 519.292 45.2469 517.391 48.3873C509.168 61.9726 520.938 70.83 538.164 64.0185C563.192 54.1207 548.543 31.9666 519.786 36.225C511.82 37.4048 512.355 36.5883 526.468 26.0146C528.957 24.1495 532.841 21.9206 535.101 21.0613C539.908 19.2329 541.144 16.4516 538.005 14.5292C536.263 13.4638 534.445 13.9425 528.192 17.1145ZM539.584 49.519C538.838 55.9268 521.459 61.1319 520.871 55.1234C520.258 48.8687 524.051 44.4594 529.35 45.267C536.144 46.3022 539.782 47.8134 539.584 49.519ZM472.445 25.9284C466.196 25.4812 454.382 32.8258 451.524 38.9335C450.523 41.073 449.842 41.4907 448.429 40.8296C447.433 40.3635 446.758 39.6756 446.929 39.2998C447.422 38.2209 443.321 31.8159 441.631 31.0252C434.858 27.8564 429.351 40.0994 430.041 56.7915C430.173 59.9831 428.48 58.3299 427.87 54.6721C426.75 47.9523 426.989 41.147 428.488 37.0441C431.564 28.6285 426.213 26.2288 421.956 34.1159C414.818 47.3383 417.923 71.7345 427.347 76.4733C435.448 80.5483 439.822 73.5041 440.476 55.3254C440.913 43.1855 441.075 42.7544 444.055 45.7792C445.691 47.4401 446.364 49.4796 446.278 52.5194C445.923 65.0961 460.587 74.7307 473.593 70.4638C482.211 67.6363 492.032 59.58 491.548 55.7345C490.895 50.5415 486.413 48.9749 483.75 53.0071C480.636 57.7208 470.897 61.5442 464.575 60.5352C458.09 59.5004 456.345 51.1914 462.114 48.8207C475.355 43.3786 484.87 27.9124 476.019 26.2204C475.852 26.1886 474.244 26.0565 472.445 25.9284ZM363.807 4.19427C358.869 3.30035 357.419 6.2389 358.092 15.7824C358.442 20.7476 358.941 29.132 359.201 34.4149C359.461 39.6978 360.136 45.4785 360.701 47.2608C361.265 49.0427 361.928 52.582 362.173 55.1256C363.657 70.5219 364.208 72.0858 368.924 74.2923C375.361 77.3035 378.768 68.9777 374.139 61.5496C372.09 58.2612 370.269 49.7882 371.189 47.8218C371.416 47.3363 371.311 45.1223 370.956 42.9014C370.601 40.681 369.924 31.3997 369.452 22.2772C368.595 5.6889 368.388 5.02236 363.807 4.19427ZM389.926 28.3645C381.876 32.8069 387.47 70.1918 396.488 72.2213C403.775 73.8615 407.213 67.4018 402.366 61.1765C399.212 57.1228 397.102 47.9706 396.749 36.8006C396.465 27.7967 394.764 25.695 389.926 28.3645ZM300.823 29.4989C299.544 29.6378 298.047 30.2871 297.499 30.9411C296.95 31.5952 294.748 33.9457 292.608 36.1637C283.032 46.088 280.789 63.1424 288.24 69.375C294.345 74.4835 302.127 72.7019 305.545 65.4138C308.592 58.92 310.47 57.9857 315.631 60.4002C323.179 63.9313 331.479 63.0972 334.892 58.4647C338.554 53.4952 333.741 48.6316 327.561 51.0587C321.875 53.2916 318.747 50.5199 317.296 41.9638C316.938 39.8544 315.943 38.4658 314.204 37.6522C312.793 36.9925 310.463 35.1568 309.023 33.5727C305.899 30.1338 303.941 29.1604 300.823 29.4989ZM305.588 40.7977C305.174 41.8182 304.759 44.107 304.665 45.8837C304.357 51.7612 296.82 63.0322 294.381 61.2616C291.068 58.8575 294.681 42.7741 299.607 37.9984C302.158 35.5264 306.839 37.7176 305.588 40.7977ZM195.866 7.32294C192.228 8.93749 191.629 10.3341 192.28 15.6873C192.571 18.0879 192.905 23.2498 193.021 27.1572C193.72 50.5783 203.988 64.0827 209.147 48.3669C215.986 27.5342 226.664 24.2271 229.896 41.9422C230.488 45.1832 230.811 48.1774 230.616 48.5959C230.011 49.8884 233.128 58.236 234.446 58.8525C241.431 62.1201 246.986 54.9238 243.753 46.794C242.674 44.0834 241.664 40.2525 241.506 38.282C240.872 30.3122 232.394 21.7367 224.872 21.455C219.542 21.2553 209.538 25.2131 208.213 28.0455C206.096 32.5708 204.3 29.2387 204.063 20.3499C203.905 14.4259 202.473 8.40552 201.32 8.82344C200.873 8.9854 200.698 8.71038 200.931 8.2122C201.703 6.56368 198.748 6.04573 195.866 7.32294ZM177.617 16.7492C172.018 16.4746 166.206 22.2862 161.029 33.3378C150.626 55.5452 167.637 66.4012 185.556 48.99C193.709 41.0676 190.786 35.1692 181.793 41.3957C171.512 48.5129 169.955 48.3697 169.811 40.2895C169.69 33.3943 171.036 30.9371 178.017 25.3179C183.565 20.8521 183.387 17.0327 177.617 16.7492ZM130.096 1.36672C127.93 3.34732 127.62 4.13335 127.862 7.03536C128.018 8.88877 127.923 10.8816 127.653 11.4648C127.382 12.0481 127.24 15.0067 127.337 18.0386C127.545 24.5191 126.547 27.0145 121.991 31.4177C117.434 35.8228 119.154 38.4456 126.947 38.977C128.009 39.0499 128.688 40.2576 128.899 42.4518C129.609 49.8206 133.773 59.2275 136.991 60.7331C145.148 64.549 148.301 56.1055 142.189 46.8111C139.248 42.3372 136.786 34.2799 138.18 33.6888C145.365 30.6415 147.851 29.9088 151.425 29.7843C158.704 29.5301 160.929 25.4095 155.82 21.6449C153.811 20.1654 151.701 19.8679 146.094 20.2744C137.687 20.8833 136.638 20.568 137.923 17.8198C142.272 8.52564 136.208 -4.21963 130.096 1.36672ZM95.7802 31.6453C94.63 31.7487 92.156 30.8871 90.2832 29.7316C82.8792 25.166 76.6694 28.9104 69.3332 42.3666C61.8244 56.1372 64.5685 67.048 76.0536 69.0847C79.5754 69.71 85.9111 65.4063 89.3698 60.0403C93.467 53.6824 94.1915 53.5544 98.8573 58.3659C106.948 66.7072 118.75 68.2431 121.964 61.3736C123.864 57.3112 118.788 51.248 114.82 52.8416C111.586 54.1406 102.341 44.387 103.801 41.216C105.49 37.5479 100.211 31.2484 95.7802 31.6453ZM56.2745 22.9737C50.4545 24.8537 47.9985 29.0911 45.779 41.0802C42.1031 60.9376 42.0796 60.9642 32.8947 55.5753C24.9624 50.9215 19.8968 52.121 16.59 59.4348C13.1208 67.1099 11.6085 63.6854 11.7175 48.3916C11.7535 43.3046 11.78 37.9051 11.7764 36.3931C11.7674 32.5634 8.3394 29.328 5.41444 30.3884C-0.508613 32.5359 -2.09914 63.8956 3.30435 72.0198C4.35902 73.6073 4.92403 75.0143 4.55841 75.1469C4.00799 75.3464 12.7445 79.3905 15.2416 80.0917C16.8789 80.5519 22.4209 75.9033 23.8389 72.8793C25.6863 68.9422 27.6868 68.1139 31.305 69.7911C42.0168 74.7549 51.267 72.7641 53.4737 65.0195C54.2029 62.4626 55.2278 59.0802 55.7512 57.5034C56.2756 55.9271 57.098 51.5922 57.5794 47.8705C58.0609 44.1488 58.6703 39.5211 58.9326 37.587C59.2862 34.9879 60.1317 33.3057 62.1783 31.1377C66.7993 26.2393 62.8917 20.8364 56.2745 22.9737ZM87.7275 39.3643C88.4665 41.4025 86.3934 45.6779 80.8419 53.5656C77.9167 57.7227 75.7613 56.2628 76.5771 50.6772C78.1579 39.8433 85.2803 32.6165 87.7275 39.3643Z";
+
+function WatchLiveStreamButton({ onOpen }: { onOpen: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (hovered && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    } else if (!hovered && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [hovered]);
+
+  return (
+    <div
+      ref={containerRef}
+      onClick={onOpen}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: 'relative', cursor: 'pointer', width: 'fit-content', lineHeight: 0 }}
+    >
+      <svg width="912" height="81" viewBox="0 0 912 81" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', width: '100%', maxWidth: 200, height: 'auto', opacity: hovered ? 0 : 1, transition: 'opacity 0.2s' }}>
+        <path fillRule="evenodd" clipRule="evenodd" d={STREAM_PATH} fill="var(--fg-dim)" />
+      </svg>
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        opacity: hovered ? 1 : 0,
+        transition: 'opacity 0.2s',
+      }}>
+        <svg width="0" height="0" style={{ position: 'absolute' }}>
+          <defs>
+            <clipPath id="stream-text-clip" clipPathUnits="objectBoundingBox">
+              <path transform="scale(0.0010964912, 0.012345679)" d={STREAM_PATH} />
+            </clipPath>
+          </defs>
+        </svg>
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          loop
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            clipPath: 'url(#stream-text-clip)',
+            WebkitClipPath: 'url(#stream-text-clip)',
+          }}
+        >
+          <source src="/intro/intro.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, feed, viewMode, setViewMode, introComplete, showedIntroThisSession, scrollRef, isMobile }: {
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, onWatchStream, feed, viewMode, setViewMode, introComplete, showedIntroThisSession, scrollRef, isMobile }: {
   filter: Filter;
   setFilter: (f: Filter) => void;
   workCategory: string;
@@ -927,6 +1025,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   onOpenProject: (id: string) => void;
   onOpenBioModal: (id: string) => void;
   onHome: () => void;
+  onWatchStream: () => void;
   feed: Post[];
   viewMode: ViewMode;
   setViewMode: (m: ViewMode) => void;
@@ -1014,16 +1113,18 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
         )}
 
         {introComplete && (
-          <motion.a
-            href="mailto:hudbud@gmail.com"
-            className="hp-bio-link"
-            style={{ display: 'inline-block', fontSize: 15 }}
+          <motion.div
+            style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 15, alignItems: 'center' }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            Contact me
-          </motion.a>
+            <a href="mailto:hudbud@gmail.com" className="hp-bio-link">em</a>
+            <a href="https://www.cosmos.so/hudbud" target="_blank" rel="noopener" className="hp-bio-link">co</a>
+            <a href="https://www.youtube.com/@hudbud22" target="_blank" rel="noopener" className="hp-bio-link">yt</a>
+            <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener" className="hp-bio-link">li</a>
+            <span style={{ marginLeft: 'auto' }}><WatchLiveStreamButton onOpen={onWatchStream} /></span>
+          </motion.div>
         )}
       </div>
 
@@ -1835,6 +1936,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const [showIntro, setShowIntro] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [showedIntroThisSession, setShowedIntroThisSession] = useState(false);
+  const [showStream, setShowStream] = useState(false);
 
   // Reconcile deferred, client-only state: the theme/font the inline head
   // script already painted, lock flags, and any ?filter=/?cat=/?post= deep link.
@@ -2029,6 +2131,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
               onOpenProject={openProject}
               onOpenBioModal={setBioModal}
               onHome={() => { setFilter('all'); closeRightPanel(); }}
+              onWatchStream={() => setShowStream(true)}
               feed={feed}
               viewMode={viewMode}
               setViewMode={setViewMode}
@@ -2077,6 +2180,24 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       <AnimatePresence>
         {showIntro && <IntroLoader onComplete={handleIntroComplete} />}
         {bioModal && <BioModal key="bio" modalId={bioModal} onClose={() => setBioModal(null)} />}
+        {showStream && (
+          <motion.div
+            key="stream"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setShowStream(false)}
+            className="hp-stream-overlay"
+            style={{ position: 'fixed', inset: 0, zIndex: 9998, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <style>{`.hp-stream-overlay { cursor: none; } .hp-stream-overlay .hp-stream-cursor { pointer-events: none; position: fixed; width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; transform: translate(-50%, -50%); z-index: 9999; }`}</style>
+            <video autoPlay muted playsInline loop style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}>
+              <source src="/intro/intro.mp4" type="video/mp4" />
+            </video>
+            <StreamCursor />
+          </motion.div>
+        )}
       </AnimatePresence>
       {timeTravelUrl && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.9)', display: 'flex', flexDirection: 'column' }}>
