@@ -1,0 +1,580 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="vector halftone — hudbud.net" description="Generate true SVG halftone dots from any image — no rasterizing, no autotrace. Every dot is a real vector shape.">
+  <main class="halftone-page">
+    <a class="back" href="/">← back</a>
+    <header>
+      <h1>Vector halftone</h1>
+      <p class="sub">Generates true SVG halftone dots straight from pixel data — no rasterizing, no autotrace.</p>
+    </header>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="drop" id="drop">
+          <strong>Drop an image or click to upload</strong>
+          JPG, PNG, or WebP
+        </div>
+        <input type="file" id="fileInput" accept="image/*">
+
+        <div class="field">
+          <label>Dot shape</label>
+          <div class="seg" id="shapeSeg">
+            <button data-v="circle" class="active">Circle</button>
+            <button data-v="square">Square</button>
+            <button data-v="diamond">Diamond</button>
+            <button data-v="line">Line</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Cell size <span class="val" id="cellVal">10px</span></label>
+          <input type="range" id="cell" min="4" max="30" value="10" step="1">
+        </div>
+
+        <div class="field">
+          <label>Screen angle <span class="val" id="angleVal">45°</span></label>
+          <input type="range" id="angle" min="0" max="90" value="45" step="1">
+        </div>
+
+        <div class="field">
+          <label>Max dot size <span class="val" id="maxdotVal">95%</span></label>
+          <input type="range" id="maxdot" min="50" max="100" value="95" step="1">
+        </div>
+
+        <div class="field">
+          <label>Contrast <span class="val" id="gammaVal">1.0</span></label>
+          <input type="range" id="gamma" min="30" max="250" value="100" step="1">
+        </div>
+
+        <div class="toggle-row">
+          <label>Invert tone</label>
+          <input type="checkbox" id="invert">
+        </div>
+
+        <div class="field" style="margin-top:16px;">
+          <label style="margin-bottom:2px;">Colors</label>
+          <div class="row2">
+            <div>
+              <div class="hint" style="margin:0 0 4px;">Dots</div>
+              <input type="color" id="fgColor" value="#1a1a18">
+            </div>
+            <div>
+              <div class="hint" style="margin:0 0 4px;">Background</div>
+              <input type="color" id="bgColor" value="#f6f5f2">
+            </div>
+          </div>
+          <div class="toggle-row" style="margin-top:10px;">
+            <label style="font-weight:400; font-size:12px;">Transparent background</label>
+            <input type="checkbox" id="transparentBg" checked>
+          </div>
+        </div>
+
+        <button class="btn" id="downloadBtn" disabled>Download SVG</button>
+        <button class="btn secondary" id="resetBtn" disabled>Reset image</button>
+      </div>
+
+      <div class="canvasArea" id="canvasArea">
+        <div class="empty" id="emptyState">
+          Upload an image to generate a vector halftone. Every dot is a real SVG shape — scale it to any size with zero quality loss.
+        </div>
+        <div class="zoomBar" id="zoomBar" style="display:none;">
+          <button id="zoomOut" aria-label="Zoom out">−</button>
+          <span class="pct" id="zoomPct" title="Reset zoom">100%</span>
+          <button id="zoomIn" aria-label="Zoom in">+</button>
+        </div>
+        <div id="svgHost"></div>
+      </div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </main>
+
+  <canvas id="workCanvas" style="display:none;"></canvas>
+
+  <script is:inline>
+  let sourceImg = null;
+  let currentSvgString = "";
+
+  const el = id => document.getElementById(id);
+  const drop = el('drop'), fileInput = el('fileInput'), workCanvas = el('workCanvas');
+  const svgHost = el('svgHost'), emptyState = el('emptyState'), meta = el('meta');
+  const downloadBtn = el('downloadBtn'), resetBtn = el('resetBtn');
+
+  const controls = ['cell','angle','maxdot','gamma'];
+  const shapeSeg = el('shapeSeg');
+  let shape = 'circle';
+
+  shapeSeg.addEventListener('click', e=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    [...shapeSeg.children].forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    shape = btn.dataset.v;
+    render();
+  });
+
+  el('cell').addEventListener('input', e=>{ el('cellVal').textContent = e.target.value+'px'; render(); });
+  el('angle').addEventListener('input', e=>{ el('angleVal').textContent = e.target.value+'°'; render(); });
+  el('maxdot').addEventListener('input', e=>{ el('maxdotVal').textContent = e.target.value+'%'; render(); });
+  el('gamma').addEventListener('input', e=>{ el('gammaVal').textContent = (e.target.value/100).toFixed(1); render(); });
+  el('invert').addEventListener('change', render);
+  el('fgColor').addEventListener('input', render);
+  el('bgColor').addEventListener('input', render);
+  el('transparentBg').addEventListener('change', ()=>{
+    el('bgColor').disabled = el('transparentBg').checked;
+    render();
+  });
+
+  drop.addEventListener('click', ()=> fileInput.click());
+  drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('drag'); });
+  drop.addEventListener('dragleave', ()=> drop.classList.remove('drag'));
+  drop.addEventListener('drop', e=>{
+    e.preventDefault(); drop.classList.remove('drag');
+    if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', e=>{
+    if(e.target.files[0]) loadFile(e.target.files[0]);
+  });
+
+  function loadFile(file){
+    if(!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      const img = new Image();
+      img.onload = ()=>{
+        sourceImg = img;
+        downloadBtn.disabled = false;
+        resetBtn.disabled = false;
+        render();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  resetBtn.addEventListener('click', ()=>{
+    sourceImg = null;
+    svgHost.innerHTML = '';
+    emptyState.style.display = 'block';
+    downloadBtn.disabled = true;
+    resetBtn.disabled = true;
+    meta.textContent = '';
+    fileInput.value = '';
+    el('zoomBar').style.display = 'none';
+  });
+
+  function getGrayscaleGrid(img, cellSize){
+    const MAX_DIM = 900;
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const scale = Math.min(1, MAX_DIM / Math.max(w,h));
+    w = Math.round(w*scale); h = Math.round(h*scale);
+
+    workCanvas.width = w; workCanvas.height = h;
+    const ctx = workCanvas.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    ctx.drawImage(img,0,0,w,h);
+    const data = ctx.getImageData(0,0,w,h).data;
+
+    const cols = Math.ceil(w/cellSize), rows = Math.ceil(h/cellSize);
+    const grid = new Float32Array(cols*rows);
+    const counts = new Float32Array(cols*rows);
+
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const idx = (y*w+x)*4;
+        const r=data[idx], g=data[idx+1], b=data[idx+2], a=data[idx+3]/255;
+        const lum = (0.2126*r + 0.7152*g + 0.0722*b)/255;
+        const cx = Math.min(cols-1, Math.floor(x/cellSize));
+        const cy = Math.min(rows-1, Math.floor(y/cellSize));
+        const gi = cy*cols+cx;
+        grid[gi] += lum*a + (1-a);
+        counts[gi] += 1;
+      }
+    }
+    for(let i=0;i<grid.length;i++){ grid[i] = counts[i] ? grid[i]/counts[i] : 1; }
+    return {grid, cols, rows, w, h};
+  }
+
+  function shapePath(shape, cx, cy, r){
+    if(r <= 0.05) return '';
+    switch(shape){
+      case 'square': {
+        const s = r*1.13;
+        return '<rect x="'+(cx-s).toFixed(2)+'" y="'+(cy-s).toFixed(2)+'" width="'+(s*2).toFixed(2)+'" height="'+(s*2).toFixed(2)+'"/>';
+      }
+      case 'diamond': {
+        const s = r*1.5;
+        return '<polygon points="'+cx.toFixed(2)+','+(cy-s).toFixed(2)+' '+(cx+s).toFixed(2)+','+cy.toFixed(2)+' '+cx.toFixed(2)+','+(cy+s).toFixed(2)+' '+(cx-s).toFixed(2)+','+cy.toFixed(2)+'"/>';
+      }
+      case 'line': {
+        const len = r*2.1, thick = Math.max(0.6, r*0.55);
+        return '<rect x="'+(cx-len/2).toFixed(2)+'" y="'+(cy-thick/2).toFixed(2)+'" width="'+len.toFixed(2)+'" height="'+thick.toFixed(2)+'"/>';
+      }
+      default:
+        return '<circle cx="'+cx.toFixed(2)+'" cy="'+cy.toFixed(2)+'" r="'+r.toFixed(2)+'"/>';
+    }
+  }
+
+  function buildSVG(){
+    if(!sourceImg) return {svg:'', dots:0};
+    const cellSize = parseFloat(el('cell').value);
+    const angleDeg = parseFloat(el('angle').value);
+    const maxDotFrac = parseFloat(el('maxdot').value)/100;
+    const gamma = parseFloat(el('gamma').value)/100;
+    const invert = el('invert').checked;
+    const fg = el('fgColor').value;
+    const transparent = el('transparentBg').checked;
+    const bg = el('bgColor').value;
+
+    const {grid, cols, rows, w, h} = getGrayscaleGrid(sourceImg, cellSize);
+
+    const angle = angleDeg * Math.PI/180;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    const diag = Math.sqrt(w*w+h*h);
+    const step = cellSize;
+    const range = Math.ceil(diag/step)+2;
+
+    let shapes = '';
+    let dotCount = 0;
+    const maxR = cellSize/2 * maxDotFrac;
+
+    for(let i=-range;i<=range;i++){
+      for(let j=-range;j<=range;j++){
+        const u = i*step, v = j*step;
+        const x = u*cos - v*sin + w/2;
+        const y = u*sin + v*cos + h/2;
+        if(x < -step || x > w+step || y < -step || y > h+step) continue;
+
+        const cx = Math.min(cols-1, Math.max(0, Math.floor(x/cellSize)));
+        const cy = Math.min(rows-1, Math.max(0, Math.floor(y/cellSize)));
+        let lum = grid[cy*cols+cx];
+        if(invert) lum = 1-lum;
+        let dark = 1-lum;
+        dark = Math.pow(Math.max(0,Math.min(1,dark)), gamma);
+        const r = dark * maxR;
+        if(r <= 0.15) continue;
+        const p = shapePath(shape, x, y, r);
+        if(p){ shapes += p; dotCount++; }
+      }
+    }
+
+    const bgRect = transparent ? '' : '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="'+bg+'"/>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'">'+bgRect+'<g fill="'+fg+'">'+shapes+'</g></svg>';
+    return {svg, dots:dotCount, w, h};
+  }
+
+  function render(){
+    if(!sourceImg) return;
+    emptyState.style.display = 'none';
+    const {svg, dots, w, h} = buildSVG();
+    currentSvgString = svg;
+    svgHost.innerHTML = svg;
+    meta.textContent = dots.toLocaleString()+' vector dots · '+w+'×'+h+'px canvas';
+    el('zoomBar').style.display = 'flex';
+    resetZoom();
+  }
+
+  // --- Zoom & pan ---
+  const canvasArea = el('canvasArea'), zoomBar = el('zoomBar'), zoomPct = el('zoomPct');
+  let zoom = 1, panX = 0, panY = 0;
+  const ZOOM_MIN = 0.25, ZOOM_MAX = 8;
+
+  function applyTransform(){
+    svgHost.style.transform = 'translate('+panX+'px, '+panY+'px) scale('+zoom+')';
+    zoomPct.textContent = Math.round(zoom*100)+'%';
+  }
+
+  function resetZoom(){
+    zoom = 1; panX = 0; panY = 0;
+    applyTransform();
+  }
+
+  function setZoom(newZoom){
+    zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, newZoom));
+    applyTransform();
+  }
+
+  el('zoomIn').addEventListener('click', ()=> setZoom(zoom*1.25));
+  el('zoomOut').addEventListener('click', ()=> setZoom(zoom/1.25));
+  zoomPct.addEventListener('click', resetZoom);
+
+  canvasArea.addEventListener('wheel', e=>{
+    if(!sourceImg) return;
+    e.preventDefault();
+    const delta = -e.deltaY * 0.0015;
+    setZoom(zoom * (1+delta));
+  }, {passive:false});
+
+  let dragging = false, startX = 0, startY = 0, startPanX = 0, startPanY = 0;
+  svgHost.addEventListener('mousedown', e=>{
+    if(!sourceImg) return;
+    dragging = true;
+    svgHost.classList.add('dragging');
+    startX = e.clientX; startY = e.clientY;
+    startPanX = panX; startPanY = panY;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    panX = startPanX + (e.clientX - startX);
+    panY = startPanY + (e.clientY - startY);
+    applyTransform();
+  });
+  window.addEventListener('mouseup', ()=>{
+    dragging = false;
+    svgHost.classList.remove('dragging');
+  });
+
+  downloadBtn.addEventListener('click', ()=>{
+    if(!currentSvgString) return;
+    const blob = new Blob([currentSvgString], {type:'image/svg+xml'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'halftone.svg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+  </script>
+</Layout>
+
+<style>
+  .halftone-page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  .back {
+    color: var(--fg-dim);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .back:hover { color: var(--accent); }
+  header { margin: 16px 0 28px; }
+  header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--fg);
+  }
+  .sub {
+    color: var(--fg-dim);
+    font-size: 14px;
+    margin: 0;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 780px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--bg-inner, var(--bg));
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px 18px 20px;
+  }
+  .drop {
+    border: 1.5px dashed var(--rule);
+    border-radius: 8px;
+    padding: 24px 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--fg-dim);
+    transition: border-color .15s, background .15s;
+  }
+  .drop:hover, .drop.drag {
+    border-color: var(--fg);
+    background: var(--tile);
+  }
+  .drop strong {
+    color: var(--fg);
+    display: block;
+    font-size: 13.5px;
+    margin-bottom: 2px;
+  }
+  input[type=file] { display: none; }
+  .field { margin-top: 18px; }
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--fg);
+  }
+  .field label span.val {
+    font-weight: 400;
+    color: var(--fg-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--rule);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--fg);
+    cursor: pointer;
+    margin-top: -6px;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--fg);
+    border: none;
+    cursor: pointer;
+  }
+  select, input[type=color] {
+    width: 100%;
+    height: 32px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--bg-inner, var(--bg));
+    font-size: 13px;
+    padding: 0 8px;
+    color: var(--fg);
+  }
+  input[type=color] { padding: 2px; cursor: pointer; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .seg {
+    display: flex;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .seg button {
+    flex: 1;
+    border: none;
+    background: var(--bg-inner, var(--bg));
+    padding: 7px 4px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--fg-dim);
+    border-right: 1px solid var(--rule);
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active { background: var(--fg); color: var(--bg); }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  .toggle-row label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .hint { font-size: 11.5px; color: var(--fg-dim); margin-top: 4px; line-height: 1.5; }
+  .btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: 7px;
+    border: none;
+    background: var(--accent, var(--fg));
+    color: var(--bg);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 22px;
+  }
+  .btn:disabled { opacity: .35; cursor: default; }
+  .btn.secondary {
+    background: var(--bg-inner, var(--bg));
+    color: var(--fg);
+    border: 1px solid var(--rule);
+    margin-top: 8px;
+  }
+  .canvasArea {
+    background: var(--bg-inner, var(--bg));
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 420px;
+    padding: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+  .canvasArea .empty {
+    color: var(--fg-dim);
+    font-size: 13.5px;
+    text-align: center;
+    max-width: 260px;
+  }
+  .canvasArea :global(#svgHost) {
+    transform-origin: center center;
+    transition: transform .08s ease-out;
+    cursor: grab;
+  }
+  .canvasArea :global(#svgHost.dragging) {
+    cursor: grabbing;
+    transition: none;
+  }
+  .canvasArea :global(#svgHost svg) {
+    display: block;
+    max-width: none;
+    max-height: none;
+  }
+  .zoomBar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--bg-inner, var(--bg));
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 3px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    z-index: 2;
+  }
+  .zoomBar button {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    border-radius: 5px;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .zoomBar button:hover { background: var(--tile); }
+  .zoomBar .pct {
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    min-width: 42px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    user-select: none;
+  }
+  .meta {
+    font-size: 11.5px;
+    color: var(--fg-dim);
+    margin-top: 10px;
+    text-align: center;
+  }
+</style>
