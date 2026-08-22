@@ -1,8 +1,10 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import AppearanceChrome from '../components/AppearanceChrome.tsx';
 ---
 <Layout title="vector halftone — hudbud.net" description="Generate true SVG halftone dots from any image — no rasterizing, no autotrace. Every dot is a real vector shape.">
+  <AppearanceChrome client:load />
   <main class="halftone-page">
     <a class="back" href="/">← back</a>
     <header>
