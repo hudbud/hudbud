@@ -3,7 +3,7 @@ export const prerender = true;
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { renderPostHtml } from '../../lib/posts';
-import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions } from '../../lib/imageGrid';
+import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions, isExcerptRedundant } from '../../lib/imageGrid';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', (e) => !e.data.draft);
@@ -17,6 +17,10 @@ const html = addFigCaptions(
   entry.data.title,
   entry.data.feature_image ? 2 : 1
 );
+
+// Imported posts often reuse the first body paragraph as the excerpt —
+// skip the lede then so the text doesn't render twice.
+const showLede = !!entry.data.excerpt && !isExcerptRedundant(html, entry.data.excerpt);
 
 const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -51,7 +55,7 @@ const specRows = isWork
           <div class:list={['post-spec-cell', 'spec-row', { accent: r.accent }]}>{r.value}</div>
         ))}
       </div>
-      {entry.data.excerpt && <p class="lede">{entry.data.excerpt}</p>}
+      {showLede && <p class="lede">{entry.data.excerpt}</p>}
     </header>
     {entry.data.feature_image && (
       <figure class="post-fig hero-fig">
