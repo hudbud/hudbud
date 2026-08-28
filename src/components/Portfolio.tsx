@@ -105,10 +105,30 @@ function LifeImage({ color, seed = 0, height = 140 }: { color: string; seed?: nu
   );
 }
 
-const SITE_VERSIONS = [
+// Past sites are gone from their original hosts (framer/squarespace/adobe
+// portfolio subscriptions lapsed), so the time machine replays Wayback Machine
+// snapshots instead. The `if_` timestamp modifier serves the raw archived page
+// without the Wayback toolbar, and replay pages send no frame-blocking
+// headers, so they load cleanly in the overlay iframe.
+interface SiteVersion {
+  label: string;
+  url: string;
+  /** Human-viewable wayback page (with toolbar) for the "open ↗" escape hatch. */
+  pageUrl?: string;
+}
+
+function wayback(timestamp: string, original: string): Pick<SiteVersion, 'url' | 'pageUrl'> {
+  return {
+    url: `https://web.archive.org/web/${timestamp}if_/${original}`,
+    pageUrl: `https://web.archive.org/web/${timestamp}/${original}`,
+  };
+}
+
+const SITE_VERSIONS: SiteVersion[] = [
   { label: '2026 (current)', url: '' },
-  { label: '2024', url: 'https://2024.paine.design' },
-  { label: '2022', url: 'https://2022.paine.design' },
+  { label: '2023', ...wayback('20230907005627', 'https://www.paine.design/') },
+  { label: '2022', ...wayback('20220405235635', 'https://www.paine.design/') },
+  { label: '2020', ...wayback('20201101080101', 'https://www.paine.design/') },
 ];
 
 const RESOURCES = [
@@ -121,7 +141,7 @@ interface ChromeProps {
   setTheme: (t: string) => void;
   font: FontId;
   setFont: (f: FontId) => void;
-  onTimeTravel: (url: string) => void;
+  onTimeTravel: (v: SiteVersion) => void;
   onOpenResource: (slug: string) => void;
   themeLocked: boolean;
   fontLocked: boolean;
@@ -159,7 +179,7 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
         ))}
         <GlassSectionLabel>time machine</GlassSectionLabel>
         {SITE_VERSIONS.map((v) => (
-          <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); }}>{v.label}</GlassPanelItem>
+          <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v); }}>{v.label}</GlassPanelItem>
         ))}
         <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
       </GlassBloom>
@@ -180,7 +200,7 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
       <GlassBloom pos={{ left: 16, bottom: 16 }} anchor="start" label="time machine" trigger={<ClockCounterClockwise size={18} weight="fill" />}>
         <GlassSectionLabel>time machine</GlassSectionLabel>
         {SITE_VERSIONS.map((v) => (
-          <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v.url); }}>{v.label}</GlassPanelItem>
+          <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v); }}>{v.label}</GlassPanelItem>
         ))}
       </GlassBloom>
       <GlassBloom pos={{ left: 70, bottom: 16 }} anchor="start" label="resources" trigger={<BookOpen size={18} weight="fill" />}>
@@ -1710,6 +1730,67 @@ function FrameFooter() {
   );
 }
 
+// ---------- Time machine overlay ----------
+// Replays an archived version of the site inside a fullscreen iframe. Wayback
+// cold fetches can take several seconds, so a "traveling…" message holds the
+// space until the iframe fires onLoad.
+function TimeTravelOverlay({ version, onClose }: { version: SiteVersion; onClose: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <motion.div {...OVERLAY_FADE} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 24px', background: 'var(--bg)', borderBottom: '1px solid var(--rule)' }}>
+        <span style={{ fontSize: 11, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <ClockCounterClockwise size={13} weight="fill" style={{ flexShrink: 0 }} />
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {version.label} — via the wayback machine
+          </span>
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {version.pageUrl && (
+            <a
+              href={version.pageUrl}
+              target="_blank"
+              rel="noopener"
+              style={{ fontSize: 11, color: 'var(--fg-dim)', textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+            >
+              open on archive.org ↗
+            </a>
+          )}
+          <button
+            onClick={onClose}
+            style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 12px' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+          >
+            ✕ back to {new Date().getFullYear()}
+          </button>
+        </span>
+      </div>
+      <div style={{ flex: 1, position: 'relative', background: '#fff' }}>
+        {!loaded && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', color: 'var(--fg-dim)', fontSize: 12 }}>
+            traveling to {version.label}…
+          </div>
+        )}
+        <iframe
+          src={version.url}
+          onLoad={() => setLoaded(true)}
+          style={{ position: 'absolute', inset: 0, border: 'none', width: '100%', height: '100%', opacity: loaded ? 1 : 0, transition: 'opacity 0.3s' }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
 // ---------- App ----------
 interface PortfolioProps {
   feed?: Post[];
@@ -1786,7 +1867,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [bioModal, setBioModal] = useState<string | null>(null);
-  const [timeTravelUrl, setTimeTravelUrl] = useState<string | null>(null);
+  const [timeTravel, setTimeTravel] = useState<SiteVersion | null>(null);
 
   // Opening a panel pushes a history entry so the phone's back gesture closes
   // it instead of leaving the site (the panel is fullscreen on mobile). Only
@@ -1954,7 +2035,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       {(() => {
         const chromeProps: ChromeProps = {
           theme, setTheme, font, setFont,
-          onTimeTravel: setTimeTravelUrl,
+          onTimeTravel: setTimeTravel,
           onOpenResource: (slug: string) => { const p = feed.find(r => r.slug === slug); if (p) setActivePost(p); },
           themeLocked, fontLocked,
           onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
@@ -1983,22 +2064,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
           </motion.div>
         )}
       </AnimatePresence>
-      {timeTravelUrl && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.9)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 24px', background: 'var(--bg)', borderBottom: '1px solid var(--rule)' }}>
-            <span style={{ fontSize: 11, color: 'var(--fg-dim)' }}>viewing: {timeTravelUrl}</span>
-            <button
-              onClick={() => setTimeTravelUrl(null)}
-              style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 12px' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-            >
-              ✕ Back to current site
-            </button>
-          </div>
-          <iframe src={timeTravelUrl} style={{ flex: 1, border: 'none', width: '100%' }} />
-        </div>
-      )}
+      {timeTravel && <TimeTravelOverlay version={timeTravel} onClose={() => setTimeTravel(null)} />}
     </div>
   );
 }
