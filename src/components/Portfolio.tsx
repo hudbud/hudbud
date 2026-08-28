@@ -9,7 +9,6 @@ import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions } from '../lib
 import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, FONT_FAMILY, applyThemeVars, type FontId } from './chrome';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
-import IntroLoader from './IntroLoader';
 import { Shuffle, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon, SquaresFour } from '@phosphor-icons/react';
 
 type Filter = 'all' | 'design' | 'world';
@@ -57,22 +56,14 @@ function readHpInitial(): HpInitial | null {
 // Original artwork supplied as a fixed-color SVG; fills are remapped to the
 // theme tokens so the mark recolors with every theme. The three arc colors
 // become stepped opacities of the single theme accent.
-function HudMark({ size = 44, onClick, introMode = false }: { size?: number; onClick?: () => void; introMode?: boolean }) {
-  const fills = introMode
-    ? {
-        faint: 'rgba(255,255,255,0.3)',
-        dim: 'rgba(255,255,255,0.5)',
-        fg: 'rgba(255,255,255,0.8)',
-        accentMix: 'rgba(255,255,255,0.9)',
-        accent: '#ffffff',
-      }
-    : {
-        faint: 'var(--fg-faint)',
-        dim: 'var(--fg-dim)',
-        fg: 'var(--fg)',
-        accentMix: 'color-mix(in srgb, var(--accent) 50%, var(--fg))',
-        accent: 'var(--accent)',
-      };
+function HudMark({ size = 44, onClick }: { size?: number; onClick?: () => void }) {
+  const fills = {
+    faint: 'var(--fg-faint)',
+    dim: 'var(--fg-dim)',
+    fg: 'var(--fg)',
+    accentMix: 'color-mix(in srgb, var(--accent) 50%, var(--fg))',
+    accent: 'var(--accent)',
+  };
 
   return (
     <button onClick={onClick} aria-label="home" style={{ display: 'block', padding: 0, cursor: onClick ? 'pointer' : 'default', lineHeight: 0 }}>
@@ -493,7 +484,7 @@ function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMo
   );
 }
 
-function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, introComplete, hasRenderedPosts, isMobile }: {
+function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, hasRenderedPosts, isMobile }: {
   feed: Post[];
   filter: Filter;
   workCategory: string;
@@ -504,7 +495,6 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   openProject: (id: string) => void;
   viewMode: ViewMode;
   gallerySeed: number;
-  introComplete: boolean;
   hasRenderedPosts: boolean;
   isMobile: boolean;
 }) {
@@ -518,12 +508,12 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   const baseDelay = hasRenderedPosts ? 0 : 0.8;
 
   if (viewMode === 'gallery') {
-    return introComplete ? <GalleryGrid rows={rows} seed={gallerySeed} /> : null;
+    return <GalleryGrid rows={rows} seed={gallerySeed} />;
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {filter === 'design' && introComplete && (
+      {filter === 'design' && (
         <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {CATEGORY_CHIPS.map((chip) => (
             <button
@@ -541,7 +531,7 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
           ))}
         </div>
       )}
-      {introComplete && rows.map((row, i) => (
+      {rows.map((row, i) => (
         <motion.div
           key={row.key}
           initial={{ opacity: 0, y: 8, scale: 0.98 }}
@@ -863,7 +853,7 @@ function WatchLiveStreamButton({ onOpen }: { onOpen: () => void }) {
 }
 
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, onWatchStream, feed, viewMode, setViewMode, introComplete, showedIntroThisSession, scrollRef, isMobile }: {
+function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, onWatchStream, feed, viewMode, setViewMode, scrollRef, isMobile }: {
   filter: Filter;
   setFilter: (f: Filter) => void;
   workCategory: string;
@@ -878,8 +868,6 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   feed: Post[];
   viewMode: ViewMode;
   setViewMode: (m: ViewMode) => void;
-  introComplete: boolean;
-  showedIntroThisSession: boolean;
   scrollRef?: React.Ref<HTMLDivElement>;
   isMobile: boolean;
 }) {
@@ -888,10 +876,8 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
   // Track if this is the first time posts are rendering (persists across filter changes)
   const hasRenderedPostsRef = useRef(false);
   useEffect(() => {
-    if (introComplete) {
-      hasRenderedPostsRef.current = true;
-    }
-  }, [introComplete]);
+    hasRenderedPostsRef.current = true;
+  });
 
   // In gallery mode the column spans the full page so the masonry can go
   // full-bleed, but the intro block (logo, bio, filter pills) should hold its
@@ -921,97 +907,87 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
     }}>
       <div style={headerConstraint}>
         {/* Logo */}
-        {introComplete && (
-          <motion.div
-            style={{ marginBottom: 14 }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <HudMark size={46} onClick={onHome} />
-          </motion.div>
-        )}
+        <motion.div
+          style={{ marginBottom: 14 }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <HudMark size={46} onClick={onHome} />
+        </motion.div>
 
         {/* Name */}
-        {introComplete && (
-          <motion.h1
-            style={{ margin: 0, marginBottom: 16, fontSize: 15, fontWeight: 400 }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
-          </motion.h1>
-        )}
+        <motion.h1
+          style={{ margin: 0, marginBottom: 16, fontSize: 15, fontWeight: 400 }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <button onClick={onHome} style={{ color: 'var(--accent)', letterSpacing: '0.01em', padding: 0, textAlign: 'left' }}>Hudson Paine</button>
+        </motion.h1>
 
         {/* Bio text — each \n-separated line of BIO_LEAD is its own paragraph,
             all at body size (no display headline). */}
-        {introComplete && (
-          <motion.div
-            style={{ maxWidth: 600 }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {BIO_LEAD.split('\n').map((para, i) => (
-              <p key={i} style={{ color: 'var(--fg)', margin: 0, marginBottom: 12, fontSize: 15, letterSpacing: '-0.011em', lineHeight: 1.55 }}>
-                {renderBioInlineLinks(para)}
-              </p>
-            ))}
-          </motion.div>
-        )}
-
-        {introComplete && (
-          <motion.div
-            style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 15, alignItems: 'center' }}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <a href="mailto:hudbud@gmail.com" className="hp-bio-link hp-tip" data-tip="email">em</a>
-            <a href="https://www.cosmos.so/hudbud" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="cosmos">co</a>
-            <a href="https://www.youtube.com/@hudbud22" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="youtube">yt</a>
-            <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="linkedin">li</a>
-            <span style={{ marginLeft: 'auto' }}><WatchLiveStreamButton onOpen={onWatchStream} /></span>
-          </motion.div>
-        )}
-      </div>
-
-      {introComplete && (
         <motion.div
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', ...headerConstraint }}
+          style={{ maxWidth: 600 }}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {FILTERS.map((f) => (
-              <FilterPill
-                key={f}
-                active={filter === f}
-                onClick={() => setFilter(filter === f ? 'all' : f)}
-              >
-                {f}
-              </FilterPill>
-            ))}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {viewMode === 'gallery' && (
-              <button
-                onClick={() => setGallerySeed((s) => s + 1)}
-                aria-label="shuffle gallery"
-                title="shuffle gallery"
-                style={{ display: 'flex', padding: '8px 10px', borderRadius: 8, background: 'var(--tile)', color: 'var(--fg-dim)', transition: 'color 0.15s' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-              >
-                <Shuffle size={14} weight="fill" />
-              </button>
-            )}
-            <ViewModeToggle mode={viewMode} setMode={setViewMode} />
-          </div>
+          {BIO_LEAD.split('\n').map((para, i) => (
+            <p key={i} style={{ color: 'var(--fg)', margin: 0, marginBottom: 12, fontSize: 15, letterSpacing: '-0.011em', lineHeight: 1.55 }}>
+              {renderBioInlineLinks(para)}
+            </p>
+          ))}
         </motion.div>
-      )}
+
+        <motion.div
+          style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 15, alignItems: 'center' }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <a href="mailto:hudbud@gmail.com" className="hp-bio-link hp-tip" data-tip="email">em</a>
+          <a href="https://www.cosmos.so/hudbud" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="cosmos">co</a>
+          <a href="https://www.youtube.com/@hudbud22" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="youtube">yt</a>
+          <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="linkedin">li</a>
+          <span style={{ marginLeft: 'auto' }}><WatchLiveStreamButton onOpen={onWatchStream} /></span>
+        </motion.div>
+      </div>
+
+      <motion.div
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', ...headerConstraint }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {FILTERS.map((f) => (
+            <FilterPill
+              key={f}
+              active={filter === f}
+              onClick={() => setFilter(filter === f ? 'all' : f)}
+            >
+              {f}
+            </FilterPill>
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {viewMode === 'gallery' && (
+            <button
+              onClick={() => setGallerySeed((s) => s + 1)}
+              aria-label="shuffle gallery"
+              title="shuffle gallery"
+              style={{ display: 'flex', padding: '8px 10px', borderRadius: 8, background: 'var(--tile)', color: 'var(--fg-dim)', transition: 'color 0.15s' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+            >
+              <Shuffle size={14} weight="fill" />
+            </button>
+          )}
+          <ViewModeToggle mode={viewMode} setMode={setViewMode} />
+        </div>
+      </motion.div>
 
       <motion.div
         key={filter}
@@ -1030,7 +1006,6 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
           openProject={onOpenProject}
           viewMode={viewMode}
           gallerySeed={gallerySeed}
-          introComplete={introComplete}
           hasRenderedPosts={hasRenderedPostsRef.current}
           isMobile={isMobile}
         />
@@ -1780,25 +1755,11 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const [activePost, setActivePostRaw] = useState<Post | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('compact');
-
-  // Intro sequence state
-  const [showIntro, setShowIntro] = useState(false);
-  const [introComplete, setIntroComplete] = useState(false);
-  const [showedIntroThisSession, setShowedIntroThisSession] = useState(false);
   const [showStream, setShowStream] = useState(false);
 
   // Reconcile deferred, client-only state: the theme/font the inline head
   // script already painted, lock flags, and any ?filter=/?cat=/?post= deep link.
   useEffect(() => {
-    // Check if intro has been shown this session
-    const introShown = sessionStorage.getItem('hp-intro-shown');
-    if (!introShown) {
-      setShowIntro(true);
-      setShowedIntroThisSession(true);
-      sessionStorage.setItem('hp-intro-shown', '1');
-    } else {
-      setIntroComplete(true);
-    }
     const initial = readHpInitial();
     if (initial) {
       setThemeRaw(initial.theme);
@@ -1858,14 +1819,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
-
-  const handleIntroComplete = () => {
-    setShowIntro(false);
-    // Wait for exit animation, then show UI
-    setTimeout(() => {
-      setIntroComplete(true);
-    }, 1200);
-  };
 
   useEffect(() => {
     applyThemeVars(theme);
@@ -1969,8 +1922,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
               feed={feed}
               viewMode={viewMode}
               setViewMode={setViewMode}
-              introComplete={introComplete}
-              showedIntroThisSession={showedIntroThisSession}
               scrollRef={leftScrollRef}
               isMobile={isMobile}
             />
@@ -2012,7 +1963,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       })()}
 
       <AnimatePresence>
-        {showIntro && <IntroLoader onComplete={handleIntroComplete} />}
         {bioModal && <BioModal key="bio" modalId={bioModal} onClose={() => setBioModal(null)} />}
         {showStream && (
           <motion.div
