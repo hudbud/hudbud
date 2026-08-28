@@ -5,7 +5,7 @@ import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES } from '../data/themes';
 import { type Post } from '../data/posts';
-import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions } from '../lib/imageGrid';
+import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions, isExcerptRedundant } from '../lib/imageGrid';
 import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, FONT_FAMILY, applyThemeVars, type FontId } from './chrome';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
@@ -1448,6 +1448,10 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
 
   const isLoadingHtml = !post.html && !fetchedHtml;
   const postHtml = fetchedHtml ?? post.html ?? `<p>${post.excerpt}</p>`;
+  // Imported posts often reuse the first body paragraph as the excerpt —
+  // skip the lede then so the text doesn't render twice. Checked against the
+  // real body only, so the lede still shows while the html is loading.
+  const showLede = !!post.excerpt && (isLoadingHtml || !isExcerptRedundant(postHtml, post.excerpt));
   const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.round(wordCount / 230));
 
@@ -1512,7 +1516,7 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
 
       <SpecTable rows={specRowsFor(post)} />
 
-      {post.excerpt && (
+      {showLede && (
         <p className="prose" style={{ color: 'var(--fg)', fontSize: 15, lineHeight: 1.65, margin: '0 0 28px', maxWidth: 520 }}>{post.excerpt}</p>
       )}
 

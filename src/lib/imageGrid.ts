@@ -48,6 +48,38 @@ export function stripMetaParagraphs(html: string): string {
   return html.replace(/<p><strong>(Roles|Tools|Agency):<\/strong>[\s\S]*?<\/p>\s*/g, '');
 }
 
+// Many posts (mostly imported ones) use their first body paragraph verbatim
+// as the frontmatter excerpt, so rendering the excerpt as a lede above the
+// body shows the same text twice. Detect that so callers can skip the lede.
+// Compare on normalized plain text: smartypants curls quotes in the rendered
+// body but not in frontmatter, and truncated excerpts end in an ellipsis.
+function normalizeText(s: string): string {
+  return s
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&hellip;/g, '...')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/…/g, '...')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function isExcerptRedundant(html: string, excerpt: string | undefined): boolean {
+  if (!excerpt) return false;
+  const lede = normalizeText(excerpt).replace(/\.{3}$/, '').trim();
+  if (!lede) return false;
+  for (const m of html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)) {
+    const text = normalizeText(m[1]);
+    if (!text) continue;
+    return text.startsWith(lede);
+  }
+  return false;
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
