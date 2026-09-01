@@ -1,9 +1,26 @@
-// Cloudflare Workers config — static hosting of the Astro build output.
+// Cloudflare Worker: static hosting of the Astro build output, plus the
+// thoughts-feed API (/api/thoughts, /thoughts.xml) backed by D1.
+//
+// One-time setup before deploying:
+//   1. npx wrangler d1 create hudbud-thoughts
+//      -> paste the returned database_id below
+//   2. npx wrangler d1 execute hudbud-thoughts --remote --file worker/schema.sql
+//   3. npx wrangler secret put HUDBUD_SECRET
+//      -> the codeword you type in the name field to post as "hudbud"
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hudbud",
   "compatibility_date": "2026-08-12",
+  "main": "worker/index.js",
   "assets": {
-    "directory": "./dist"
-  }
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hudbud-thoughts",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+    }
+  ]
 }
