@@ -1,0 +1,416 @@
+---
+// Metaballs.astro
+// Drop this component anywhere in an Astro page/layout. It fills whatever
+// container you put it in — give the wrapper a height (e.g. a full-screen
+// hero section, or a fixed-height div) since canvas has no intrinsic size.
+//
+// Usage:
+//   <div style="height: 100vh;">
+//     <Metaballs showControls={true} palette={0} />
+//   </div>
+
+interface Props {
+  showControls?: boolean; // show the "add blob" / "palette" buttons
+  palette?: number;       // 0 sunset, 1 deep sea, 2 neon, 3 mercury
+  seedCount?: number;     // how many blobs to start with
+}
+
+const { showControls = true, palette = 0, seedCount = 5 } = Astro.props;
+---
+
+<div class="metaballs-wrap">
+  <canvas class="metaballs-canvas"></canvas>
+  {showControls && (
+    <div class="metaballs-controls">
+      <button class="mb-add" type="button">+ blob</button>
+      <button class="mb-palette" type="button">palette</button>
+    </div>
+  )}
+</div>
+
+<style>
+  .metaballs-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+  }
+  .metaballs-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+  .metaballs-controls {
+    position: absolute;
+    bottom: 22px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    pointer-events: none;
+  }
+  .metaballs-controls button {
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 100px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: background 0.15s ease, transform 0.1s ease;
+    cursor: pointer;
+  }
+  .metaballs-controls button:active {
+    background: rgba(255,255,255,0.18);
+    transform: scale(0.94);
+  }
+</style>
+
+<script define:vars={{ palette, seedCount }}>
+  // Runs once per component instance on the client. If you have multiple
+  // instances on one page, Astro will re-run this block for each — each
+  // one queries its own nearest .metaballs-wrap via document.currentScript.
+  (function () {
+    const scriptEl = document.currentScript;
+    const wrap = scriptEl.closest('.metaballs-wrap') || scriptEl.previousElementSibling?.closest?.('.metaballs-wrap');
+    const root = scriptEl.parentElement.querySelector(':scope > .metaballs-wrap') || document.querySelectorAll('.metaballs-wrap')[document.querySelectorAll('.metaballs-wrap').length - 1];
+
+    const container = root;
+    const canvas = container.querySelector('.metaballs-canvas');
+    const addBtn = container.querySelector('.mb-add');
+    const paletteBtn = container.querySelector('.mb-palette');
+
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: false }) ||
+               canvas.getContext('experimental-webgl');
+
+    if (!gl) {
+      container.innerHTML = '<p style="color:#fff;font-family:sans-serif;padding:24px;">WebGL is not available on this device.</p>';
+      return;
+    }
+
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+
+    function resize() {
+      const rect = container.getBoundingClientRect();
+      W = Math.max(1, Math.floor(rect.width * DPR));
+      H = Math.max(1, Math.floor(rect.height * DPR));
+      canvas.width = W;
+      canvas.height = H;
+      gl.viewport(0, 0, W, H);
+    }
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(container);
+    resize();
+
+    // ---------- shaders ----------
+    // No hard cap on how many blobs you can spawn from JS. WebGL1 still
+    // needs a compile-time max array size for the uniform though, so this
+    // is set generously high (128). Past that, extra blobs stop affecting
+    // the render (and this many on screen will be slow on older phones
+    // well before you hit the ceiling).
+    const MAX_BALLS = 128;
+
+    const vertSrc = `
+      attribute vec2 aPos;
+      void main() {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+      }
+    `;
+
+    const fragSrc = `
+      precision highp float;
+      uniform vec2 uRes;
+      uniform int uCount;
+      uniform vec4 uBalls[${MAX_BALLS}];
+      uniform vec3 uPalette[4];
+      uniform float uTime;
+
+      float field(vec2 p) {
+        float sum = 0.0;
+        for (int i = 0; i < ${MAX_BALLS}; i++) {
+          if (i >= uCount) break;
+          vec2 c = uBalls[i].xy;
+          float r = uBalls[i].z;
+          vec2 d = p - c;
+          sum += (r * r) / (dot(d, d) + 1.0);
+        }
+        return sum;
+      }
+
+      vec3 palette(float t) {
+        t = clamp(t, 0.0, 1.0);
+        if (t < 0.333) return mix(uPalette[0], uPalette[1], t / 0.333);
+        if (t < 0.666) return mix(uPalette[1], uPalette[2], (t - 0.333) / 0.333);
+        return mix(uPalette[2], uPalette[3], (t - 0.666) / 0.334);
+      }
+
+      void main() {
+        vec2 p = gl_FragCoord.xy;
+        float v = field(p);
+
+        float threshold = 1.0;
+        vec3 bg = vec3(0.02, 0.02, 0.04);
+
+        if (v < threshold) {
+          float glow = smoothstep(0.0, threshold, v);
+          vec3 col = mix(bg, palette(0.15), glow * 0.35);
+          gl_FragColor = vec4(col, 1.0);
+          return;
+        }
+
+        float t = clamp((v - threshold) / 3.5, 0.0, 1.0);
+        vec3 col = palette(t);
+
+        float edge = smoothstep(threshold, threshold + 0.35, v) * (1.0 - smoothstep(threshold + 0.2, threshold + 1.2, v));
+        col += edge * 0.5;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(s));
+      }
+      return s;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vertSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragSrc));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      console.error(gl.getProgramInfoLog(prog));
+    }
+    gl.useProgram(prog);
+
+    const quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'uRes');
+    const uCount = gl.getUniformLocation(prog, 'uCount');
+    const uBalls = gl.getUniformLocation(prog, 'uBalls');
+    const uPalette = gl.getUniformLocation(prog, 'uPalette');
+    const uTime = gl.getUniformLocation(prog, 'uTime');
+
+    // ---------- palettes ----------
+    const palettes = [
+      [[0.05,0.02,0.10],[0.55,0.10,0.65],[0.95,0.30,0.35],[1.00,0.75,0.25]], // sunset lava
+      [[0.02,0.05,0.10],[0.05,0.35,0.55],[0.10,0.80,0.75],[0.75,1.00,0.85]], // deep sea
+      [[0.06,0.02,0.08],[0.35,0.05,0.55],[0.75,0.15,0.85],[1.00,0.55,0.95]], // neon
+      [[0.03,0.03,0.03],[0.35,0.35,0.38],[0.75,0.75,0.78],[1.00,1.00,1.00]], // mercury
+    ];
+    let paletteIdx = Math.max(0, Math.min(palettes.length - 1, palette | 0));
+
+    // ---------- balls ----------
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function makeBall(x, y) {
+      return {
+        x, y,
+        vx: rand(-40, 40),
+        vy: rand(-40, 40),
+        r: rand(46, 78) * DPR,
+        dragging: false,
+      };
+    }
+
+    let balls = [];
+    function seed() {
+      balls = [];
+      const n = Math.max(0, seedCount | 0);
+      for (let i = 0; i < n; i++) {
+        balls.push(makeBall(rand(W * 0.2, W * 0.8), rand(H * 0.2, H * 0.8)));
+      }
+    }
+    seed();
+
+    // ---------- interaction ----------
+    const activeTouches = new Map();
+
+    function toCanvasCoords(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      return [
+        (clientX - rect.left) * DPR,
+        (rect.height - (clientY - rect.top)) * DPR,
+      ];
+    }
+
+    function nearestBall(x, y) {
+      let best = null, bestD = Infinity;
+      for (const b of balls) {
+        const d = Math.hypot(b.x - x, b.y - y);
+        if (d < bestD) { bestD = d; best = b; }
+      }
+      return { ball: best, dist: bestD };
+    }
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) {
+        const [x, y] = toCanvasCoords(t.clientX, t.clientY);
+        const { ball, dist } = nearestBall(x, y);
+        if (ball && dist < ball.r * 1.4) {
+          ball.dragging = true;
+          activeTouches.set(t.identifier, ball);
+        } else if (balls.length < MAX_BALLS) {
+          const nb = makeBall(x, y);
+          nb.dragging = true;
+          balls.push(nb);
+          activeTouches.set(t.identifier, nb);
+        }
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) {
+        const b = activeTouches.get(t.identifier);
+        if (b) {
+          const [x, y] = toCanvasCoords(t.clientX, t.clientY);
+          b.vx = (x - b.x) * 0.4;
+          b.vy = (y - b.y) * 0.4;
+          b.x = x;
+          b.y = y;
+        }
+      }
+    }, { passive: false });
+
+    function releaseTouch(e) {
+      for (const t of e.changedTouches) {
+        const b = activeTouches.get(t.identifier);
+        if (b) b.dragging = false;
+        activeTouches.delete(t.identifier);
+      }
+    }
+    canvas.addEventListener('touchend', releaseTouch, { passive: false });
+    canvas.addEventListener('touchcancel', releaseTouch, { passive: false });
+
+    // mouse fallback for desktop
+    let mouseDown = false, mouseBall = null;
+    canvas.addEventListener('mousedown', (e) => {
+      const [x, y] = toCanvasCoords(e.clientX, e.clientY);
+      const { ball, dist } = nearestBall(x, y);
+      mouseDown = true;
+      if (ball && dist < ball.r * 1.4) {
+        mouseBall = ball;
+      } else if (balls.length < MAX_BALLS) {
+        mouseBall = makeBall(x, y);
+        balls.push(mouseBall);
+      }
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!mouseDown || !mouseBall) return;
+      const [x, y] = toCanvasCoords(e.clientX, e.clientY);
+      mouseBall.vx = (x - mouseBall.x) * 0.4;
+      mouseBall.vy = (y - mouseBall.y) * 0.4;
+      mouseBall.x = x;
+      mouseBall.y = y;
+    });
+    window.addEventListener('mouseup', () => { mouseDown = false; mouseBall = null; });
+
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        if (balls.length < MAX_BALLS) {
+          balls.push(makeBall(rand(W * 0.3, W * 0.7), rand(H * 0.3, H * 0.7)));
+        }
+      });
+    }
+    if (paletteBtn) {
+      paletteBtn.addEventListener('click', () => {
+        paletteIdx = (paletteIdx + 1) % palettes.length;
+      });
+    }
+
+    // ---------- physics + render loop ----------
+    let last = performance.now();
+    let rafId = null;
+
+    function step(dt) {
+      for (const b of balls) {
+        if (b.dragging) continue;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+
+        b.vx *= 0.998;
+        b.vy *= 0.998;
+
+        const m = b.r * 0.6;
+        if (b.x < m) { b.x = m; b.vx = Math.abs(b.vx); }
+        if (b.x > W - m) { b.x = W - m; b.vx = -Math.abs(b.vx); }
+        if (b.y < m) { b.y = m; b.vy = Math.abs(b.vy); }
+        if (b.y > H - m) { b.y = H - m; b.vy = -Math.abs(b.vy); }
+
+        b.vx += rand(-4, 4) * dt;
+        b.vy += rand(-4, 4) * dt;
+
+        const maxSpeed = 130;
+        const sp = Math.hypot(b.vx, b.vy);
+        if (sp > maxSpeed) {
+          b.vx = (b.vx / sp) * maxSpeed;
+          b.vy = (b.vy / sp) * maxSpeed;
+        }
+      }
+    }
+
+    let ballData = new Float32Array(MAX_BALLS * 4);
+    const paletteData = new Float32Array(4 * 3);
+
+    function render(now) {
+      const dt = Math.min((now - last) / 1000, 0.033);
+      last = now;
+
+      step(dt);
+
+      const count = Math.min(balls.length, MAX_BALLS);
+      for (let i = 0; i < count; i++) {
+        ballData[i * 4 + 0] = balls[i].x;
+        ballData[i * 4 + 1] = balls[i].y;
+        ballData[i * 4 + 2] = balls[i].r;
+        ballData[i * 4 + 3] = 0;
+      }
+      const pal = palettes[paletteIdx];
+      for (let i = 0; i < 4; i++) {
+        paletteData[i * 3 + 0] = pal[i][0];
+        paletteData[i * 3 + 1] = pal[i][1];
+        paletteData[i * 3 + 2] = pal[i][2];
+      }
+
+      gl.useProgram(prog);
+      gl.uniform2f(uRes, W, H);
+      gl.uniform1i(uCount, count);
+      gl.uniform4fv(uBalls, ballData);
+      gl.uniform3fv(uPalette, paletteData);
+      gl.uniform1f(uTime, now / 1000);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      rafId = requestAnimationFrame(render);
+    }
+
+    rafId = requestAnimationFrame(render);
+
+    // clean up if the component gets removed (Astro view transitions, etc.)
+    document.addEventListener('astro:before-swap', () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      ro.disconnect();
+    }, { once: true });
+  })();
+</script>

@@ -1,0 +1,37 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import Metaballs from '../components/Metaballs.astro';
+---
+<Layout title="metaballs — hudbud.net" description="Drag, merge, and spawn glowing WebGL blobs — a playable metaballs toy with a few color palettes to cycle through.">
+  <a class="back" href="/">← back</a>
+  <div class="metaballs-page">
+    <Metaballs showControls={true} palette={0} seedCount={5} />
+  </div>
+</Layout>
+
+<style is:global>
+  body {
+    overflow: hidden;
+  }
+</style>
+
+<style>
+  .back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    text-decoration: none;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  }
+  .back:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+  .metaballs-page {
+    width: 100%;
+    height: 100dvh;
+  }
+</style>
