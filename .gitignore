@@ -9,4 +9,6 @@ dist/
 .vercel/
 .vercel
 .env*
+.dev.vars
+.wrangler/
 media-out/

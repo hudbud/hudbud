@@ -9,6 +9,7 @@ import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions, isExcerptRedu
 import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, FONT_FAMILY, applyThemeVars, type FontId } from './chrome';
 import { KEYBOARD_HTML } from '../data/keyboard';
 import FreezerMartini from './FreezerMartini';
+import ThoughtsModal, { ThoughtsButton } from './ThoughtsModal';
 import { Shuffle, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon, SquaresFour } from '@phosphor-icons/react';
 
 type Filter = 'all' | 'design' | 'world';
@@ -143,6 +144,7 @@ interface ChromeProps {
   setFont: (f: FontId) => void;
   onTimeTravel: (v: SiteVersion) => void;
   onOpenResource: (slug: string) => void;
+  onOpenThoughts: () => void;
   themeLocked: boolean;
   fontLocked: boolean;
   onToggleThemeLock: () => void;
@@ -164,7 +166,7 @@ const DIALOG_POP = {
   transition: SPRING,
 } as const;
 
-function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
+function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
   const mobileBottom = 'calc(16px + env(safe-area-inset-bottom))';
   return (
     <>
@@ -184,6 +186,8 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
         <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
       </GlassBloom>
 
+      <ThoughtsButton pos={{ left: 70, bottom: mobileBottom }} onClick={onOpenThoughts} />
+
       <GlassBloom pos={{ right: 16, bottom: mobileBottom }} anchor="end" label="appearance settings" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
         <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
         <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
@@ -193,7 +197,7 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
 }
 
 // ---------- Desktop chrome: same glass buttons, one bloom menu per panel ----------
-function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
+function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock }: ChromeProps) {
   return (
     <>
       {/* left: time machine, resources, links */}
@@ -217,6 +221,7 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
       </GlassBloom>
+      <ThoughtsButton pos={{ left: 178, bottom: 16 }} onClick={onOpenThoughts} />
 
       {/* right: font, theme */}
       <GlassBloom pos={{ right: 70, bottom: 16 }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
@@ -1871,7 +1876,13 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [bioModal, setBioModal] = useState<string | null>(null);
+  const [showThoughts, setShowThoughts] = useState(false);
   const [timeTravel, setTimeTravel] = useState<SiteVersion | null>(null);
+
+  // ?thoughts=open deep link (used by the RSS item links).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('thoughts') === 'open') setShowThoughts(true);
+  }, []);
 
   // Opening a panel pushes a history entry so the phone's back gesture closes
   // it instead of leaving the site (the panel is fullscreen on mobile). Only
@@ -2041,6 +2052,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
           theme, setTheme, font, setFont,
           onTimeTravel: setTimeTravel,
           onOpenResource: (slug: string) => { const p = feed.find(r => r.slug === slug); if (p) setActivePost(p); },
+          onOpenThoughts: () => setShowThoughts(true),
           themeLocked, fontLocked,
           onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
         };
@@ -2049,6 +2061,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
       <AnimatePresence>
         {bioModal && <BioModal key="bio" modalId={bioModal} onClose={() => setBioModal(null)} />}
+        {showThoughts && <ThoughtsModal key="thoughts" onClose={() => setShowThoughts(false)} />}
         {showStream && (
           <motion.div
             key="stream"
