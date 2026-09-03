@@ -322,7 +322,7 @@ function todayString(): string {
 
 export default function PostCreator() {
   const [title, setTitle] = useState('');
-  const [tag, setTag] = useState<'life' | 'thoughts' | 'resources'>('life');
+  const [tag, setTag] = useState<'life' | 'thoughts' | 'resources' | 'projects'>('life');
   const [excerpt, setExcerpt] = useState('');
   const [date, setDate] = useState(todayString());
   const [mode, setMode] = useState<'local' | 'blob'>('local');
@@ -534,6 +534,7 @@ export default function PostCreator() {
             >
               <option value="life">life</option>
               <option value="thoughts">thoughts</option>
+              <option value="projects">projects</option>
               <option value="resources">resources</option>
             </select>
           </div>

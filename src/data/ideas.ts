@@ -13,6 +13,8 @@ export interface Idea {
   status: IdeaStatus;
   statusNote?: string;
   internal?: boolean;
+  /** Which home section this lands in; defaults to projects. */
+  section?: 'projects' | 'work';
   // Best-guess dates so ideas can sort into the chronological feed like
   // everything else — Hudson, please correct these to the real ones.
   date: string;
@@ -54,6 +56,7 @@ export const IDEAS: Idea[] = [
     href: 'https://cosmostud.io',
     desc: 'My web design business. Brands and sites built end-to-end — identity, system, shipped product.',
     status: 'dormant',
+    section: 'work',
     date: '2022-01-01',
   },
   {

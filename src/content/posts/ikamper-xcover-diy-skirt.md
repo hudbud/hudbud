@@ -1,7 +1,7 @@
 ---
 title: "iKamper X-Cover DIY skirt"
 date: "2026-07-11T12:00-07:00"
-tags: ["life"]
+tags: ["projects"]
 feature_image: "https://media.hudbud.net/posts/71/img_7670.webp"
 ---
 

@@ -12,18 +12,12 @@ import FreezerMartini from './FreezerMartini';
 import ThoughtsModal, { ThoughtsButton } from './ThoughtsModal';
 import { Shuffle, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon, SquaresFour } from '@phosphor-icons/react';
 
-type Filter = 'all' | 'design' | 'world';
-
-const FILTERS: Filter[] = ['all', 'design', 'world'];
-// A post's facing direction: world -> World (life), anything else (work, archive,
-// resources, thoughts) -> Design — archive/resources/ideas sink into the same
-// bucket as active client work rather than getting their own filter.
-const WORK_TAGS = ['work', 'archive', 'resources', 'thoughts'];
-function matchesFilter(p: Post, f: Filter): boolean {
-  if (f === 'all') return true;
-  if (f === 'world') return p.tags.includes('life');
-  return p.tags.some((t) => WORK_TAGS.includes(t));
-}
+// The feed is grouped into labeled sections rather than one flat filtered
+// list. projects = projects/thoughts posts + IDEAS (with in-development items
+// split into an expandable sub-list); photos = life posts; work = every
+// work/archive post in one bucket, newest first — curation happens by dating
+// the relevant items to the top, not by sub-taxonomy.
+type SectionKey = 'projects' | 'photos' | 'work';
 
 const DEFAULTS = {
   theme: 'earthsong',
@@ -236,40 +230,6 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
   );
 }
 
-// ---------- Filter pill ----------
-function FilterPill({ active, highlight, onClick, onMouseEnter, onMouseLeave, children }: {
-  active: boolean;
-  highlight?: boolean;
-  onClick: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  children: React.ReactNode;
-}) {
-  const [hovered, setHovered] = useState(false);
-  // Highlight (sweep) uses the same subtle treatment as hover, since `all`
-  // stays active for the whole sweep and needs its own distinguishable cue.
-  const lit = hovered || (highlight && !active);
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        fontSize: 13,
-        color: active ? 'var(--bg)' : lit ? 'var(--fg)' : 'var(--fg-dim)',
-        background: active ? 'var(--fg)' : highlight && !active ? 'var(--fg-faint)' : hovered ? 'var(--tile)' : 'transparent',
-        border: `1px solid ${active || lit ? 'var(--fg)' : 'var(--fg-dim)'}`,
-        borderRadius: 999,
-        padding: '7px 16px',
-        letterSpacing: '-0.005em',
-        transition: 'color 0.15s, border-color 0.15s, background 0.15s',
-      }}
-      onMouseEnter={() => { setHovered(true); onMouseEnter?.(); }}
-      onMouseLeave={() => { setHovered(false); onMouseLeave?.(); }}
-    >
-      {children}
-    </button>
-  );
-}
-
 // ---------- Lists ----------
 function ResumeList() {
   return (
@@ -309,12 +269,11 @@ const STATUS_LABEL: Record<IdeaStatus, string> = {
   retired: 'retired',
 };
 
-// ---------- Unified feed ----------
-// Every entry — post or idea — renders through this one row, in one flat
-// chronological list. A row's only variance is: does it have an image
-// (shown when viewMode is 'roomy'), and what its click does.
-const CATEGORY_CHIPS = ['all', 'portfolio', 'branding', 'motion', 'illustration', 'product', 'film', 'photo'] as const;
-type ViewMode = 'compact' | 'roomy' | 'gallery';
+// ---------- Sectioned feed ----------
+// Every entry — post, idea, or career step — renders through the same row,
+// grouped into labeled sections. A row's only variance is: does it have an
+// image (shown when viewMode is 'grid'), and what its click does.
+type ViewMode = 'compact' | 'grid' | 'gallery';
 
 interface Row {
   key: string;
@@ -341,88 +300,143 @@ function ideaClickAction(idea: Idea, openProject: (id: string) => void): (() => 
   return null;
 }
 
-function buildRows({ feed, filter, workCategory, activePost, activeProject, setActivePost, openProject }: {
+interface Section {
+  key: SectionKey;
+  label: string;
+  rows: Row[];
+  /** Extra expandable sub-list (projects' in-development items). */
+  devRows?: Row[];
+}
+
+// "in development" posts have no real date yet — surface them in their own
+// expandable sub-list instead of pinning them to the top of projects.
+function isInDevelopment(p: Post): boolean {
+  return p.date === 'in development';
+}
+
+function buildSections({ feed, activePost, activeProject, setActivePost, openProject }: {
   feed: Post[];
-  filter: Filter;
-  workCategory: string;
   activePost: Post | null;
   activeProject: string | null;
   setActivePost: (p: Post | null) => void;
   openProject: (id: string) => void;
-}): Row[] {
-  const postRows: Row[] = feed
-    // Resources live only in the "..." chrome menu, not the chronological list.
-    .filter((p) => !p.tags.includes('resources'))
-    .filter((p) => matchesFilter(p, filter) && (filter !== 'design' || workCategory === 'all' || p.category === workCategory))
-    .map((p) => ({
-      key: p.slug ?? p.title,
-      title: p.title,
-      date: p.date,
-      dateValue: p.dateValue,
-      image: p.feature_image,
-      images: p.images,
-      meta: p.agency || p.roles ? [p.agency, p.roles?.split(',')[0]].filter(Boolean).join(' · ') : p.category,
-      isActive: !!(activePost && activePost.title === p.title),
-      onClick: () => setActivePost(activePost && activePost.title === p.title ? null : p),
-    }));
+}): Section[] {
+  const byDate = (a: Row, b: Row) => b.dateValue - a.dateValue;
 
-  // Ideas map to the Design bucket; a specific category chip has nothing to
-  // match against, so they only show under "all".
-  const ideaRows: Row[] = (filter === 'world' || (filter === 'design' && workCategory !== 'all'))
-    ? []
-    : IDEAS.map((idea) => {
-        const slug = idea.internal && idea.href.startsWith('#') ? idea.href.slice(1) : null;
-        return {
-          key: idea.title,
-          title: idea.title,
-          date: formatIdeaDate(idea.date),
-          dateValue: +new Date(idea.date),
-          meta: idea.statusNote || STATUS_LABEL[idea.status],
-          isActive: slug ? activeProject === slug : false,
-          onClick: ideaClickAction(idea, openProject),
-        };
-      });
+  const postRow = (p: Post): Row => ({
+    key: p.slug ?? p.title,
+    title: p.title,
+    date: p.date,
+    dateValue: p.dateValue,
+    image: p.feature_image,
+    images: p.images,
+    meta: p.agency || p.roles ? [p.agency, p.roles?.split(',')[0]].filter(Boolean).join(' · ') : p.category,
+    isActive: !!(activePost && activePost.title === p.title),
+    onClick: () => setActivePost(activePost && activePost.title === p.title ? null : p),
+  });
 
-  return [...postRows, ...ideaRows].sort((a, b) => b.dateValue - a.dateValue);
+  const ideaRow = (idea: Idea): Row => {
+    const slug = idea.internal && idea.href.startsWith('#') ? idea.href.slice(1) : null;
+    return {
+      key: idea.title,
+      title: idea.title,
+      date: formatIdeaDate(idea.date),
+      dateValue: +new Date(idea.date),
+      meta: idea.statusNote || STATUS_LABEL[idea.status],
+      isActive: slug ? activeProject === slug : false,
+      onClick: ideaClickAction(idea, openProject),
+    };
+  };
+
+  // Resources live only in the "..." chrome menu, not the sections.
+  const posts = feed.filter((p) => !p.tags.includes('resources'));
+  const projectPosts = posts.filter((p) => p.tags.includes('projects') || p.tags.includes('thoughts'));
+  const photoPosts = posts.filter((p) => p.tags.includes('life'));
+  const workPosts = posts.filter((p) => p.tags.includes('work') || p.tags.includes('archive'));
+
+  const ideasFor = (section: 'projects' | 'work') =>
+    IDEAS.filter((i) => (i.section ?? 'projects') === section).map(ideaRow);
+
+  const projectRows = [...projectPosts.filter((p) => !isInDevelopment(p)).map(postRow), ...ideasFor('projects')].sort(byDate);
+  const devRows = projectPosts.filter(isInDevelopment).map(postRow);
+  const workRows = [...workPosts.map(postRow), ...ideasFor('work')].sort(byDate);
+
+  return [
+    { key: 'projects', label: 'projects', rows: projectRows, devRows },
+    { key: 'photos', label: 'photos', rows: photoPosts.map(postRow).sort(byDate) },
+    { key: 'work', label: 'work', rows: workRows },
+  ].filter((s) => s.rows.length > 0);
 }
 
-function FeedRow({ row, index, showImage, isMobile }: { row: Row; index: number; showImage: boolean; isMobile: boolean }) {
+function FeedRow({ row, isMobile }: { row: Row; isMobile: boolean }) {
   const clickable = !!row.onClick;
   const [hovered, setHovered] = useState(false);
   const lit = row.isActive || (hovered && clickable);
-  const thumbWidth = isMobile ? 72 : 96;
-  const thumbHeight = isMobile ? 44 : 58;
   return (
     <button
       onClick={row.onClick ?? undefined}
       style={{
         display: 'grid',
-        gridTemplateColumns: showImage ? `${thumbWidth}px 1fr auto` : '1fr auto',
+        gridTemplateColumns: '1fr auto',
         gap: isMobile ? 12 : 16,
-        padding: isMobile ? '10px 8px' : '10px 12px',
+        padding: '9px 0',
         textAlign: 'left',
-        alignItems: 'center',
+        alignItems: 'baseline',
         color: lit ? 'var(--accent)' : 'var(--fg)',
-        background: lit ? 'var(--tile)' : 'transparent',
-        borderRadius: 2,
         opacity: clickable ? 1 : 0.6,
         cursor: clickable ? 'pointer' : 'default',
         width: '100%',
+        transition: 'color 0.15s',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {showImage && (
-        row.image ? (
-          <img src={row.image} alt="" loading="lazy" style={{ width: thumbWidth, height: thumbHeight, objectFit: 'cover', borderRadius: 2 }} />
-        ) : (
-          <LifeImage color="#3a434e" seed={index} height={thumbHeight} />
-        )
+      <span style={{ fontSize: 13, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.title}</span>
+      <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{row.date}</span>
+    </button>
+  );
+}
+
+// ---------- Grid view (3-wide cards: image / title / date) ----------
+function GridCard({ row, index, isMobile }: { row: Row; index: number; isMobile: boolean }) {
+  const clickable = !!row.onClick;
+  const [hovered, setHovered] = useState(false);
+  const lit = row.isActive || (hovered && clickable);
+  return (
+    <button
+      onClick={row.onClick ?? undefined}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: 8,
+        width: '100%',
+        textAlign: 'left',
+        cursor: clickable ? 'pointer' : 'default',
+        opacity: clickable ? 1 : 0.6,
+        minWidth: 0,
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {row.image ? (
+        <img
+          src={row.image}
+          alt=""
+          loading="lazy"
+          style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 2, filter: lit ? 'none' : 'saturate(0.96)', transition: 'filter 0.15s' }}
+        />
+      ) : (
+        <div style={{ aspectRatio: '4 / 3' }}>
+          <LifeImage color="#3a434e" seed={index} height="100%" />
+        </div>
       )}
       <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-        <span style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'nowrap' : undefined }}>{row.title}</span>
+        <span style={{ fontSize: 13, color: lit ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'nowrap' : undefined }}>
+          {row.title}
+        </span>
+        <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{row.date}</span>
       </span>
-      <span style={{ fontSize: 11, color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{row.date}</span>
     </button>
   );
 }
@@ -482,13 +496,13 @@ function GalleryGrid({ rows, seed }: { rows: Row[]; seed: number }) {
   );
 }
 
-const VIEW_MODE_ICON: Record<ViewMode, typeof ListDashes> = { compact: ListDashes, roomy: ImageIcon, gallery: SquaresFour };
-const VIEW_MODE_LABEL: Record<ViewMode, string> = { compact: 'compact (text only)', roomy: 'roomy (with thumbnails)', gallery: 'gallery (image grid)' };
+const VIEW_MODE_ICON: Record<ViewMode, typeof ListDashes> = { compact: ListDashes, grid: SquaresFour, gallery: ImageIcon };
+const VIEW_MODE_LABEL: Record<ViewMode, string> = { compact: 'list (text only)', grid: 'grid (with images)', gallery: 'gallery (masonry)' };
 
 function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMode) => void }) {
   return (
     <div style={{ display: 'flex', gap: 2, padding: 2, background: 'var(--tile)', borderRadius: 8 }}>
-      {(['compact', 'roomy', 'gallery'] as const).map((m) => {
+      {(['compact', 'grid', 'gallery'] as const).map((m) => {
         const Icon = VIEW_MODE_ICON[m];
         return (
           <button
@@ -511,11 +525,52 @@ function ViewModeToggle({ mode, setMode }: { mode: ViewMode; setMode: (m: ViewMo
   );
 }
 
-function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, hasRenderedPosts, isMobile }: {
+// How many rows a collapsed section shows.
+const SECTION_PREVIEW_COUNT = 3;
+
+function SectionToggle({ label, expanded, onClick }: {
+  label: string;
+  expanded: boolean;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      className="post-spec-cell"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '8px 0',
+        color: hovered ? 'var(--accent)' : 'var(--fg-dim)',
+        transition: 'color 0.15s',
+        width: 'fit-content',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <CaretUp
+        size={10}
+        weight="bold"
+        style={{ transform: expanded ? 'none' : 'rotate(180deg)', transition: 'transform 0.2s' }}
+      />
+      {label}
+    </button>
+  );
+}
+
+function SectionHeader({ label, count }: { label: string; count: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+      <span className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>{label}</span>
+      <span className="post-spec-cell" style={{ color: 'var(--fg-faint)', fontVariantNumeric: 'tabular-nums' }}>{count}</span>
+    </div>
+  );
+}
+
+function Feed({ feed, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, hasRenderedPosts, isMobile }: {
   feed: Post[];
-  filter: Filter;
-  workCategory: string;
-  setWorkCategory: (c: string) => void;
   activePost: Post | null;
   activeProject: string | null;
   setActivePost: (p: Post | null) => void;
@@ -525,54 +580,109 @@ function Feed({ feed, filter, workCategory, setWorkCategory, activePost, activeP
   hasRenderedPosts: boolean;
   isMobile: boolean;
 }) {
-  const rows = useMemo(
-    () => buildRows({ feed, filter, workCategory, activePost, activeProject, setActivePost, openProject }),
-    [feed, filter, workCategory, activePost, activeProject, setActivePost, openProject]
+  const sections = useMemo(
+    () => buildSections({ feed, activePost, activeProject, setActivePost, openProject }),
+    [feed, activePost, activeProject, setActivePost, openProject]
   );
 
-  // On first render: cascade after filter pills start (0.6s) + small gap = 0.8s
-  // On filter changes: animate instantly (0s)
+  const [expanded, setExpanded] = useState<Partial<Record<string, boolean>>>({});
+  const toggle = (key: string) => setExpanded((e) => ({ ...e, [key]: !e[key] }));
+
+  // First paint cascades in after the intro block settles (0.8s); rows
+  // mounted later (by expanding a section) animate in immediately.
   const baseDelay = hasRenderedPosts ? 0 : 0.8;
 
   if (viewMode === 'gallery') {
-    return <GalleryGrid rows={rows} seed={gallerySeed} />;
+    return <GalleryGrid rows={sections.flatMap((s) => [...s.rows, ...(s.devRows ?? [])])} seed={gallerySeed} />;
   }
 
+  const isGrid = viewMode === 'grid';
+  const gridColumns = isMobile ? 2 : 3;
+  // Grid mode previews one full row of cards; list mode previews 3 rows.
+  const previewCount = isGrid ? gridColumns : SECTION_PREVIEW_COUNT;
+
+  // Running index across sections so the initial cascade flows top to bottom.
+  let cascade = 0;
+
+  const rowMotion = (i: number) => ({
+    initial: { opacity: 0, y: 8, scale: 0.98 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    transition: {
+      duration: 0.9,
+      // First paint: cascade top to bottom across sections. Later mounts
+      // (expanding a section): stagger from the fold, capped so long
+      // sections don't crawl in.
+      delay: hasRenderedPosts
+        ? Math.min(Math.max(i - previewCount, 0), 12) * 0.025
+        : baseDelay + cascade++ * 0.06,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  });
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {filter === 'design' && (
-        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
-          {CATEGORY_CHIPS.map((chip) => (
-            <button
-              key={chip}
-              onClick={() => setWorkCategory(chip)}
-              style={{
-                fontSize: 11, padding: '3px 10px', borderRadius: 12,
-                background: workCategory === chip ? 'var(--accent)' : 'var(--tile)',
-                color: workCategory === chip ? 'var(--bg)' : 'var(--fg-dim)',
-                transition: 'all 0.15s',
-              }}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+      {sections.map((section) => {
+        const isExpanded = !!expanded[section.key];
+        const visible = isExpanded ? section.rows : section.rows.slice(0, previewCount);
+        const hiddenCount = section.rows.length - previewCount;
+        const devRows = section.devRows ?? [];
+        const devExpanded = !!expanded[`${section.key}-dev`];
+        return (
+          <section key={section.key}>
+            <motion.div
+              initial={hasRenderedPosts ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.9, delay: baseDelay + cascade * 0.06, ease: [0.22, 1, 0.36, 1] }}
             >
-              {chip}
-            </button>
-          ))}
-        </div>
-      )}
-      {rows.map((row, i) => (
-        <motion.div
-          key={row.key}
-          initial={{ opacity: 0, y: 8, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{
-            duration: 0.9,
-            delay: baseDelay + (i * 0.06),
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          style={{ width: '100%' }}
-        >
-          <FeedRow row={row} index={i} showImage={viewMode === 'roomy'} isMobile={isMobile} />
-        </motion.div>
-      ))}
+              <SectionHeader label={section.label} count={section.rows.length + devRows.length} />
+            </motion.div>
+            <div style={isGrid
+              ? { display: 'grid', gridTemplateColumns: `repeat(${gridColumns}, 1fr)`, gap: isMobile ? 12 : 16, paddingTop: 4 }
+              : { display: 'flex', flexDirection: 'column' }
+            }>
+              {visible.map((row, i) => (
+                <motion.div key={row.key} {...rowMotion(i)} style={{ minWidth: 0 }}>
+                  {isGrid
+                    ? <GridCard row={row} index={i} isMobile={isMobile} />
+                    : <FeedRow row={row} isMobile={isMobile} />}
+                </motion.div>
+              ))}
+            </div>
+            {(hiddenCount > 0 || isExpanded || devRows.length > 0) && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, paddingTop: isGrid ? 8 : 0 }}>
+                {(hiddenCount > 0 || isExpanded) && (
+                  <SectionToggle
+                    label={isExpanded ? 'show less' : `show ${hiddenCount} more`}
+                    expanded={isExpanded}
+                    onClick={() => toggle(section.key)}
+                  />
+                )}
+                {devRows.length > 0 && (
+                  <SectionToggle
+                    label={`${devRows.length} in development`}
+                    expanded={devExpanded}
+                    onClick={() => toggle(`${section.key}-dev`)}
+                  />
+                )}
+              </div>
+            )}
+            {devExpanded && devRows.length > 0 && (
+              <div style={isGrid
+                ? { display: 'grid', gridTemplateColumns: `repeat(${gridColumns}, 1fr)`, gap: isMobile ? 12 : 16, paddingTop: 4 }
+                : { display: 'flex', flexDirection: 'column' }
+              }>
+                {devRows.map((row, i) => (
+                  <motion.div key={row.key} {...rowMotion(0)} style={{ minWidth: 0 }}>
+                    {isGrid
+                      ? <GridCard row={row} index={i} isMobile={isMobile} />
+                      : <FeedRow row={row} isMobile={isMobile} />}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -880,11 +990,7 @@ function WatchLiveStreamButton({ onOpen }: { onOpen: () => void }) {
 }
 
 // ---------- Left column ----------
-function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, onWatchStream, feed, viewMode, setViewMode, scrollRef, isMobile }: {
-  filter: Filter;
-  setFilter: (f: Filter) => void;
-  workCategory: string;
-  setWorkCategory: (c: string) => void;
+function LeftColumn({ activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, onWatchStream, feed, viewMode, setViewMode, scrollRef, isMobile }: {
   activePost: Post | null;
   activeProject: string | null;
   setActivePost: (p: Post | null) => void;
@@ -900,7 +1006,7 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
 }) {
   const [gallerySeed, setGallerySeed] = useState(1);
 
-  // Track if this is the first time posts are rendering (persists across filter changes)
+  // Track if this is the first time posts are rendering (persists across re-renders)
   const hasRenderedPostsRef = useRef(false);
   useEffect(() => {
     hasRenderedPostsRef.current = true;
@@ -983,60 +1089,37 @@ function LeftColumn({ filter, setFilter, workCategory, setWorkCategory, activePo
       </div>
 
       <motion.div
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', ...headerConstraint }}
+        style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, ...headerConstraint }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {FILTERS.map((f) => (
-            <FilterPill
-              key={f}
-              active={filter === f}
-              onClick={() => setFilter(filter === f ? 'all' : f)}
-            >
-              {f}
-            </FilterPill>
-          ))}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {viewMode === 'gallery' && (
-            <button
-              onClick={() => setGallerySeed((s) => s + 1)}
-              aria-label="shuffle gallery"
-              title="shuffle gallery"
-              style={{ display: 'flex', padding: '8px 10px', borderRadius: 8, background: 'var(--tile)', color: 'var(--fg-dim)', transition: 'color 0.15s' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-            >
-              <Shuffle size={14} weight="fill" />
-            </button>
-          )}
-          <ViewModeToggle mode={viewMode} setMode={setViewMode} />
-        </div>
+        {viewMode === 'gallery' && (
+          <button
+            onClick={() => setGallerySeed((s) => s + 1)}
+            aria-label="shuffle gallery"
+            title="shuffle gallery"
+            style={{ display: 'flex', padding: '8px 10px', borderRadius: 8, background: 'var(--tile)', color: 'var(--fg-dim)', transition: 'color 0.15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
+          >
+            <Shuffle size={14} weight="fill" />
+          </button>
+        )}
+        <ViewModeToggle mode={viewMode} setMode={setViewMode} />
       </motion.div>
 
-      <motion.div
-        key={filter}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={SPRING}
-      >
-        <Feed
-          feed={feed}
-          filter={filter}
-          workCategory={workCategory}
-          setWorkCategory={setWorkCategory}
-          activePost={activePost}
-          activeProject={activeProject}
-          setActivePost={setActivePost}
-          openProject={onOpenProject}
-          viewMode={viewMode}
-          gallerySeed={gallerySeed}
-          hasRenderedPosts={hasRenderedPostsRef.current}
-          isMobile={isMobile}
-        />
-      </motion.div>
+      <Feed
+        feed={feed}
+        activePost={activePost}
+        activeProject={activeProject}
+        setActivePost={setActivePost}
+        openProject={onOpenProject}
+        viewMode={viewMode}
+        gallerySeed={gallerySeed}
+        hasRenderedPosts={hasRenderedPostsRef.current}
+        isMobile={isMobile}
+      />
     </div>
     </div>
   );
@@ -1378,7 +1461,7 @@ const postHtmlCache = new Map<string, string>();
 // labels, left-aligned) under a heavy lowercase display title, images
 // numbered FIG. 01… like plates in a printed portfolio.
 function specRowsFor(post: Post): { label: string; value: string; accent?: boolean }[] {
-  const isWork = post.tags.includes('work') || post.tags.includes('archive');
+  const isWork = post.tags.includes('work') || post.tags.includes('archive') || post.tags.includes('projects');
   const year = String(new Date(post.dateValue).getFullYear());
   if (!isWork) {
     return [{ label: 'date', value: post.date }];
@@ -1526,7 +1609,7 @@ function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: (
   }, [postHtml]);
 
   const isLife = post.tags.includes('life');
-  const isWork = post.tags.includes('work') || post.tags.includes('archive');
+  const isWork = post.tags.includes('work') || post.tags.includes('archive') || post.tags.includes('projects');
   const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
 
   // Hero (rendered here) is FIG. 01; figure numbering in the body continues after it.
@@ -1825,9 +1908,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
   const [themeLocked, setThemeLocked] = useState(false);
   const [fontLocked, setFontLocked] = useState(false);
-  const [filter, setFilterRaw] = useState<Filter>('all');
-  const [workCategory, setWorkCategory] = useState('all');
-  const setFilter = (f: Filter) => { setFilterRaw(f); setWorkCategory('all'); };
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
@@ -1846,11 +1926,11 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
   const [activePost, setActivePostRaw] = useState<Post | null>(null);
   const [activeProject, setActiveProject] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('compact');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [showStream, setShowStream] = useState(false);
 
   // Reconcile deferred, client-only state: the theme/font the inline head
-  // script already painted, lock flags, and any ?filter=/?cat=/?post= deep link.
+  // script already painted, lock flags, and any ?post= deep link.
   useEffect(() => {
     const initial = readHpInitial();
     if (initial) {
@@ -1860,20 +1940,10 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     setThemeLocked(!!localStorage.getItem('hp-lock-theme'));
     setFontLocked(!!localStorage.getItem('hp-lock-font'));
 
-    const params = new URLSearchParams(window.location.search);
-    const filterParam = params.get('filter');
-    if (filterParam && (FILTERS as string[]).includes(filterParam)) setFilterRaw(filterParam as Filter);
-    const catParam = params.get('cat');
-    if (catParam) setWorkCategory(catParam);
-
-    const postSlug = params.get('post');
+    const postSlug = new URLSearchParams(window.location.search).get('post');
     if (postSlug) {
       const found = feed.find((p) => p.slug === postSlug);
-      if (found) {
-        setActivePostRaw(found);
-        if (found.tags.includes('life')) setFilterRaw('world');
-        else if (found.tags.some((t) => WORK_TAGS.includes(t))) setFilterRaw('design');
-      }
+      if (found) setActivePostRaw(found);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -2006,16 +2076,12 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
             zIndex: 1,
           }}>
             <LeftColumn
-              filter={filter}
-              setFilter={setFilter}
-              workCategory={workCategory}
-              setWorkCategory={setWorkCategory}
               activePost={activePost}
               activeProject={activeProject}
               setActivePost={setActivePost}
               onOpenProject={openProject}
               onOpenBioModal={setBioModal}
-              onHome={() => { setFilter('all'); closeRightPanel(); }}
+              onHome={closeRightPanel}
               onWatchStream={() => setShowStream(true)}
               feed={feed}
               viewMode={viewMode}
