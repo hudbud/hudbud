@@ -5,6 +5,7 @@ dateLabel: "in development"
 tags: ["work"]
 category: "product"
 excerpt: "The children yearn for 90s raster gifs"
+feature_image: "https://media.hudbud.net/posts/gifcities-keyboard/cover.webp"
 ---
 The children yearn for 90s raster gifs
 
