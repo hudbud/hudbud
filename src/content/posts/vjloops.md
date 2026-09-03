@@ -1,7 +1,7 @@
 ---
 title: "VJ Loops"
 date: "2020-08-19T21:32:38.000Z"
-tags: ["archive"]
+tags: ["projects"]
 category: "motion"
 feature_image: "https://media.hudbud.net/posts/31/image-asset-gif.webp"
 ---

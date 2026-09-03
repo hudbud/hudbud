@@ -1,7 +1,7 @@
 ---
 title: "Travel Video"
 date: "2021-11-29T23:12:59.000Z"
-tags: ["archive"]
+tags: ["life"]
 category: "film"
 feature_image: "https://media.hudbud.net/posts/46/image-asset.webp"
 ---

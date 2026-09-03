@@ -28,7 +28,7 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
   day: 'numeric',
 });
 
-const isWork = entry.data.tags.includes('work') || entry.data.tags.includes('archive');
+const isWork = entry.data.tags.includes('work') || entry.data.tags.includes('archive') || entry.data.tags.includes('projects');
 const specRows = isWork
   ? [
       { label: 'year', value: String(entry.data.date.getFullYear()) },

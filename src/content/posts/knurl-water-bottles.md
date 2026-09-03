@@ -1,7 +1,7 @@
 ---
 title: "Knurl Water Bottles"
 date: "2024-06-01T09:00-07:00"
-tags: ["work"]
+tags: ["projects"]
 category: "product"
 dateLabel: "-"
 draft: false
