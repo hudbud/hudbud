@@ -174,6 +174,7 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
         <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
         <GlassPanelItem href="https://www.linkedin.com/in/hudsonpaine" external>linkedin <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
         <GlassPanelItem href="mailto:hudbud@gmail.com">email</GlassPanelItem>
+        <GlassPanelItem href="/about">about</GlassPanelItem>
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <GlassSectionLabel>resources</GlassSectionLabel>
         {RESOURCES.map((r) => (
@@ -218,6 +219,7 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
         <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
         <GlassPanelItem href="https://www.linkedin.com/in/hudsonpaine" external>linkedin <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
         <GlassPanelItem href="mailto:hudbud@gmail.com">email</GlassPanelItem>
+        <GlassPanelItem href="/about">about</GlassPanelItem>
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
       </GlassBloom>
