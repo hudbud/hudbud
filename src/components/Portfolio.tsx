@@ -1057,7 +1057,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 // alongside the pointer. Rendered into a fixed-position div so it can cross
 // the column's overflow without clipping.
 const HOVER_IMAGES: Record<string, string[]> = {
-  cosmo: ['/images/cosmo-1.jpg', '/images/cosmo-2.jpg'],
+  cosmo: ['/images/cosmo-1.jpg', '/images/cosmo-2.jpg', '/images/cosmo-3.jpg'],
   hudson: ['https://media.hudbud.net/images/hudson-1.webp'],
 };
 
@@ -1071,6 +1071,13 @@ function CursorImagesHover({ label, images, onClick, className = 'hp-bio-link', 
 }) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const threeUp = images.length >= 3;
+  const gap = 8;
+  const cardPad = 8;
+  const cellW = 148;
+  const cellH = 198;
+  const cardW = threeUp ? images.length * cellW + (images.length - 1) * gap + cardPad * 2 : 460;
+  const cardH = threeUp ? cellH + cardPad * 2 : 240;
 
   const move = (e: React.MouseEvent) => {
     // Touch taps synthesize mousemove right before click; skip the hover card
@@ -1078,9 +1085,9 @@ function CursorImagesHover({ label, images, onClick, className = 'hp-bio-link', 
     if (window.matchMedia('(hover: none)').matches) return;
     // Keep the card inside the viewport: flip to the left of the cursor near
     // the right edge, and above it near the bottom.
-    const W = 460, H = 240, pad = 16;
-    const x = e.clientX + pad + W > window.innerWidth ? e.clientX - pad - W : e.clientX + pad;
-    const y = e.clientY + pad + H > window.innerHeight ? e.clientY - pad - H : e.clientY + pad;
+    const edge = 16;
+    const x = e.clientX + edge + cardW > window.innerWidth ? e.clientX - edge - cardW : e.clientX + edge;
+    const y = e.clientY + edge + cardH > window.innerHeight ? e.clientY - edge - cardH : e.clientY + edge;
     setPos({ x, y });
   };
 
@@ -1110,12 +1117,21 @@ function CursorImagesHover({ label, images, onClick, className = 'hp-bio-link', 
             transition={{ duration: 0.15 }}
             style={{
               position: 'fixed', left: pos.x, top: pos.y, zIndex: 250, pointerEvents: 'none',
-              display: 'flex', gap: 8, padding: 8, background: 'var(--bg-inner)',
+              display: threeUp ? 'grid' : 'flex',
+              gridTemplateColumns: threeUp ? `repeat(${images.length}, ${cellW}px)` : undefined,
+              gap, padding: cardPad, background: 'var(--bg-inner)',
               border: '1px solid var(--rule)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
             }}
           >
             {images.map((src) => (
-              <img key={src} src={src} alt="" style={{ height: 224, width: 'auto', borderRadius: 3, display: 'block' }} />
+              <img
+                key={src}
+                src={src}
+                alt=""
+                style={threeUp
+                  ? { width: cellW, height: cellH, objectFit: 'cover', borderRadius: 3, display: 'block' }
+                  : { height: 224, width: 'auto', borderRadius: 3, display: 'block' }}
+              />
             ))}
           </motion.span>
         )}
