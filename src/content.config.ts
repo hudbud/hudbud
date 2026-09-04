@@ -10,6 +10,11 @@ const posts = defineCollection({
     tags: z.array(z.enum(['thoughts', 'life', 'resources', 'archive', 'work', 'projects'])).min(1),
     category: z.enum(['portfolio', 'branding', 'motion', 'illustration', 'product', 'film', 'photo']).optional(),
     excerpt: z.string().optional(),
+    /** Handwritten one-liner for homepage section rows (overrides excerpt there). */
+    summary: z.string().optional(),
+    /** Type-of-work tag(s) for work rows, comma-separated, canonical order:
+        product design, brand design, then specialties. */
+    discipline: z.string().optional(),
     feature_image: z.string().optional(),
     draft: z.boolean().default(false),
     roles: z.string().optional(),

@@ -1,6 +1,6 @@
 ---
 title: "Playlight"
-date: "2020-01-02T23:42:48.000Z"
+date: "2018-01-02"
 tags: ["archive"]
 category: "product"
 feature_image: "https://media.hudbud.net/posts/42/final2.webp"
@@ -20,3 +20,5 @@ excerpt: "A product exploration in gradients and light."
 ![](https://media.hudbud.net/posts/42/image-asset.webp)
 
 ![](https://media.hudbud.net/posts/42/final.webp)
+
+<div style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9"><iframe loading="lazy" src="https://www.youtube.com/embed/8q01euBvmwI" title="Playlight Interactive Display" style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:2px" allowfullscreen></iframe></div>

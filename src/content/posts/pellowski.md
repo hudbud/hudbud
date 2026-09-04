@@ -1,6 +1,6 @@
 ---
 title: "TheBigPellowski"
-date: "2020-09-02"
+date: "2017-09-02"
 tags: ["archive"]
 category: "motion"
 excerpt: "Twitch streamer branding — animated intros, stream overlays, motion graphics, and Streamlabs deployment."
@@ -28,3 +28,13 @@ Twitch streamer branding — animated intros, stream overlays, motion graphics, 
 <div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/yt_outro.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/406;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 <div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/2020_09_02_15_34_45.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/406;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+![](https://media.hudbud.net/posts/58/youtube-banner.webp)
+
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/bits.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/donation.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/new-follower.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/new-sub.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>

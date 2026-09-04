@@ -4,6 +4,8 @@ date: "2099-12-30T09:00-07:00"
 dateLabel: "active"
 tags: ["work"]
 category: "portfolio"
+discipline: "product design, brand design"
+summary: "Founding designer, head of design"
 excerpt: "Design Lead at LightSource — access to this work is restricted."
 feature_image: "https://media.hudbud.net/posts/69/cover.webp"
 ---

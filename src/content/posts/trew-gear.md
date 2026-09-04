@@ -1,6 +1,6 @@
 ---
 title: "Trew Gear"
-date: "2021-03-23"
+date: "2020-03-23"
 tags: ["archive"]
 category: "product"
 excerpt: "Single page web design for outdoor gear company."

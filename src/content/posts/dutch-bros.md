@@ -2,8 +2,10 @@
 title: "Dutch Bros Coffee"
 date: "2022-01-24"
 tags: ["work"]
+discipline: "product design, brand design"
+summary: "Loyalty app design system"
 excerpt: "Design systems management, Sketch-to-Figma conversion, and UI support for Dutch Bros loyalty app at Hathway."
-feature_image: "https://media.hudbud.net/posts/50/typography.webp"
+feature_image: "https://media.hudbud.net/posts/50/frame-229.webp"
 roles: "Design Systems Management, UI Support, Graphic Design"
 tools: "Figma, Sketch, Photoshop, Illustrator"
 agency: "Hathway"
@@ -25,8 +27,6 @@ Dutch Bros is a coffee chain in the western USA which approached Hathway with th
 
 ![](https://media.hudbud.net/posts/50/atoms.webp)
 
-![](https://media.hudbud.net/posts/50/frame-229.webp)
-
 ![](https://media.hudbud.net/posts/50/frame-230.webp)
 
 ![](https://media.hudbud.net/posts/50/organisms.webp)
@@ -42,3 +42,5 @@ Dutch Bros is a coffee chain in the western USA which approached Hathway with th
 ![](https://media.hudbud.net/posts/50/slice2.webp)
 
 ![](https://media.hudbud.net/posts/50/main.webp)
+
+![](https://media.hudbud.net/posts/50/slice4.webp)

@@ -2,8 +2,10 @@
 title: "Blaze Pizza"
 date: "2021-10-06"
 tags: ["work"]
+discipline: "product design"
+summary: "Visual refresh, art direction, and mobile and web ordering and loyalty app UI and UX"
 excerpt: "Visual refresh, UI design, and art direction for Blaze Pizza's ordering and loyalty experience at Hathway."
-feature_image: "https://media.hudbud.net/posts/52/frame-2.webp"
+feature_image: "https://media.hudbud.net/posts/52/image-13.webp"
 roles: "UI Design, UI Toolkit Management, Art Direction, Figma Conversion"
 tools: "Sketch, Figma, Illustrator, Photoshop"
 agency: "Hathway"
@@ -25,8 +27,6 @@ Blaze Pizza approached Hathway to create an ordering and loyalty app and web exp
 
 ![](https://media.hudbud.net/posts/52/frame-4.webp)
 
-![](https://media.hudbud.net/posts/52/image-13.webp)
-
 ![](https://media.hudbud.net/posts/52/frame-8.webp)
 
 ![](https://media.hudbud.net/posts/52/frame-9.webp)
@@ -46,3 +46,9 @@ Blaze Pizza approached Hathway to create an ordering and loyalty app and web exp
 ![](https://media.hudbud.net/posts/52/image-13-1.webp)
 
 ![](https://media.hudbud.net/posts/52/frame-3.webp)
+
+![](https://media.hudbud.net/posts/52/frame-11.webp)
+
+![](https://media.hudbud.net/posts/52/frame-14.webp)
+
+[View the Blaze Pizza website](https://www.blazepizza.com)

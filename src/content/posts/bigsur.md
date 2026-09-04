@@ -1,10 +1,19 @@
 ---
 title: "bigsur"
 date: "2020-01-20T20:20:43.000Z"
-tags: ["archive"]
+tags: ["life"]
 category: "photo"
+excerpt: "Back to Big Sur after three years — Plaskett Ridge in the '94 Hiace, and a weekend that named the van."
 feature_image: "https://media.hudbud.net/posts/45/bigsur-35.webp"
 ---
+
+We made it back to Big Sur after three years. My 94 Toyota Hiace served both as our transportation and our shelter. A trip up Plaskett Ridge was not the easiest, but this is par for the course. We planned to leave San Luis Obispo for the 1.5 hour drive around 3:45, but ultimately got on the road at about 5:00PM. We caught the last of the day's light when we made it to the coastal highway, and the rest of our journey to the top of the ridge was in the dark. The ridge road presented its own challenge, and really put the van to the test.
+
+We reached the top of the ridge, and on either side of the road were large hills with challenging access roads. We made our selection after giving each potential campsite a look. The van tackled its final challenge, seeming like it was going to tip over but ultimately well grounded.
+
+Our weekend was relaxed. We spent the first night cooking tacos and blowing through most of our beer supply. The following day was completely open and unplanned. What ended up happening was lots of kendama, a hike (or two), some merchandise modeling, and our endeavor into the world of podcasting. Within this, we also decided on a name for the van: Howard Earnest Doon. AKA Howie Doon.
+
+It was a great trip to reflect on our time in college and return full-circle to one of our first trips together, which was to the same place.
 
 ![](https://media.hudbud.net/posts/45/bigsur-35.webp)
 

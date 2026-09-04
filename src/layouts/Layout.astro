@@ -65,10 +65,20 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
         var DEFAULT_THEME = 'earthsong';
         var DEFAULT_FONT = 'apfel';
 
+        // Accessibility mode (toggled from the site chrome, or inherited from
+        // the OS reduced-motion preference on first visit) constrains the
+        // random pick to contrast-checked themes and disables motion.
+        var a11yStored = localStorage.getItem('hp-a11y');
+        var a11y = a11yStored !== null
+          ? a11yStored === '1'
+          : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (a11y) document.documentElement.classList.add('hp-a11y');
+
+        var pool = a11y ? safeThemeNames : themeNames;
         var themeLocked = localStorage.getItem('hp-lock-theme');
         var theme = themeLocked
           ? (localStorage.getItem('hp-theme') || DEFAULT_THEME)
-          : safeThemeNames[Math.floor(Math.random() * safeThemeNames.length)];
+          : pool[Math.floor(Math.random() * pool.length)];
 
         var fontLocked = localStorage.getItem('hp-lock-font');
         var font = fontLocked
@@ -91,7 +101,7 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
           root.style.setProperty('--accent', mt.accent);
         }
         document.body.dataset.font = font;
-        window.__hpInitial = { theme: theme, font: font };
+        window.__hpInitial = { theme: theme, font: font, a11y: a11y };
       } catch (e) {}
     })();
   </script>

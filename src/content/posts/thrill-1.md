@@ -1,6 +1,6 @@
 ---
 title: "Thrill"
-date: "2020-01-06T03:41:44.000Z"
+date: "2019-01-06"
 tags: ["archive"]
 category: "branding"
 feature_image: "https://media.hudbud.net/posts/44/5180fc2e-6f0b-40fa-8129-0e69225741ba_rw_600.webp"

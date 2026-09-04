@@ -29,14 +29,16 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
 });
 
 const isWork = entry.data.tags.includes('work') || entry.data.tags.includes('archive') || entry.data.tags.includes('projects');
+// Dates/years keep the mono spec voice; wordy rows (discipline, roles,
+// tools) read in the body font like every other label on the site.
 const specRows = isWork
   ? [
-      { label: 'year', value: String(entry.data.date.getFullYear()) },
-      ...(entry.data.category ? [{ label: 'discipline', value: entry.data.category, accent: true }] : []),
+      { label: 'year', value: entry.data.dateLabel ?? String(entry.data.date.getFullYear()), mono: true },
+      ...(entry.data.discipline || entry.data.category ? [{ label: 'discipline', value: entry.data.discipline ?? entry.data.category, accent: true }] : []),
       ...(entry.data.roles ? [{ label: 'role', value: entry.data.roles }] : []),
       ...(entry.data.tools ? [{ label: 'tools', value: entry.data.tools }] : []),
     ]
-  : [{ label: 'date', value: dateLabel }];
+  : [{ label: 'date', value: dateLabel, mono: true }];
 ---
 <Layout
   title={`${entry.data.title} — Hudson Paine`}
@@ -52,7 +54,7 @@ const specRows = isWork
       <h1>{entry.data.title}</h1>
       <div class="post-spec">
         {specRows.map((r) => (
-          <div class:list={['post-spec-cell', 'spec-row', { accent: r.accent }]}>{r.value}</div>
+          <div class:list={['spec-row', { 'post-spec-cell': r.mono, accent: r.accent }]}>{r.value}</div>
         ))}
       </div>
       {showLede && <p class="lede">{entry.data.excerpt}</p>}
@@ -241,10 +243,12 @@ const specRows = isWork
   .spec-row {
     color: var(--fg-dim);
     padding: 5px 0;
+    font-size: 14px;
   }
+  .spec-row.post-spec-cell { font-size: 11px; }
   .spec-row.accent { color: var(--accent); }
   .lede {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.65;
     color: var(--fg);
     max-width: 520px;
@@ -259,7 +263,7 @@ const specRows = isWork
   .prose :global(p),
   .prose :global(ul),
   .prose :global(ol) {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.7;
     margin: 0 0 1em;
   }

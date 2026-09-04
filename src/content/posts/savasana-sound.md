@@ -1,6 +1,6 @@
 ---
 title: "Savasana Sound"
-date: "2021-03-04"
+date: "2018-03-04"
 tags: ["archive"]
 category: "branding"
 excerpt: "Branding and logo design for a sound bath performance group."
@@ -50,3 +50,7 @@ Branding and logo design for a sound bath performance group.
 ![](https://media.hudbud.net/posts/60/20.webp)
 
 ![](https://media.hudbud.net/posts/60/behance-00.webp)
+
+![](https://media.hudbud.net/posts/60/10.webp)
+
+![](https://media.hudbud.net/posts/60/13.webp)

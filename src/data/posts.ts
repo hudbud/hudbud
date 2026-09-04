@@ -3,6 +3,10 @@ export interface Post {
   date: string;
   dateValue: number;
   excerpt: string;
+  /** Handwritten one-liner for homepage section rows (overrides excerpt there). */
+  summary?: string;
+  /** Type-of-work tag(s), comma-separated. */
+  discipline?: string;
   html?: string;
   slug?: string;
   tags: string[];

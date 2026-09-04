@@ -1,6 +1,6 @@
 ---
 title: "Papercut Films"
-date: "2021-03-04"
+date: "2016-03-04"
 tags: ["archive"]
 category: "branding"
 excerpt: "Logo and branding for a film production company."
@@ -14,3 +14,19 @@ Logo and branding for a film production company.
 **Tools:** Illustrator
 
 ![](https://media.hudbud.net/posts/65/papercut_logo_rev1.png)
+
+![](https://media.hudbud.net/posts/65/rev9-whitelogo-blackbg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-blacklogo-whitebg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-bluelogo-blackbg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-bluelogo-whitebg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-combination-logo-black-whitebg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-combination-logo-white-blackbg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-papercut-blackbg-large.webp)
+
+![](https://media.hudbud.net/posts/65/rev9-papercut-whitebg-large.webp)
