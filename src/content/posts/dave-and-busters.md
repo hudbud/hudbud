@@ -3,6 +3,8 @@ title: "Dave and Buster's"
 date: "2021-10-06"
 tags: ["work"]
 category: "portfolio"
+discipline: "product design, brand design, motion graphics"
+summary: "Mobile and web loyalty app and in-venue ordering app, UI and UX"
 excerpt: "Bringing the pulse of the arcade to the palm of your hand."
 feature_image: "https://media.hudbud.net/posts/47/slide-16_9-1.webp"
 roles: "Design Systems Manager, UI Designer, UX Support, Motion Graphics, 3D Specialist"
@@ -67,3 +69,39 @@ To achieve this, we designed a custom badge system and motion kit that celebrate
 <img src="https://media.hudbud.net/posts/47/18_d-b_1x1.webp" alt="" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block" />
 <video src="https://media.hudbud.net/posts/47/19_d-b_1x1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1/1;height:auto;border-radius:2px;display:block;background:#000"></video>
 </div>
+
+---
+
+## From the archive — the Hathway case study
+
+Dave & Buster's is a restaurant and entertainment chain in the USA which approached Hathway with the goal of improving their digital offering. The task was to improve their rewards and loyalty program's engagement and UX. We delivered a best-in-class custom app for usage within their arcade, replacing the need for costly and clumsy tickets.
+
+Dave & Buster's continued the contract by asking our team to design a new phone-based menu and ordering system for their restaurants. We put together two completely custom products: a loyalty app and a mobile ordering site.
+
+For this, I created and maintained two interlaced design systems, creating a fluent and consistent design language which represented the Dave & Buster's brand and supported each app's specialty. I was the UI designer for the ordering app, which I fully prototyped for the client. Upon delivery of the design assets and UI, Dave & Buster's asked us for more discovery, for which I created 3D models for our reward illustrations, representing enamel pins. Dave & Buster's planned to manufacture these and use them as a reward for their highest-tier spenders — and only decided to do this after seeing our renders. I also created the 3D assets and animations for the mockup shown below.
+
+<div style="margin:12px 0"><video src="/posts/47/main.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+![](/posts/47/dingdingding-7.webp)
+
+![](/posts/47/db-prototype-1.webp)
+
+![](/posts/47/db-prototype-2.webp)
+
+![](/posts/47/frame-235.webp)
+
+![](/posts/47/frame-236.webp)
+
+![](/posts/47/frame-237.webp)
+
+![](/posts/47/frame-238.webp)
+
+![](/posts/47/frame-239.webp)
+
+![](/posts/47/frame-240.webp)
+
+![](/posts/47/frame-241.webp)
+
+![](/posts/47/frame-242.webp)
+
+![](/posts/47/frame-243.webp)

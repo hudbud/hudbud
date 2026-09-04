@@ -1,6 +1,7 @@
 ---
 title: "Locoll Design Co."
-date: "2020-01-06T18:13:23.000Z"
+date: "2022-01-06"
+dateLabel: "2015 – 2022"
 tags: ["archive"]
 category: "branding"
 feature_image: "https://media.hudbud.net/posts/34/20180805_165438.webp"
@@ -137,3 +138,5 @@ excerpt: "Sticker and clothing brand. Small runs, hand-picked drops, mostly for 
 ![](https://media.hudbud.net/posts/34/behance-04.webp)
 
 ![](https://media.hudbud.net/posts/34/behance-05.webp)
+
+![](/posts/34/banner.webp)

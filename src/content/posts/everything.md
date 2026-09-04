@@ -165,3 +165,5 @@ feature_image: "https://media.hudbud.net/posts/32/artboard-1-100.webp"
 ![](https://media.hudbud.net/posts/32/2de42050-3a77-4247-8a1c-202953b23cd3_rw_1200.webp)
 
 ![](https://media.hudbud.net/posts/32/bishoppeak.webp)
+
+![](/posts/32/img-0476.webp)

@@ -4,6 +4,7 @@ date: "2020-09-04"
 tags: ["work"]
 excerpt: "Logo, branding, UI design, and mapbox design for a map-based secure messenger. Successfully launched on iOS and Android."
 feature_image: "https://media.hudbud.net/posts/61/pantepic_logo_guidelines.webp"
+discipline: "product design, marketing"
 roles: "Logo & Branding, UI Design, Mapbox Design, Marketing Collateral, Web Design"
 tools: "Figma, Illustrator, Mapbox"
 ---
@@ -33,3 +34,27 @@ Pantepic is a map-based secure messenger that successfully launched on iOS and A
 ![](https://media.hudbud.net/posts/61/banner.webp)
 
 <div style="margin:12px 0"><video src="https://media.hudbud.net/posts/61/final.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+
+![](/posts/61/twitter-banner.webp)
+
+![](/posts/61/ios-1.webp)
+
+![](/posts/61/ios-2.webp)
+
+![](/posts/61/ios-3.webp)
+
+![](/posts/61/ios-4.webp)
+
+![](/posts/61/ios-5.webp)
+
+![](/posts/61/android-1.webp)
+
+![](/posts/61/android-2.webp)
+
+![](/posts/61/android-3.webp)
+
+![](/posts/61/android-4.webp)
+
+![](/posts/61/android-5.webp)
+
+![](/posts/61/android-6.webp)

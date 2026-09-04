@@ -1,6 +1,6 @@
 ---
 title: "Zib Messenger"
-date: "2021-03-10"
+date: "2019-03-10"
 tags: ["work"]
 excerpt: "Lead product design for Zib — a Slack-competitor messaging app with 3D workspace environments. Branding, UX/UI, web design."
 feature_image: "https://media.hudbud.net/posts/55/portfolio-1.png"
@@ -8,7 +8,7 @@ roles: "Product Design (Lead), Branding, 3D Graphics, UX/UI Design, Web Design"
 tools: "Figma, Blender, Unity"
 ---
 
-Zib is a Slack-competitor messaging app with 3D workspace environments. As lead product designer, I handled everything from branding and web design to UX/UI for the messenger, settings, and 3D office spaces. The 3D workspaces were built in Blender and integrated via Unity, allowing teams to navigate virtual offices.
+Zib is a Slack-competitor messaging app with 3D workspace environments. As lead product designer, I handled everything from branding and web design to UX/UI for the messenger, settings, and 3D office spaces. The 3D workspaces were built in Blender and integrated via Unity, allowing teams to navigate virtual offices. For the messenger I designed and utilized a “powerpanel” system to create a dynamic and powerful messaging experience with threads, mentions, saved messages, and #channels. I also improved the Unity-based virtual office itself: updating textures, adding new furniture models, dynamic lighting, and a custom skybox, and re-arranging furniture — plus smoothing and reshaping the character models.
 
 **Roles:** Product Design (Lead), Branding, 3D Graphics, UX/UI Design, Web Design
 
@@ -81,3 +81,5 @@ Zib is a Slack-competitor messaging app with 3D workspace environments. As lead 
 ![](https://media.hudbud.net/posts/55/render6.webp)
 
 ![](https://media.hudbud.net/posts/55/newmodels1.webp)
+
+![](/posts/55/about-workspace.webp)

@@ -2,6 +2,8 @@
 title: "Arby's"
 date: "2021-10-06"
 tags: ["work"]
+discipline: "animation"
+summary: "Internal marketing animations"
 excerpt: "Animated videos for Arby's franchisee conference at Hathway."
 roles: "Animator"
 tools: "After Effects, Illustrator"
@@ -16,3 +18,5 @@ Arby's, a U.S. QSR chain early in its relationship with Hathway, commissioned tw
 **Tools:** After Effects, Illustrator
 
 **Agency:** Hathway
+
+![](https://media.hudbud.net/posts/arbys/cover.webp)

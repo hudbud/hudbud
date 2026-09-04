@@ -7,9 +7,7 @@ feature_image: "https://media.hudbud.net/posts/36/322dd77a-7945-475b-b2b4-3a3099
 excerpt: "Paine Pacific site redesign — visual design and web layout."
 ---
 
-<!-- DRAFT excerpt — Hudson: derived from one of the embedded screenshot
-     filenames ("Paine Pacific site redesign"); please confirm/replace. -->
-
+Web design and branding for Paine Pacific.
 ![](https://media.hudbud.net/posts/36/322dd77a-7945-475b-b2b4-3a3099a283bc_rw_1200.webp)
 
 ![](https://media.hudbud.net/posts/36/fb8b55e3-d343-40f5-ab9b-2d59cb68a0ff_rw_1200.webp)
@@ -39,3 +37,35 @@ excerpt: "Paine Pacific site redesign — visual design and web layout."
 ![](https://media.hudbud.net/posts/36/behance-05.webp)
 
 ![](https://media.hudbud.net/posts/36/behance-06.webp)
+
+![](/posts/36/flatlay-perspective.webp)
+
+![](/posts/36/indoor-signage-mockup.webp)
+
+![](/posts/36/box-inverse-black.webp)
+
+![](/posts/36/box-inverse-blue.webp)
+
+![](/posts/36/box-inverse-grey.webp)
+
+![](/posts/36/box-inverse-orange.webp)
+
+![](/posts/36/small-horizontal-black.webp)
+
+![](/posts/36/small-horizontal-blue.webp)
+
+![](/posts/36/small-horizontal-grey.webp)
+
+![](/posts/36/small-horizontal-orange.webp)
+
+![](/posts/36/logo-orange.webp)
+
+![](/posts/36/logo-black.webp)
+
+![](/posts/36/logo-blue.webp)
+
+![](/posts/36/logo-colorgradient.webp)
+
+![](/posts/36/stationery-mockup-free-version5.webp)
+
+<div style="margin:12px 0"><video src="/posts/36/pp-rebrand-animation-gif.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video></div>

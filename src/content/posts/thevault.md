@@ -1,6 +1,6 @@
 ---
 title: "thevault"
-date: "2020-01-06T03:28:40.000Z"
+date: "2019-01-06"
 tags: ["archive"]
 category: "product"
 feature_image: "https://media.hudbud.net/posts/41/materials.webp"

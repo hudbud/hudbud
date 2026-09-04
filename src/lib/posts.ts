@@ -33,6 +33,8 @@ function entryToMeta(entry: CollectionEntry<'posts'>): Post {
     date: entry.data.dateLabel ?? formatDate(entry.data.date),
     dateValue: +entry.data.date,
     excerpt: entry.data.excerpt ?? '',
+    summary: entry.data.summary,
+    discipline: entry.data.discipline,
     slug: entry.id,
     tags: entry.data.tags,
     category: entry.data.category,

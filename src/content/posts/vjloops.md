@@ -35,3 +35,7 @@ feature_image: "https://media.hudbud.net/posts/31/image-asset-gif.webp"
 ![](https://media.hudbud.net/posts/31/spin3.webp)
 
 ![](https://media.hudbud.net/posts/31/new_mush.webp)
+
+<div style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9"><iframe loading="lazy" src="https://www.youtube.com/embed/vZE-wL4tqnU" style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:2px" allowfullscreen></iframe></div>
+
+<div style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9"><iframe loading="lazy" src="https://www.youtube.com/embed/MLCG1Z6uT1c" style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:2px" allowfullscreen></iframe></div>

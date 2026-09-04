@@ -1,6 +1,6 @@
 ---
 title: "TuneIn"
-date: "2020-06-09"
+date: "2019-06-09"
 tags: ["archive"]
 category: "branding"
 excerpt: "Brand design and style guide for a silent disco application."

@@ -2,6 +2,8 @@
 title: "Panda Express"
 date: "2021-10-06"
 tags: ["work"]
+discipline: "motion graphics"
+summary: "Brand micro-animations for the ordering and loyalty experience"
 excerpt: "Animation and UI support for Panda Express ordering experience at Hathway."
 feature_image: "https://media.hudbud.net/posts/54/frame-2.webp"
 roles: "Animation, UI Support"

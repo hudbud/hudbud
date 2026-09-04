@@ -277,6 +277,23 @@ img { max-width: 100%; display: block; }
   transform: translateX(-50%) translateY(0);
 }
 
+/* ---------- Accessibility mode ---------- */
+/* Toggled from the chrome (bottom-right); kills CSS animation/transition.
+   framer-motion springs are separately disabled via MotionConfig. */
+html.hp-a11y *,
+html.hp-a11y *::before,
+html.hp-a11y *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---------- Feed search ---------- */
+/* The row renders its own ✕ clear button; hide WebKit's built-in one. */
+.hp-search-input::-webkit-search-cancel-button { display: none; }
+.hp-search-input::placeholder { color: var(--fg-dim); }
+
 /* ---------- Gallery view (masonry tiles) ---------- */
 .hp-gallery-tile .hp-gallery-caption {
   position: absolute;

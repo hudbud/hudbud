@@ -1,8 +1,11 @@
 ---
 title: "CarvanaDS"
-date: "2024-05-30T18:21-07:00"
+date: "2025-05-30"
+dateLabel: "2022 – 2025"
 tags: ["work"]
 category: "portfolio"
+discipline: "product design"
+summary: "Unifying Carvana under one design system"
 excerpt: "Four products, four design languages, one big mess — unifying Carvana under a single design system, then getting a 10,000-person company to actually adopt it."
 feature_image: "https://media.hudbud.net/posts/68/cover.webp"
 roles: "Senior Product Designer, Design Systems"

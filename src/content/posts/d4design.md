@@ -3,19 +3,19 @@ title: "D4"
 date: "2020-01-03T00:39:44.000Z"
 tags: ["archive"]
 category: "branding"
-feature_image: "https://media.hudbud.net/posts/33/export12tan-3x_3.webp"
+discipline: "web design, brand design"
+feature_image: "https://media.hudbud.net/posts/33/patch-1.webp"
 excerpt: "Branding and identity exploration — logo grid, patches, and a landing page design."
 ---
 
-<!-- DRAFT excerpt — Hudson: no body text on this post to draw from (image
-     dump only); wrote a placeholder guess from the image filenames, please
-     rewrite with the real project context. -->
+D4 Portaledge — design, branding, web design, and merchandise for Big Wall Gear's D4 portaledge.
 
+**Primary palette.** The primary palette uses clean black and white elements, reflecting the well-engineered design of the tent. These colors create a clean base for fills of D4 yellow to give a bold and exciting direction to the brand. The yellow is reminiscent of the signature A5 yellow, but brings modern zing and youthful energy to the innovative new design.
+
+**Secondary/accent colors.** The D4 accent colors are used sparingly — highlighting small details that could otherwise be overlooked, popping out from the palette in an energetic and thrilling way.
 ![](https://media.hudbud.net/posts/33/export12tan-3x_3.webp)
 
 ![](https://media.hudbud.net/posts/33/climbingaddraft1.webp)
-
-![](https://media.hudbud.net/posts/33/patch-1.webp)
 
 ![](https://media.hudbud.net/posts/33/n.webp)
 
@@ -94,3 +94,31 @@ excerpt: "Branding and identity exploration — logo grid, patches, and a landin
 ![](https://media.hudbud.net/posts/33/behance-09.webp)
 
 ![](https://media.hudbud.net/posts/33/behance-10.webp)
+
+![](/posts/33/porta-ledge-framed-1.webp)
+
+![](/posts/33/the-d4-portaledge-framed-1.webp)
+
+![](/posts/33/d4-logo.webp)
+
+![](/posts/33/d4-logo-in-circle.webp)
+
+![](/posts/33/big-wall-gear-combination-logo-with-frame.webp)
+
+![](/posts/33/annotation-2020-08-19-154113.webp)
+
+![](/posts/33/annotation-2020-08-19-154129.webp)
+
+![](/posts/33/colored-piton-square-2.webp)
+
+![](/posts/33/colored-piton-square.webp)
+
+![](/posts/33/piton-negative-ble.webp)
+
+![](/posts/33/piton-negative-gray.webp)
+
+![](/posts/33/piton-negative-orange.webp)
+
+![](/posts/33/reversed-mono.webp)
+
+![](/posts/33/reversed-mono-new.webp)
