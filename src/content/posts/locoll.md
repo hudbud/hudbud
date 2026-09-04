@@ -139,4 +139,4 @@ excerpt: "Sticker and clothing brand. Small runs, hand-picked drops, mostly for 
 
 ![](https://media.hudbud.net/posts/34/behance-05.webp)
 
-![](/posts/34/banner.webp)
+![](https://media.hudbud.net/posts/34/banner.webp)

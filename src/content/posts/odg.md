@@ -4,7 +4,7 @@ date: "2017-10-02"
 tags: ["work"]
 summary: "AR headset UX at the bleeding edge, 2017"
 excerpt: "Branding, marketing, UI/UX, and web design for next-generation AR hardware company."
-feature_image: "https://media.hudbud.net/posts/57/odg20.webp"
+feature_image: "https://media.hudbud.nethttps://media.hudbud.net/posts/57/odg20.webp"
 roles: "Branding, Marketing, UI/UX, Web Design"
 tools: "Figma, After Effects, Illustrator"
 ---
@@ -121,10 +121,10 @@ The brand carried into ODG's offices and laboratories through signage, digital d
 
 ![](https://media.hudbud.net/posts/57/odg17.webp)
 
-![](/posts/57/banner.webp)
+![](https://media.hudbud.net/posts/57/banner.webp)
 
-![](/posts/57/odg20.webp)
+![](https://media.hudbud.net/posts/57/odg20.webp)
 
-![](/posts/57/odc-r8-r9.webp)
+![](https://media.hudbud.net/posts/57/odc-r8-r9.webp)
 
-![](/posts/57/reticlebanner.webp)
+![](https://media.hudbud.net/posts/57/reticlebanner.webp)

@@ -35,26 +35,26 @@ Pantepic is a map-based secure messenger that successfully launched on iOS and A
 
 <div style="margin:12px 0"><video src="https://media.hudbud.net/posts/61/final.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](/posts/61/twitter-banner.webp)
+![](https://media.hudbud.net/posts/61/twitter-banner.webp)
 
-![](/posts/61/ios-1.webp)
+![](https://media.hudbud.net/posts/61/ios-1.webp)
 
-![](/posts/61/ios-2.webp)
+![](https://media.hudbud.net/posts/61/ios-2.webp)
 
-![](/posts/61/ios-3.webp)
+![](https://media.hudbud.net/posts/61/ios-3.webp)
 
-![](/posts/61/ios-4.webp)
+![](https://media.hudbud.net/posts/61/ios-4.webp)
 
-![](/posts/61/ios-5.webp)
+![](https://media.hudbud.net/posts/61/ios-5.webp)
 
-![](/posts/61/android-1.webp)
+![](https://media.hudbud.net/posts/61/android-1.webp)
 
-![](/posts/61/android-2.webp)
+![](https://media.hudbud.net/posts/61/android-2.webp)
 
-![](/posts/61/android-3.webp)
+![](https://media.hudbud.net/posts/61/android-3.webp)
 
-![](/posts/61/android-4.webp)
+![](https://media.hudbud.net/posts/61/android-4.webp)
 
-![](/posts/61/android-5.webp)
+![](https://media.hudbud.net/posts/61/android-5.webp)
 
-![](/posts/61/android-6.webp)
+![](https://media.hudbud.net/posts/61/android-6.webp)

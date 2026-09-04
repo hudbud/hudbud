@@ -25,20 +25,20 @@ I supported this project by helping manage the design system and designing UI sc
 
 ![](https://media.hudbud.net/posts/51/slide-16_9-1.webp)
 
-![](/posts/51/frame-484.webp)
+![](https://media.hudbud.net/posts/51/frame-484.webp)
 
-![](/posts/51/frame-485.webp)
+![](https://media.hudbud.net/posts/51/frame-485.webp)
 
-![](/posts/51/frame-486.webp)
+![](https://media.hudbud.net/posts/51/frame-486.webp)
 
-![](/posts/51/frame-487.webp)
+![](https://media.hudbud.net/posts/51/frame-487.webp)
 
-![](/posts/51/frame-488.webp)
+![](https://media.hudbud.net/posts/51/frame-488.webp)
 
-![](/posts/51/frame-489.webp)
+![](https://media.hudbud.net/posts/51/frame-489.webp)
 
-![](/posts/51/frame-490.webp)
+![](https://media.hudbud.net/posts/51/frame-490.webp)
 
-![](/posts/51/frame-492.webp)
+![](https://media.hudbud.net/posts/51/frame-492.webp)
 
-![](/posts/51/frame-493.webp)
+![](https://media.hudbud.net/posts/51/frame-493.webp)

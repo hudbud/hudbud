@@ -51,6 +51,6 @@ Branding and logo design for a sound bath performance group.
 
 ![](https://media.hudbud.net/posts/60/behance-00.webp)
 
-![](/posts/60/10.webp)
+![](https://media.hudbud.net/posts/60/10.webp)
 
-![](/posts/60/13.webp)
+![](https://media.hudbud.net/posts/60/13.webp)

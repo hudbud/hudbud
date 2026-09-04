@@ -82,4 +82,4 @@ Zib is a Slack-competitor messaging app with 3D workspace environments. As lead 
 
 ![](https://media.hudbud.net/posts/55/newmodels1.webp)
 
-![](/posts/55/about-workspace.webp)
+![](https://media.hudbud.net/posts/55/about-workspace.webp)

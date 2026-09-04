@@ -48,12 +48,14 @@ export function loadEnvLocal(): void {
   }
 }
 
-/** All /posts/<n>/... asset paths referenced by markdown content (body or frontmatter). */
+/** All /posts/<dir>/... asset paths referenced by markdown content (body or
+    frontmatter). Dirs are numeric legacy ids or post slugs (sureclinical,
+    country-gentlemen); /images/<file> covers one-off site assets. */
 export function collectReferencedPaths(postsDir = 'src/content/posts'): Set<string> {
   const paths = new Set<string>();
   for (const file of readdirSync(postsDir).filter((f: string) => f.endsWith('.md'))) {
     const content = readFileSync(join(postsDir, file), 'utf-8');
-    for (const m of content.matchAll(/\/posts\/\d+\/[^")\s<>]+/g)) {
+    for (const m of content.matchAll(/\/(?:posts\/[a-z0-9-]+|images)\/[^")\s<>]+\.[a-zA-Z0-9]+/g)) {
       paths.add(m[0].replace(/&amp;/g, '&'));
     }
   }

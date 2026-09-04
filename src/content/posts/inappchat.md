@@ -22,36 +22,36 @@ In-App Chat is a messaging SDK WebApp. I designed the full UX/UI for the messeng
 
 ![](https://media.hudbud.net/posts/56/main1.webp)
 
-![](/posts/56/home.webp)
+![](https://media.hudbud.net/posts/56/home.webp)
 
-![](/posts/56/pricing.webp)
+![](https://media.hudbud.net/posts/56/pricing.webp)
 
-![](/posts/56/store.webp)
+![](https://media.hudbud.net/posts/56/store.webp)
 
-![](/posts/56/desktop-2.webp)
+![](https://media.hudbud.net/posts/56/desktop-2.webp)
 
-![](/posts/56/desktop-3.webp)
+![](https://media.hudbud.net/posts/56/desktop-3.webp)
 
-![](/posts/56/desktop-4.webp)
+![](https://media.hudbud.net/posts/56/desktop-4.webp)
 
-![](/posts/56/desktop-5.webp)
+![](https://media.hudbud.net/posts/56/desktop-5.webp)
 
-![](/posts/56/desktop-9.webp)
+![](https://media.hudbud.net/posts/56/desktop-9.webp)
 
-![](/posts/56/desktop-11.webp)
+![](https://media.hudbud.net/posts/56/desktop-11.webp)
 
-![](/posts/56/desktop-12.webp)
+![](https://media.hudbud.net/posts/56/desktop-12.webp)
 
-![](/posts/56/desktop-13.webp)
+![](https://media.hudbud.net/posts/56/desktop-13.webp)
 
-![](/posts/56/desktop-14.webp)
+![](https://media.hudbud.net/posts/56/desktop-14.webp)
 
-![](/posts/56/project-sign-up-workspace-owner-signs-up-for-an-org.webp)
+![](https://media.hudbud.net/posts/56/project-sign-up-workspace-owner-signs-up-for-an-org.webp)
 
-![](/posts/56/pricing.webp)
+![](https://media.hudbud.net/posts/56/pricing.webp)
 
-![](/posts/56/signin.webp)
+![](https://media.hudbud.net/posts/56/signin.webp)
 
-![](/posts/56/signup.webp)
+![](https://media.hudbud.net/posts/56/signup.webp)
 
-![](/posts/56/store.webp)
+![](https://media.hudbud.net/posts/56/store.webp)

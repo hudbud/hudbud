@@ -3,10 +3,10 @@ title: "About Me"
 date: "2026-09-04"
 tags: ["resources"]
 excerpt: "Curious, hands-on design leader obsessed with nature, tinkering, and making things with my hands."
-feature_image: "/images/hudson-1.webp"
+feature_image: "https://media.hudbud.net/images/hudson-1.webp"
 ---
 
-![](/images/hudson-1.webp)
+![](https://media.hudbud.net/images/hudson-1.webp)
 
 I'm a curious, hands-on design leader obsessed with nature, tinkering, and making things with my hands.
 

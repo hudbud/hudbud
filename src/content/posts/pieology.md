@@ -43,6 +43,6 @@ Pieology is a QSR pizza chain that commissioned Hathway to develop an ordering a
 
 ![](https://media.hudbud.net/posts/49/behance-04.webp)
 
-<div style="margin:12px 0"><video src="/posts/49/speef-1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/49/speef-1.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
 [View the ordering site](https://order.pieology.com)

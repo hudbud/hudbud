@@ -43,4 +43,4 @@ Dutch Bros is a coffee chain in the western USA which approached Hathway with th
 
 ![](https://media.hudbud.net/posts/50/main.webp)
 
-![](/posts/50/slice4.webp)
+![](https://media.hudbud.net/posts/50/slice4.webp)

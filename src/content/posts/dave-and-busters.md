@@ -80,28 +80,28 @@ Dave & Buster's continued the contract by asking our team to design a new phone-
 
 For this, I created and maintained two interlaced design systems, creating a fluent and consistent design language which represented the Dave & Buster's brand and supported each app's specialty. I was the UI designer for the ordering app, which I fully prototyped for the client. Upon delivery of the design assets and UI, Dave & Buster's asked us for more discovery, for which I created 3D models for our reward illustrations, representing enamel pins. Dave & Buster's planned to manufacture these and use them as a reward for their highest-tier spenders — and only decided to do this after seeing our renders. I also created the 3D assets and animations for the mockup shown below.
 
-<div style="margin:12px 0"><video src="/posts/47/main.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/main.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](/posts/47/dingdingding-7.webp)
+![](https://media.hudbud.net/posts/47/dingdingding-7.webp)
 
-![](/posts/47/db-prototype-1.webp)
+![](https://media.hudbud.net/posts/47/db-prototype-1.webp)
 
-![](/posts/47/db-prototype-2.webp)
+![](https://media.hudbud.net/posts/47/db-prototype-2.webp)
 
-![](/posts/47/frame-235.webp)
+![](https://media.hudbud.net/posts/47/frame-235.webp)
 
-![](/posts/47/frame-236.webp)
+![](https://media.hudbud.net/posts/47/frame-236.webp)
 
-![](/posts/47/frame-237.webp)
+![](https://media.hudbud.net/posts/47/frame-237.webp)
 
-![](/posts/47/frame-238.webp)
+![](https://media.hudbud.net/posts/47/frame-238.webp)
 
-![](/posts/47/frame-239.webp)
+![](https://media.hudbud.net/posts/47/frame-239.webp)
 
-![](/posts/47/frame-240.webp)
+![](https://media.hudbud.net/posts/47/frame-240.webp)
 
-![](/posts/47/frame-241.webp)
+![](https://media.hudbud.net/posts/47/frame-241.webp)
 
-![](/posts/47/frame-242.webp)
+![](https://media.hudbud.net/posts/47/frame-242.webp)
 
-![](/posts/47/frame-243.webp)
+![](https://media.hudbud.net/posts/47/frame-243.webp)

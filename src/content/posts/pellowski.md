@@ -29,12 +29,12 @@ Twitch streamer branding — animated intros, stream overlays, motion graphics, 
 
 <div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/2020_09_02_15_34_45.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/406;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](/posts/58/youtube-banner.webp)
+![](https://media.hudbud.net/posts/58/youtube-banner.webp)
 
-<div style="margin:12px 0"><video src="/posts/58/bits.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/bits.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-<div style="margin:12px 0"><video src="/posts/58/donation.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/donation.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-<div style="margin:12px 0"><video src="/posts/58/new-follower.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/new-follower.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-<div style="margin:12px 0"><video src="/posts/58/new-sub.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/58/new-sub.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/540;height:auto;border-radius:2px;display:block;background:#000"></video></div>

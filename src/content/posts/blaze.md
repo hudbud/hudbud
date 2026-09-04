@@ -47,8 +47,8 @@ Blaze Pizza approached Hathway to create an ordering and loyalty app and web exp
 
 ![](https://media.hudbud.net/posts/52/frame-3.webp)
 
-![](/posts/52/frame-11.webp)
+![](https://media.hudbud.net/posts/52/frame-11.webp)
 
-![](/posts/52/frame-14.webp)
+![](https://media.hudbud.net/posts/52/frame-14.webp)
 
 [View the Blaze Pizza website](https://www.blazepizza.com)

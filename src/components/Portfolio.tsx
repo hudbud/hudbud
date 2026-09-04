@@ -1058,7 +1058,7 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 // the column's overflow without clipping.
 const HOVER_IMAGES: Record<string, string[]> = {
   cosmo: ['/images/cosmo-1.jpg', '/images/cosmo-2.jpg'],
-  hudson: ['/images/hudson-1.webp'],
+  hudson: ['https://media.hudbud.net/images/hudson-1.webp'],
 };
 
 function CursorImagesHover({ label, images, onClick, className = 'hp-bio-link', style }: {

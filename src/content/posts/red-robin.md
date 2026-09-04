@@ -23,30 +23,30 @@ We created a mobile ordering app, a mobile ordering website, and a desktop order
 
 ![](https://media.hudbud.net/posts/48/slide-16_9-1.webp)
 
-![](/posts/48/frame-504.webp)
+![](https://media.hudbud.net/posts/48/frame-504.webp)
 
-![](/posts/48/frame-505.webp)
+![](https://media.hudbud.net/posts/48/frame-505.webp)
 
-![](/posts/48/frame-506.webp)
+![](https://media.hudbud.net/posts/48/frame-506.webp)
 
-![](/posts/48/frame-507.webp)
+![](https://media.hudbud.net/posts/48/frame-507.webp)
 
-![](/posts/48/frame-508.webp)
+![](https://media.hudbud.net/posts/48/frame-508.webp)
 
-![](/posts/48/frame-509.webp)
+![](https://media.hudbud.net/posts/48/frame-509.webp)
 
-![](/posts/48/frame-510.webp)
+![](https://media.hudbud.net/posts/48/frame-510.webp)
 
-![](/posts/48/frame-511.webp)
+![](https://media.hudbud.net/posts/48/frame-511.webp)
 
-![](/posts/48/frame-515.webp)
+![](https://media.hudbud.net/posts/48/frame-515.webp)
 
-![](/posts/48/frame-516.webp)
+![](https://media.hudbud.net/posts/48/frame-516.webp)
 
-![](/posts/48/frame-517.webp)
+![](https://media.hudbud.net/posts/48/frame-517.webp)
 
-![](/posts/48/frame-518.webp)
+![](https://media.hudbud.net/posts/48/frame-518.webp)
 
-![](/posts/48/frame-519.webp)
+![](https://media.hudbud.net/posts/48/frame-519.webp)
 
-![](/posts/48/frame-520.webp)
+![](https://media.hudbud.net/posts/48/frame-520.webp)

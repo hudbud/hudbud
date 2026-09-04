@@ -38,34 +38,34 @@ Web design and branding for Paine Pacific.
 
 ![](https://media.hudbud.net/posts/36/behance-06.webp)
 
-![](/posts/36/flatlay-perspective.webp)
+![](https://media.hudbud.net/posts/36/flatlay-perspective.webp)
 
-![](/posts/36/indoor-signage-mockup.webp)
+![](https://media.hudbud.net/posts/36/indoor-signage-mockup.webp)
 
-![](/posts/36/box-inverse-black.webp)
+![](https://media.hudbud.net/posts/36/box-inverse-black.webp)
 
-![](/posts/36/box-inverse-blue.webp)
+![](https://media.hudbud.net/posts/36/box-inverse-blue.webp)
 
-![](/posts/36/box-inverse-grey.webp)
+![](https://media.hudbud.net/posts/36/box-inverse-grey.webp)
 
-![](/posts/36/box-inverse-orange.webp)
+![](https://media.hudbud.net/posts/36/box-inverse-orange.webp)
 
-![](/posts/36/small-horizontal-black.webp)
+![](https://media.hudbud.net/posts/36/small-horizontal-black.webp)
 
-![](/posts/36/small-horizontal-blue.webp)
+![](https://media.hudbud.net/posts/36/small-horizontal-blue.webp)
 
-![](/posts/36/small-horizontal-grey.webp)
+![](https://media.hudbud.net/posts/36/small-horizontal-grey.webp)
 
-![](/posts/36/small-horizontal-orange.webp)
+![](https://media.hudbud.net/posts/36/small-horizontal-orange.webp)
 
-![](/posts/36/logo-orange.webp)
+![](https://media.hudbud.net/posts/36/logo-orange.webp)
 
-![](/posts/36/logo-black.webp)
+![](https://media.hudbud.net/posts/36/logo-black.webp)
 
-![](/posts/36/logo-blue.webp)
+![](https://media.hudbud.net/posts/36/logo-blue.webp)
 
-![](/posts/36/logo-colorgradient.webp)
+![](https://media.hudbud.net/posts/36/logo-colorgradient.webp)
 
-![](/posts/36/stationery-mockup-free-version5.webp)
+![](https://media.hudbud.net/posts/36/stationery-mockup-free-version5.webp)
 
-<div style="margin:12px 0"><video src="/posts/36/pp-rebrand-animation-gif.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video></div>
+<div style="margin:12px 0"><video src="https://media.hudbud.net/posts/36/pp-rebrand-animation-gif.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video></div>

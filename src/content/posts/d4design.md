@@ -95,30 +95,30 @@ D4 Portaledge — design, branding, web design, and merchandise for Big Wall Gea
 
 ![](https://media.hudbud.net/posts/33/behance-10.webp)
 
-![](/posts/33/porta-ledge-framed-1.webp)
+![](https://media.hudbud.net/posts/33/porta-ledge-framed-1.webp)
 
-![](/posts/33/the-d4-portaledge-framed-1.webp)
+![](https://media.hudbud.net/posts/33/the-d4-portaledge-framed-1.webp)
 
-![](/posts/33/d4-logo.webp)
+![](https://media.hudbud.net/posts/33/d4-logo.webp)
 
-![](/posts/33/d4-logo-in-circle.webp)
+![](https://media.hudbud.net/posts/33/d4-logo-in-circle.webp)
 
-![](/posts/33/big-wall-gear-combination-logo-with-frame.webp)
+![](https://media.hudbud.net/posts/33/big-wall-gear-combination-logo-with-frame.webp)
 
-![](/posts/33/annotation-2020-08-19-154113.webp)
+![](https://media.hudbud.net/posts/33/annotation-2020-08-19-154113.webp)
 
-![](/posts/33/annotation-2020-08-19-154129.webp)
+![](https://media.hudbud.net/posts/33/annotation-2020-08-19-154129.webp)
 
-![](/posts/33/colored-piton-square-2.webp)
+![](https://media.hudbud.net/posts/33/colored-piton-square-2.webp)
 
-![](/posts/33/colored-piton-square.webp)
+![](https://media.hudbud.net/posts/33/colored-piton-square.webp)
 
-![](/posts/33/piton-negative-ble.webp)
+![](https://media.hudbud.net/posts/33/piton-negative-ble.webp)
 
-![](/posts/33/piton-negative-gray.webp)
+![](https://media.hudbud.net/posts/33/piton-negative-gray.webp)
 
-![](/posts/33/piton-negative-orange.webp)
+![](https://media.hudbud.net/posts/33/piton-negative-orange.webp)
 
-![](/posts/33/reversed-mono.webp)
+![](https://media.hudbud.net/posts/33/reversed-mono.webp)
 
-![](/posts/33/reversed-mono-new.webp)
+![](https://media.hudbud.net/posts/33/reversed-mono-new.webp)
