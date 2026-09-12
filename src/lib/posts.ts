@@ -27,6 +27,29 @@ function entryImages(entry: CollectionEntry<'posts'>): string[] {
   return images;
 }
 
+const HOSTED_APPS = ['/gridbit', '/halftone', '/dimension', '/freezer-martini', '/split-keyboard'];
+
+function entryApp(entry: CollectionEntry<'posts'>): string | undefined {
+  if (entry.data.app) return entry.data.app;
+  const body = entry.body ?? '';
+  for (const path of HOSTED_APPS) {
+    if (body.includes(`](${path})`) || body.includes(`](https://hudbud.net${path})`)) return path;
+  }
+  return undefined;
+}
+
+function writeupWordCount(body: string | undefined): number {
+  if (!body) return 0;
+  const text = body
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#>*_`|-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text ? text.split(' ').length : 0;
+}
+
 function entryToMeta(entry: CollectionEntry<'posts'>): Post {
   return {
     title: entry.data.title,
@@ -36,6 +59,9 @@ function entryToMeta(entry: CollectionEntry<'posts'>): Post {
     summary: entry.data.summary,
     discipline: entry.data.discipline,
     slug: entry.id,
+    app: entryApp(entry),
+    link: entry.data.link,
+    writeup: writeupWordCount(entry.body) >= 80,
     tags: entry.data.tags,
     category: entry.data.category,
     feature_image: entry.data.feature_image,
@@ -70,11 +96,28 @@ export async function loadPosts(tag: Tag): Promise<Post[]> {
   return Promise.all(entries.map(entryToPost));
 }
 
-/** All non-draft posts, one chronological feed newest-first. */
+/** All non-draft posts, one chronological feed newest-first.
+ *  Omits the per-post body-image list — that's only needed by the gallery
+ *  view, which fetches it on demand from /gallery.json. Keeping it out of the
+ *  feed roughly halves the homepage's serialized island payload. */
 export async function loadFeedMeta(): Promise<Post[]> {
   const entries = await getCollection('posts', (e) => !e.data.draft);
   entries.sort((a, b) => +b.data.date - +a.data.date);
-  return entries.map(entryToMeta);
+  return entries.map((entry) => {
+    const { images: _images, ...meta } = entryToMeta(entry);
+    return meta;
+  });
+}
+
+/** slug -> every image in the post, for the on-demand gallery view. */
+export async function loadGalleryMap(): Promise<Record<string, string[]>> {
+  const entries = await getCollection('posts', (e) => !e.data.draft);
+  const map: Record<string, string[]> = {};
+  for (const entry of entries) {
+    const images = entryImages(entry);
+    if (images.length) map[entry.id] = images;
+  }
+  return map;
 }
 
 export interface GalleryImage {

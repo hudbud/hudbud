@@ -1,8 +1,11 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import ProjectFrame from '../layouts/ProjectFrame.astro';
 import FreezerMartini from '../components/FreezerMartini.tsx';
 ---
 <Layout title="freezer martini calculator — hudbud.net" description="Pick a ratio, dial in dilution, scale by any volume. A calculator for batch-prepped martinis stashed in the freezer.">
-  <FreezerMartini client:only="react" />
+  <ProjectFrame>
+    <FreezerMartini client:only="react" />
+  </ProjectFrame>
 </Layout>

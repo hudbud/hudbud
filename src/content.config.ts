@@ -16,6 +16,10 @@ const posts = defineCollection({
         product design, brand design, then specialties. */
     discipline: z.string().optional(),
     feature_image: z.string().optional(),
+    /** Hosted mini-app. Homepage name goes here; the post stays the write-up. */
+    app: z.string().optional(),
+    /** Live site. Homepage name goes here and there is no local post destination. */
+    link: z.string().optional(),
     draft: z.boolean().default(false),
     roles: z.string().optional(),
     tools: z.string().optional(),

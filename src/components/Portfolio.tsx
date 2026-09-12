@@ -1,16 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 import { type Post } from '../data/posts';
-import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions, isExcerptRedundant } from '../lib/imageGrid';
 import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, FONT_FAMILY, GLASS, applyThemeVars, type FontId } from './chrome';
-import { KEYBOARD_HTML } from '../data/keyboard';
-import FreezerMartini from './FreezerMartini';
 import ThoughtsModal, { ThoughtsButton } from './ThoughtsModal';
-import { Shuffle, CaretUp, Lightning, Keyboard, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, Copy, Check, ListDashes, Image as ImageIcon, MagnifyingGlass, PersonArmsSpread } from '@phosphor-icons/react';
+import { Shuffle, CaretUp, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, ListDashes, Image as ImageIcon, MagnifyingGlass, PersonArmsSpread } from '@phosphor-icons/react';
 
 // The feed is grouped into labeled sections rather than one flat filtered
 // list. projects = projects/thoughts posts + IDEAS (with in-development items
@@ -138,7 +135,6 @@ interface ChromeProps {
   font: FontId;
   setFont: (f: FontId) => void;
   onTimeTravel: (v: SiteVersion) => void;
-  onOpenResource: (slug: string) => void;
   onOpenThoughts: () => void;
   themeLocked: boolean;
   fontLocked: boolean;
@@ -186,7 +182,7 @@ const DIALOG_POP = {
   transition: SPRING,
 } as const;
 
-function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock, a11y, onToggleA11y }: ChromeProps) {
+function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock, a11y, onToggleA11y }: ChromeProps) {
   const mobileBottom = 'calc(16px + env(safe-area-inset-bottom))';
   return (
     <>
@@ -198,7 +194,7 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <GlassSectionLabel>resources</GlassSectionLabel>
         {RESOURCES.map((r) => (
-          <GlassPanelItem key={r.slug} onClick={() => onOpenResource(r.slug)}>{r.label}</GlassPanelItem>
+          <GlassPanelItem key={r.slug} href={`/posts/${r.slug}`}>{r.label}</GlassPanelItem>
         ))}
         <GlassSectionLabel>time machine</GlassSectionLabel>
         {SITE_VERSIONS.map((v) => (
@@ -219,7 +215,7 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenReso
 }
 
 // ---------- Desktop chrome: same glass buttons, one bloom menu per panel ----------
-function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenResource, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock, a11y, onToggleA11y }: ChromeProps) {
+function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock, a11y, onToggleA11y }: ChromeProps) {
   return (
     <>
       {/* left: time machine, resources, links */}
@@ -232,7 +228,7 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenRes
       <GlassBloom pos={{ left: 70, bottom: 16 }} anchor="start" label="resources" trigger={<BookOpen size={18} weight="fill" />}>
         <GlassSectionLabel>resources</GlassSectionLabel>
         {RESOURCES.map((r) => (
-          <GlassPanelItem key={r.slug} onClick={() => onOpenResource(r.slug)}>{r.label}</GlassPanelItem>
+          <GlassPanelItem key={r.slug} href={`/posts/${r.slug}`}>{r.label}</GlassPanelItem>
         ))}
       </GlassBloom>
       <GlassBloom pos={{ left: 124, bottom: 16 }} anchor="start" label="links" trigger={<LinkSimple size={18} weight="bold" />}>
@@ -349,7 +345,6 @@ interface Row {
   date: string;
   dateValue: number;
   image?: string;
-  images?: string[];
   meta?: string;
   /** One-line description shown under the title in projects/work rows. */
   desc?: string;
@@ -358,7 +353,10 @@ interface Row {
   /** Small mono status tag (ideas only: "in development", "idea", …). */
   tag?: string;
   isActive: boolean;
-  onClick: (() => void) | null;
+  href?: string;
+  external?: boolean;
+  /** Post write-up, shown beside the name when the name opens a mini-app. */
+  readMore?: string;
 }
 
 function formatIdeaDate(iso: string): string {
@@ -368,10 +366,9 @@ function formatIdeaDate(iso: string): string {
   return `${mm}.${dd}.${d.getFullYear()}`;
 }
 
-function ideaClickAction(idea: Idea, openProject: (id: string) => void): (() => void) | null {
-  if (idea.internal && idea.href.startsWith('#')) return () => openProject(idea.href.slice(1));
-  if (!idea.internal && idea.href !== '#') return () => window.open(idea.href, '_blank', 'noopener');
-  return null;
+function ideaHref(idea: Idea): { href: string; external: boolean } | null {
+  if (!idea.href || idea.href === '#') return null;
+  return { href: idea.href, external: !idea.internal };
 }
 
 interface Section {
@@ -388,13 +385,7 @@ function isInDevelopment(p: Post): boolean {
   return p.date === 'in development';
 }
 
-function buildSections({ feed, activePost, activeProject, setActivePost, openProject }: {
-  feed: Post[];
-  activePost: Post | null;
-  activeProject: string | null;
-  setActivePost: (p: Post | null) => void;
-  openProject: (id: string) => void;
-}): Section[] {
+function buildSections({ feed }: { feed: Post[] }): Section[] {
   const byDate = (a: Row, b: Row) => b.dateValue - a.dateValue;
 
   const postRow = (p: Post): Row => ({
@@ -403,28 +394,27 @@ function buildSections({ feed, activePost, activeProject, setActivePost, openPro
     date: p.date,
     dateValue: p.dateValue,
     image: p.feature_image,
-    images: p.images,
     meta: p.discipline ?? (p.agency || p.roles ? [p.agency, p.roles?.split(',')[0]].filter(Boolean).join(' · ') : p.category),
     desc: p.excerpt || undefined,
     summary: p.summary,
-    isActive: !!(activePost && activePost.title === p.title),
-    onClick: () => setActivePost(activePost && activePost.title === p.title ? null : p),
+    isActive: false,
+    href: p.app ?? p.link ?? (p.slug ? `/posts/${p.slug}` : undefined),
+    external: !p.app && !!p.link,
+    readMore: p.app && p.writeup && p.slug ? `/posts/${p.slug}` : undefined,
   });
 
-  const ideaRow = (idea: Idea): Row => {
-    const slug = idea.internal && idea.href.startsWith('#') ? idea.href.slice(1) : null;
-    return {
-      key: idea.title,
-      title: idea.title,
-      date: formatIdeaDate(idea.date),
-      dateValue: +new Date(idea.date),
-      meta: idea.statusNote || STATUS_LABEL[idea.status],
-      desc: idea.desc,
-      tag: idea.statusNote || STATUS_LABEL[idea.status],
-      isActive: slug ? activeProject === slug : false,
-      onClick: ideaClickAction(idea, openProject),
-    };
-  };
+  const ideaRow = (idea: Idea): Row => ({
+    key: idea.title,
+    title: idea.title,
+    date: formatIdeaDate(idea.date),
+    dateValue: +new Date(idea.date),
+    meta: idea.statusNote || STATUS_LABEL[idea.status],
+    desc: idea.desc,
+    tag: idea.statusNote || STATUS_LABEL[idea.status],
+    isActive: false,
+    href: ideaHref(idea)?.href,
+    external: ideaHref(idea)?.external,
+  });
 
   // Resources live only in the "..." chrome menu, not the sections.
   const posts = feed.filter((p) => !p.tags.includes('resources'));
@@ -447,42 +437,54 @@ function buildSections({ feed, activePost, activeProject, setActivePost, openPro
 }
 
 function FeedRow({ row, isMobile }: { row: Row; isMobile: boolean }) {
-  const clickable = !!row.onClick;
+  const clickable = !!row.href;
   const [hovered, setHovered] = useState(false);
   const lit = row.isActive || (hovered && clickable);
-  return (
-    <button
-      onClick={row.onClick ?? undefined}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr auto',
-        gap: isMobile ? 12 : 16,
-        padding: '10px 0',
-        textAlign: 'left',
-        alignItems: 'baseline',
-        color: lit ? 'var(--accent)' : 'var(--fg)',
-        opacity: clickable ? 1 : 0.6,
-        cursor: clickable ? 'pointer' : 'default',
-        width: '100%',
-        transition: 'color 0.15s',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const style: CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr auto',
+    gap: isMobile ? 12 : 16,
+    padding: '10px 0',
+    textAlign: 'left',
+    alignItems: 'baseline',
+    color: lit ? 'var(--accent)' : 'var(--fg)',
+    opacity: clickable ? 1 : 0.6,
+    cursor: clickable ? 'pointer' : 'default',
+    width: '100%',
+    transition: 'color 0.15s',
+  };
+  const inner = (
+    <>
       <span style={{ fontSize: 16, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.title}</span>
       <span className="post-spec-cell" style={{ color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{row.date}</span>
-    </button>
+    </>
+  );
+  const handlers = { onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) };
+  if (!row.href) return <span style={style} {...handlers}>{inner}</span>;
+  return (
+    <a href={row.href} target={row.external ? '_blank' : undefined} rel={row.external ? 'noopener noreferrer' : undefined} style={style} {...handlers}>
+      {inner}
+    </a>
   );
 }
 
 // ---------- Project row (icon tile / title ↗ / description) ----------
+function AppLink({ row, style, children }: { row: Row; style?: CSSProperties; children: ReactNode }) {
+  if (!row.href) return <span style={style}>{children}</span>;
+  return (
+    <a href={row.href} target={row.external ? '_blank' : undefined} rel={row.external ? 'noopener noreferrer' : undefined} style={style}>
+      {children}
+    </a>
+  );
+}
+
 function ProjectRow({ row }: { row: Row }) {
-  const clickable = !!row.onClick;
+  const clickable = !!row.href;
   const [hovered, setHovered] = useState(false);
   const lit = row.isActive || (hovered && clickable);
+  const openStyle: CSSProperties = { color: 'inherit', cursor: clickable ? 'pointer' : 'default' };
   return (
-    <button
-      onClick={row.onClick ?? undefined}
+    <div
       style={{
         display: 'flex',
         alignItems: 'flex-start',
@@ -490,13 +492,13 @@ function ProjectRow({ row }: { row: Row }) {
         padding: '12px 0',
         textAlign: 'left',
         width: '100%',
-        cursor: clickable ? 'pointer' : 'default',
         opacity: clickable ? 1 : 0.6,
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <span style={{
+      <AppLink row={row} style={{
+        ...openStyle,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: 36, height: 36, minWidth: 36, flexShrink: 0,
         borderRadius: 6, border: '1px solid var(--rule)', background: 'var(--tile)',
@@ -507,29 +509,40 @@ function ProjectRow({ row }: { row: Row }) {
         {row.image
           ? <img src={row.image} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           : <Sparkle size={15} color="var(--fg-dim)" weight="fill" />}
-      </span>
+      </AppLink>
       <span style={{ minWidth: 0, flex: 1 }}>
         <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 16, fontWeight: 500, color: lit ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s' }}>
+          <AppLink row={row} style={{ ...openStyle, fontSize: 16, fontWeight: 500, color: lit ? 'var(--accent)' : 'var(--fg)', transition: 'color 0.15s' }}>
             {row.title}
-          </span>
+          </AppLink>
           {clickable && (
-            <span style={{
+            <AppLink row={row} style={{
+              ...openStyle,
               fontSize: 12, color: lit ? 'var(--accent)' : 'var(--fg-dim)',
               display: 'inline-block',
               transform: lit ? 'translate(2px, -2px)' : 'none',
               transition: 'color 0.15s, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
-            }}>↗</span>
+            }}>↗</AppLink>
+          )}
+          {row.readMore && (
+            <a
+              href={row.readMore}
+              style={{ fontSize: 12, color: 'var(--fg-dim)', borderBottom: '1px solid var(--fg-faint)', lineHeight: 1.2 }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--fg-faint)'; }}
+            >
+              read more
+            </a>
           )}
           {row.tag && <span className="post-spec-cell" style={{ color: 'var(--fg-faint)' }}>{row.tag}</span>}
         </span>
         {row.desc && (
-          <span style={{ display: 'block', marginTop: 2, fontSize: 14, lineHeight: 1.6, color: 'var(--fg-dim)' }}>
+          <AppLink row={row} style={{ ...openStyle, display: 'block', marginTop: 2, fontSize: 14, lineHeight: 1.6, color: 'var(--fg-dim)' }}>
             {row.desc}
-          </span>
+          </AppLink>
         )}
       </span>
-    </button>
+    </div>
   );
 }
 
@@ -537,7 +550,7 @@ function ProjectRow({ row }: { row: Row }) {
 // Hovering cross-fades the whole row into the post's hero image, text
 // lifting out as the image fades in.
 function WorkRow({ row }: { row: Row }) {
-  const clickable = !!row.onClick;
+  const clickable = !!row.href;
   const [hovered, setHovered] = useState(false);
   const lit = row.isActive || (hovered && clickable);
   const showImage = hovered && clickable && !!row.image;
@@ -546,21 +559,18 @@ function WorkRow({ row }: { row: Row }) {
   // plain dates collapse to their year.
   const isPlainDate = /^\d{2}\.\d{2}\.\d{4}$/.test(row.date) && row.dateValue > 0 && row.dateValue <= Date.now();
   const year = isPlainDate ? String(new Date(row.dateValue).getFullYear()) : row.date;
-  return (
-    <button
-      onClick={row.onClick ?? undefined}
-      style={{
-        position: 'relative',
-        display: 'block',
-        padding: '12px 0',
-        textAlign: 'left',
-        width: '100%',
-        cursor: clickable ? 'pointer' : 'default',
-        opacity: clickable ? 1 : 0.6,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const outerStyle: CSSProperties = {
+    position: 'relative',
+    display: 'block',
+    padding: '12px 0',
+    textAlign: 'left',
+    width: '100%',
+    cursor: clickable ? 'pointer' : 'default',
+    opacity: clickable ? 1 : 0.6,
+  };
+  const handlers = { onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) };
+  const body = (
+    <>
       {/* Hero image layer — fades in over the row on hover. */}
       {row.image && (
         <span
@@ -609,32 +619,35 @@ function WorkRow({ row }: { row: Row }) {
           </span>
         )}
       </span>
-    </button>
+    </>
+  );
+  if (!row.href) return <span style={outerStyle} {...handlers}>{body}</span>;
+  return (
+    <a href={row.href} target={row.external ? '_blank' : undefined} rel={row.external ? 'noopener noreferrer' : undefined} style={outerStyle} {...handlers}>
+      {body}
+    </a>
   );
 }
 
 // ---------- Grid view (3-wide cards: image / title / date) ----------
 function GridCard({ row, index, isMobile }: { row: Row; index: number; isMobile: boolean }) {
-  const clickable = !!row.onClick;
+  const clickable = !!row.href;
   const [hovered, setHovered] = useState(false);
   const lit = row.isActive || (hovered && clickable);
-  return (
-    <button
-      onClick={row.onClick ?? undefined}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: 8,
-        width: '100%',
-        textAlign: 'left',
-        cursor: clickable ? 'pointer' : 'default',
-        opacity: clickable ? 1 : 0.6,
-        minWidth: 0,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const style: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
+    width: '100%',
+    textAlign: 'left',
+    cursor: clickable ? 'pointer' : 'default',
+    opacity: clickable ? 1 : 0.6,
+    minWidth: 0,
+  };
+  const handlers = { onMouseEnter: () => setHovered(true), onMouseLeave: () => setHovered(false) };
+  const inner = (
+    <>
       {row.image ? (
         <img
           src={row.image}
@@ -653,7 +666,13 @@ function GridCard({ row, index, isMobile }: { row: Row; index: number; isMobile:
         </span>
         <span className="post-spec-cell" style={{ color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{row.date}</span>
       </span>
-    </button>
+    </>
+  );
+  if (!row.href) return <span style={style} {...handlers}>{inner}</span>;
+  return (
+    <a href={row.href} target={row.external ? '_blank' : undefined} rel={row.external ? 'noopener noreferrer' : undefined} style={style} {...handlers}>
+      {inner}
+    </a>
   );
 }
 
@@ -671,19 +690,36 @@ function mulberry32(a: number) {
 }
 
 function GalleryGrid({ rows, seed }: { rows: Row[]; seed: number }) {
+  // The feed intentionally omits per-post image lists to keep the homepage
+  // payload small; the gallery fetches them on demand the first time it opens.
+  const [imageMap, setImageMap] = useState<Record<string, string[]> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/gallery.json')
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((map) => { if (!cancelled) setImageMap(map); })
+      .catch(() => { if (!cancelled) setImageMap({}); });
+    return () => { cancelled = true; };
+  }, []);
+
   const tiles = useMemo(() => {
+    if (!imageMap) return null;
     const rand = mulberry32(seed);
-    const withImages = rows.filter((r) => r.images && r.images.length > 0);
-    const picked = withImages.map((r) => ({
-      row: r,
-      src: r.images![Math.floor(rand() * r.images!.length)],
-    }));
+    const withImages = rows.filter((r) => (imageMap[r.key]?.length ?? 0) > 0);
+    const picked = withImages.map((r) => {
+      const imgs = imageMap[r.key];
+      return { row: r, src: imgs[Math.floor(rand() * imgs.length)] };
+    });
     for (let i = picked.length - 1; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));
       [picked[i], picked[j]] = [picked[j], picked[i]];
     }
     return picked;
-  }, [rows, seed]);
+  }, [rows, seed, imageMap]);
+
+  if (!tiles) {
+    return <div style={{ fontSize: 14, color: 'var(--fg-dim)', padding: '8px 0' }}>loading gallery…</div>;
+  }
 
   return (
     <div style={{ columnWidth: 380, columnGap: 12 }}>
@@ -695,17 +731,32 @@ function GalleryGrid({ rows, seed }: { rows: Row[]; seed: number }) {
           transition={{ duration: 0.5, delay: Math.min(i * 0.02, 0.5), ease: [0.22, 1, 0.36, 1] }}
           style={{ breakInside: 'avoid', marginBottom: 12 }}
         >
-          <button
-            onClick={row.onClick ?? undefined}
-            className="hp-gallery-tile"
-            style={{ display: 'block', width: '100%', position: 'relative', cursor: row.onClick ? 'pointer' : 'default', borderRadius: 12, overflow: 'hidden' }}
-          >
-            <img src={src} alt={row.title} loading="lazy" style={{ width: '100%', display: 'block' }} />
-            <span className="hp-gallery-caption">
-              <span>{row.title}</span>
-              <span>{new Date(row.dateValue).getFullYear()}</span>
+          {row.href ? (
+            <a
+              href={row.href}
+              target={row.external ? '_blank' : undefined}
+              rel={row.external ? 'noopener noreferrer' : undefined}
+              className="hp-gallery-tile"
+              style={{ display: 'block', width: '100%', position: 'relative', cursor: 'pointer', borderRadius: 12, overflow: 'hidden' }}
+            >
+              <img src={src} alt={row.title} loading="lazy" style={{ width: '100%', display: 'block' }} />
+              <span className="hp-gallery-caption">
+                <span>{row.title}</span>
+                <span>{new Date(row.dateValue).getFullYear()}</span>
+              </span>
+            </a>
+          ) : (
+            <span
+              className="hp-gallery-tile"
+              style={{ display: 'block', width: '100%', position: 'relative', borderRadius: 12, overflow: 'hidden' }}
+            >
+              <img src={src} alt={row.title} loading="lazy" style={{ width: '100%', display: 'block' }} />
+              <span className="hp-gallery-caption">
+                <span>{row.title}</span>
+                <span>{new Date(row.dateValue).getFullYear()}</span>
+              </span>
             </span>
-          </button>
+          )}
         </motion.div>
       ))}
     </div>
@@ -785,12 +836,8 @@ function rowMatches(row: Row, q: string): boolean {
   return q.split(/\s+/).every((w) => hay.includes(w));
 }
 
-function Feed({ feed, activePost, activeProject, setActivePost, openProject, viewMode, gallerySeed, hasRenderedPosts, isMobile, wide, query }: {
+function Feed({ feed, viewMode, gallerySeed, hasRenderedPosts, isMobile, wide, query }: {
   feed: Post[];
-  activePost: Post | null;
-  activeProject: string | null;
-  setActivePost: (p: Post | null) => void;
-  openProject: (id: string) => void;
   viewMode: ViewMode;
   gallerySeed: number;
   hasRenderedPosts: boolean;
@@ -799,8 +846,8 @@ function Feed({ feed, activePost, activeProject, setActivePost, openProject, vie
   query: string;
 }) {
   const allSections = useMemo(
-    () => buildSections({ feed, activePost, activeProject, setActivePost, openProject }),
-    [feed, activePost, activeProject, setActivePost, openProject]
+    () => buildSections({ feed }),
+    [feed]
   );
 
   // While searching: filter every section's rows and drop empty sections.
@@ -1299,11 +1346,7 @@ function CopyEmailLink() {
 }
 
 // ---------- Left column ----------
-function LeftColumn({ activePost, activeProject, setActivePost, onOpenProject, onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, viewMode, setViewMode, scrollRef, isMobile, wide }: {
-  activePost: Post | null;
-  activeProject: string | null;
-  setActivePost: (p: Post | null) => void;
-  onOpenProject: (id: string) => void;
+function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, viewMode, setViewMode, scrollRef, isMobile, wide }: {
   onOpenBioModal: (id: string) => void;
   onHome: () => void;
   onWatchStream: () => void;
@@ -1464,10 +1507,6 @@ function LeftColumn({ activePost, activeProject, setActivePost, onOpenProject, o
 
       <Feed
         feed={feed}
-        activePost={activePost}
-        activeProject={activeProject}
-        setActivePost={setActivePost}
-        openProject={onOpenProject}
         viewMode={viewMode}
         gallerySeed={gallerySeed}
         hasRenderedPosts={hasRenderedPostsRef.current}
@@ -1480,287 +1519,6 @@ function LeftColumn({ activePost, activeProject, setActivePost, onOpenProject, o
   );
 }
 
-// ---------- Spritz speed reader ----------
-function SpritzReader({ html, onClose }: { html: string; onClose: () => void }) {
-  const [words, setWords] = useState<string[]>([]);
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [wpm, setWpm] = useState(300);
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    const text = div.textContent || '';
-    setWords(text.split(/\s+/).filter(Boolean));
-  }, [html]);
-
-  const baseMs = 60000 / wpm;
-
-  const getDelay = (word: string) => {
-    if (word.length > 8) return baseMs * 1.4;
-    if (/[.!?;]$/.test(word)) return baseMs * 2;
-    if (/[,:]$/.test(word)) return baseMs * 1.5;
-    return baseMs;
-  };
-
-  const stop = useCallback(() => {
-    setPlaying(false);
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-  }, []);
-
-  const step = useCallback(() => {
-    setIndex((prev) => {
-      if (prev >= words.length - 1) { stop(); return prev; }
-      return prev + 1;
-    });
-  }, [words.length, stop]);
-
-  useEffect(() => {
-    if (!playing) return;
-    const word = words[index];
-    if (!word) { stop(); return; }
-    const delay = getDelay(word);
-    timerRef.current = window.setTimeout(step, delay);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [playing, index, words, step]);
-
-  const play = () => {
-    if (index >= words.length - 1) setIndex(0);
-    setPlaying(true);
-  };
-
-  const getPivot = (word: string) => {
-    if (word.length <= 1) return 0;
-    return Math.floor(word.length / 2) - 1;
-  };
-
-  const currentWord = words[index] || '';
-  const pivot = getPivot(currentWord);
-
-  return (
-    <div style={{ background: 'var(--tile)', borderRadius: 4, padding: 20, marginBottom: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 64, marginBottom: 12 }}>
-        <div style={{ fontFamily: "'Geist Mono', monospace", fontSize: 24, position: 'relative', minWidth: 240, textAlign: 'center' }}>
-          <span style={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1, background: 'var(--accent)', opacity: 0.3 }} />
-          <span style={{ color: 'var(--fg)' }}>{currentWord.slice(0, pivot)}</span>
-          <span style={{ color: 'var(--accent)', fontWeight: 700 }}>{currentWord[pivot] || ''}</span>
-          <span style={{ color: 'var(--fg)' }}>{currentWord.slice(pivot + 1)}</span>
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button
-          onClick={() => playing ? stop() : play()}
-          style={{ background: 'var(--accent)', color: 'var(--bg)', borderRadius: 2, padding: '4px 10px', fontSize: 11, fontWeight: 600 }}
-        >
-          {playing ? '⏸' : '▶'}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={words.length - 1}
-          value={index}
-          onChange={(e) => { stop(); setIndex(Number(e.target.value)); }}
-          style={{ flex: 1 }}
-        />
-        <select
-          value={wpm}
-          onChange={(e) => setWpm(Number(e.target.value))}
-          style={{ background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 2, padding: '3px 6px', fontSize: 11, color: 'var(--fg)' }}
-        >
-          <option value={200}>200</option>
-          <option value={300}>300</option>
-          <option value={400}>400</option>
-          <option value={500}>500</option>
-          <option value={600}>600</option>
-        </select>
-        <button
-          onClick={() => { stop(); onClose(); }}
-          style={{ fontSize: 11, color: 'var(--fg-dim)', padding: '4px 8px' }}
-        >
-          Done
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ---------- Typing test (MonkeyType-style) ----------
-function TypingTest({ html, onClose }: { html: string; onClose: () => void }) {
-  const [words, setWords] = useState<string[]>([]);
-  const [input, setInput] = useState('');
-  const [wordIndex, setWordIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [started, setStarted] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const [startTime, setStartTime] = useState(0);
-  const [correctChars, setCorrectChars] = useState(0);
-  const [totalChars, setTotalChars] = useState(0);
-  const [wordResults, setWordResults] = useState<('correct' | 'incorrect' | 'pending')[]>([]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    const text = div.textContent || '';
-    const w = text.split(/\s+/).filter(Boolean).slice(0, 100);
-    setWords(w);
-    setWordResults(w.map(() => 'pending'));
-  }, [html]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [words]);
-
-  const elapsed = started && !finished ? (Date.now() - startTime) / 1000 / 60 : 0;
-  const wpm = elapsed > 0 ? Math.round((correctChars / 5) / elapsed) : 0;
-  const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
-
-  const finalElapsed = finished ? (Date.now() - startTime) / 1000 / 60 : 0;
-  const finalWpm = finished ? Math.round((correctChars / 5) / finalElapsed) : 0;
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (finished) return;
-
-    if (!started) {
-      setStarted(true);
-      setStartTime(Date.now());
-    }
-
-    if (e.key === ' ') {
-      e.preventDefault();
-      const currentWord = words[wordIndex];
-      const isCorrect = input === currentWord;
-      const newResults = [...wordResults];
-      newResults[wordIndex] = isCorrect ? 'correct' : 'incorrect';
-      setWordResults(newResults);
-      setCorrectChars((c) => c + (isCorrect ? currentWord.length + 1 : 0));
-      setTotalChars((c) => c + currentWord.length + 1);
-
-      if (wordIndex >= words.length - 1) {
-        setFinished(true);
-        return;
-      }
-
-      setWordIndex((i) => i + 1);
-      setCharIndex(0);
-      setInput('');
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (finished) return;
-    const val = e.target.value;
-    setInput(val);
-    setCharIndex(val.length);
-  };
-
-  const reset = () => {
-    setInput('');
-    setWordIndex(0);
-    setCharIndex(0);
-    setStarted(false);
-    setFinished(false);
-    setStartTime(0);
-    setCorrectChars(0);
-    setTotalChars(0);
-    setWordResults(words.map(() => 'pending'));
-    inputRef.current?.focus();
-  };
-
-  const activeWordRef = useRef<HTMLSpanElement | null>(null);
-  useEffect(() => {
-    if (activeWordRef.current && containerRef.current) {
-      const container = containerRef.current;
-      const word = activeWordRef.current;
-      const offsetTop = word.offsetTop - container.offsetTop;
-      if (offsetTop > container.clientHeight * 0.6) {
-        container.scrollTop = offsetTop - 40;
-      }
-    }
-  }, [wordIndex]);
-
-  return (
-    <div style={{ background: 'var(--tile)', borderRadius: 4, padding: 20, marginBottom: 20 }}>
-      {finished ? (
-        <div style={{ textAlign: 'center', padding: '20px 0' }}>
-          <div style={{ fontSize: 36, color: 'var(--accent)', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{finalWpm} wpm</div>
-          <div style={{ fontSize: 13, color: 'var(--fg-dim)', marginTop: 8 }}>{accuracy}% accuracy · {words.length} words</div>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
-            <button onClick={reset} style={{ background: 'var(--accent)', color: 'var(--bg)', borderRadius: 2, padding: '6px 14px', fontSize: 11, fontWeight: 600 }}>restart</button>
-            <button onClick={onClose} style={{ fontSize: 11, color: 'var(--fg-dim)', padding: '6px 14px' }}>done</button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <div
-            ref={containerRef}
-            onClick={() => inputRef.current?.focus()}
-            style={{ position: 'relative', fontSize: 18, lineHeight: 2, maxHeight: 120, overflow: 'hidden', cursor: 'text', marginBottom: 12 }}
-          >
-            {words.map((word, wi) => {
-              const isCurrent = wi === wordIndex;
-              const result = wordResults[wi];
-              return (
-                <span key={wi} ref={isCurrent ? activeWordRef : undefined} style={{ marginRight: 8, display: 'inline-block' }}>
-                  {word.split('').map((char, ci) => {
-                    let color = 'var(--fg-faint)';
-                    if (result === 'correct') color = 'var(--fg)';
-                    else if (result === 'incorrect') color = 'rgba(255,100,100,0.9)';
-                    else if (isCurrent) {
-                      if (ci < input.length) {
-                        color = input[ci] === char ? 'var(--fg)' : 'rgba(255,100,100,0.9)';
-                      }
-                    }
-                    return (
-                      <span key={ci} style={{ color, position: 'relative' }}>
-                        {isCurrent && ci === charIndex && (
-                          <span style={{ position: 'absolute', left: 0, top: 2, bottom: 2, width: 2, background: 'var(--accent)', animation: 'hpBlink 1s step-end infinite' }} />
-                        )}
-                        {char}
-                      </span>
-                    );
-                  })}
-                  {isCurrent && charIndex >= word.length && (
-                    <span style={{ position: 'relative' }}>
-                      {input.slice(word.length).split('').map((c, i) => (
-                        <span key={i} style={{ color: 'rgba(255,100,100,0.7)' }}>{c}</span>
-                      ))}
-                      <span style={{ position: 'absolute', right: -1, top: 2, bottom: 2, width: 2, background: 'var(--accent)', animation: 'hpBlink 1s step-end infinite' }} />
-                    </span>
-                  )}
-                </span>
-              );
-            })}
-            <style>{`@keyframes hpBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }`}</style>
-          </div>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-          />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: 16, fontSize: 12 }}>
-              {started && <span style={{ color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>{wpm} wpm</span>}
-              {started && <span style={{ color: 'var(--fg-dim)', fontVariantNumeric: 'tabular-nums' }}>{accuracy}%</span>}
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={reset} style={{ fontSize: 11, color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '4px 10px' }}>restart</button>
-              <button onClick={onClose} style={{ fontSize: 11, color: 'var(--fg-dim)', padding: '4px 8px' }}>done</button>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 // ---------- Post panel (replaces lightbox) ----------
 function Lightbox({ images, index, onClose, onChange }: { images: string[]; index: number; onClose: () => void; onChange: (i: number) => void }) {
@@ -1850,306 +1608,6 @@ function SpecTable({ rows }: { rows: { label: string; value: string; accent?: bo
   );
 }
 
-function ClosePill({ onClick }: { onClick: () => void }) {
-  return (
-    <div style={{ position: 'sticky', top: 0, alignSelf: 'flex-end', zIndex: 10, marginBottom: 8 }}>
-      <button
-        onClick={onClick}
-        className="post-spec-cell"
-        style={{ background: 'var(--fg)', color: 'var(--bg)', borderRadius: 999, padding: '10px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent)')}
-        onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--fg)')}
-      >
-        ✕ close
-      </button>
-    </div>
-  );
-}
-
-function DisplayTitle({ children, isMobile }: { children: React.ReactNode; isMobile: boolean }) {
-  return (
-    <div style={{ fontSize: isMobile ? 34 : 44, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.02, color: 'var(--fg)', margin: '18px 0 0' }}>
-      {children}
-    </div>
-  );
-}
-
-function PostPanel({ post, onClose, isMobile = false }: { post: Post; onClose: () => void; isMobile?: boolean }) {
-  const [showSpritz, setShowSpritz] = useState(false);
-  const [showTyping, setShowTyping] = useState(false);
-  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
-
-  const copyLink = () => {
-    if (!post.slug) return;
-    const url = `${window.location.origin}/posts/${post.slug}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
-  };
-  const [fetchedHtml, setFetchedHtml] = useState<string | null>(
-    post.html ?? (post.slug ? postHtmlCache.get(post.slug) ?? null : null)
-  );
-  const proseRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const cached = post.slug ? postHtmlCache.get(post.slug) ?? null : null;
-    setFetchedHtml(post.html ?? cached);
-    if (post.html || !post.slug || cached) return;
-    const slug = post.slug;
-    let cancelled = false;
-    fetch(`/posts/${slug}.json`)
-      .then((r) => r.json())
-      .then((data: { html: string }) => {
-        if (cancelled) return;
-        postHtmlCache.set(slug, data.html);
-        setFetchedHtml(data.html);
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [post.slug, post.html]);
-
-  // Only close the panel on Escape when the image lightbox isn't the one
-  // that should be handling it (Lightbox has its own Escape handler).
-  useEffect(() => {
-    if (lightboxIdx !== null) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, lightboxIdx]);
-
-  const isLoadingHtml = !post.html && !fetchedHtml;
-  const postHtml = fetchedHtml ?? post.html ?? `<p>${post.excerpt}</p>`;
-  // Imported posts often reuse the first body paragraph as the excerpt —
-  // skip the lede then so the text doesn't render twice. Checked against the
-  // real body only, so the lede still shows while the html is loading.
-  const showLede = !!post.excerpt && (isLoadingHtml || !isExcerptRedundant(postHtml, post.excerpt));
-  const wordCount = postHtml.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.round(wordCount / 230));
-
-  const postImages = useMemo(() => {
-    const srcs: string[] = [];
-    if (post.feature_image) srcs.push(post.feature_image);
-    const matches = postHtml.matchAll(/<img[^>]+src="([^"]+)"/g);
-    for (const m of matches) {
-      if (!srcs.includes(m[1])) srcs.push(m[1]);
-    }
-    return srcs;
-  }, [postHtml, post.feature_image]);
-
-  useEffect(() => {
-    const el = proseRef.current;
-    if (!el) return;
-    const handleClick = (e: MouseEvent) => {
-      const img = (e.target as HTMLElement).closest('img');
-      if (!img) return;
-      const src = img.getAttribute('src') || '';
-      const idx = postImages.indexOf(src);
-      if (idx >= 0) setLightboxIdx(idx);
-    };
-    el.addEventListener('click', handleClick);
-    return () => el.removeEventListener('click', handleClick);
-  }, [postImages]);
-
-  // Autoplaying <video> tags in post content: browsers pause them once they
-  // scroll out of view and never resume automatically, so drive play/pause
-  // off actual visibility instead of relying on the autoplay attribute alone.
-  useEffect(() => {
-    const el = proseRef.current;
-    if (!el) return;
-    const videos = Array.from(el.querySelectorAll('video'));
-    if (!videos.length) return;
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        const video = entry.target as HTMLVideoElement;
-        if (entry.isIntersecting) video.play().catch(() => {});
-        else video.pause();
-      }
-    }, { threshold: 0.25 });
-    videos.forEach((v) => observer.observe(v));
-    return () => observer.disconnect();
-  }, [postHtml]);
-
-  const isLife = post.tags.includes('life');
-  const isWork = post.tags.includes('work') || post.tags.includes('archive') || post.tags.includes('projects');
-  const hasImage = (isLife && (post.img || post.feature_image)) || (isWork && post.feature_image);
-
-  // Hero (rendered here) is FIG. 01; figure numbering in the body continues after it.
-  const bodyHtml = useMemo(
-    () => addFigCaptions(groupImagesIntoGrid(stripMetaParagraphs(postHtml)), post.title, post.feature_image && hasImage ? 2 : 1),
-    [postHtml, post.title, post.feature_image, hasImage]
-  );
-
-  return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '16px 20px 80px' : '32px 56px 80px 48px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-      <ClosePill onClick={onClose} />
-
-      <DisplayTitle isMobile={isMobile}>{post.title}</DisplayTitle>
-
-      <SpecTable rows={specRowsFor(post)} />
-
-      {showLede && (
-        <p className="prose" style={{ color: 'var(--fg)', fontSize: 16, lineHeight: 1.7, margin: '0 0 28px', maxWidth: 520 }}>{post.excerpt}</p>
-      )}
-
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, alignItems: 'center' }}>
-        <button
-          onClick={() => { setShowSpritz(!showSpritz); setShowTyping(false); }}
-          className="post-spec-cell"
-          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
-        >
-          {showSpritz ? 'hide speed reader' : <><Lightning size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />speed read</>}
-        </button>
-        <button
-          onClick={() => { setShowTyping(!showTyping); setShowSpritz(false); }}
-          className="post-spec-cell"
-          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
-        >
-          {showTyping ? 'hide typing test' : <><Keyboard size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />typing test</>}
-        </button>
-        {post.slug && (
-          <button
-            onClick={copyLink}
-            aria-label="copy link to post"
-            style={{ display: 'flex', alignItems: 'center', color: copied ? 'var(--accent)' : 'var(--fg-faint)', marginLeft: 'auto' }}
-            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-dim)'; }}
-            onMouseLeave={(e) => { if (!copied) e.currentTarget.style.color = 'var(--fg-faint)'; }}
-          >
-            {copied ? <Check size={12} weight="bold" /> : <Copy size={12} />}
-          </button>
-        )}
-      </div>
-
-      {showSpritz && <SpritzReader html={postHtml} onClose={() => setShowSpritz(false)} />}
-      {showTyping && <TypingTest html={postHtml} onClose={() => setShowTyping(false)} />}
-
-      {hasImage && (
-        <figure className="post-fig" style={{ margin: '0 0 24px' }}>
-          {post.feature_image ? (
-            <img
-              src={post.feature_image}
-              alt=""
-              loading="lazy"
-              style={{ width: '100%', borderRadius: 2, cursor: 'pointer' }}
-              onClick={() => setLightboxIdx(0)}
-            />
-          ) : (
-            <LifeImage color={post.img || '#3a434e'} seed={post.title.length} height={260} />
-          )}
-          <figcaption className="post-fig-caption">fig. 01 — {post.title}</figcaption>
-        </figure>
-      )}
-
-      {isLoadingHtml ? (
-        <div style={{ color: 'var(--fg-dim)', fontSize: 13, padding: '8px 0 20px' }}>loading…</div>
-      ) : (
-        <div ref={proseRef} className="prose" style={{ color: 'var(--fg)', fontSize: 16, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />
-      )}
-      <style>{`.prose img { cursor: pointer; }`}</style>
-
-      <AnimatePresence>
-        {lightboxIdx !== null && (
-          <Lightbox images={postImages} index={lightboxIdx} onClose={() => setLightboxIdx(null)} onChange={setLightboxIdx} />
-        )}
-      </AnimatePresence>
-
-      <div className="post-spec-cell" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 36, paddingTop: 18, borderTop: '1px solid var(--rule)', color: 'var(--fg-dim)' }}>
-        <span>~{minutes} min read</span>
-        {post.slug && (
-          <a
-            href={`/posts/${post.slug}`}
-            style={{ color: 'var(--fg-dim)', textDecoration: 'none' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
-          >
-            full post ↗
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------- Project panel ----------
-const PROJECT_CONTENT: Record<string, { title: string; html: string; subtitle?: string }> = {
-  'split-keyboard': { title: 'A Better Mechanical Keyboard', html: KEYBOARD_HTML, subtitle: 'senior project, 2019' },
-};
-
-function ProjectPanel({ projectId, onClose, isMobile = false }: { projectId: string; onClose: () => void; isMobile?: boolean }) {
-  const [showSpritz, setShowSpritz] = useState(false);
-  const [showTyping, setShowTyping] = useState(false);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  if (projectId === 'freezer-martini') {
-    return (
-      <div style={{ height: '100%', overflowY: 'auto', padding: '24px 24px 80px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-        <ClosePill onClick={onClose} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16, padding: '0 8px' }}>
-          <div className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>project · tool</div>
-          <a
-            href="/freezer-martini"
-            className="post-spec-cell"
-            style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
-          >
-            ↗ expand full page
-          </a>
-        </div>
-        <FreezerMartini embedded />
-      </div>
-    );
-  }
-
-  const project = PROJECT_CONTENT[projectId];
-  if (!project) return null;
-
-  return (
-    <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '16px 20px 80px' : '32px 48px 80px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-      <ClosePill onClick={onClose} />
-
-      <DisplayTitle isMobile={isMobile}>{project.title}</DisplayTitle>
-
-      <SpecTable rows={project.subtitle ? [{ label: 'context', value: project.subtitle }] : []} />
-
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-        <button
-          onClick={() => { setShowSpritz(!showSpritz); setShowTyping(false); }}
-          className="post-spec-cell"
-          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
-        >
-          {showSpritz ? 'hide speed reader' : <><Lightning size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />speed read</>}
-        </button>
-        <button
-          onClick={() => { setShowTyping(!showTyping); setShowSpritz(false); }}
-          className="post-spec-cell"
-          style={{ color: 'var(--fg-dim)', border: '1px solid var(--rule)', borderRadius: 2, padding: '5px 10px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; e.currentTarget.style.borderColor = 'var(--rule)'; }}
-        >
-          {showTyping ? 'hide typing test' : <><Keyboard size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />typing test</>}
-        </button>
-      </div>
-
-      {showSpritz && <SpritzReader html={project.html} onClose={() => setShowSpritz(false)} />}
-      {showTyping && <TypingTest html={project.html} onClose={() => setShowTyping(false)} />}
-
-      <div className="prose" style={{ color: 'var(--fg)', fontSize: 16, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: project.html }} />
-    </div>
-  );
-}
 
 // ---------- FrameFooter ----------
 // Lives in the outer border padding around the site (desktop only).
@@ -2301,8 +1759,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     }
   };
 
-  const [activePost, setActivePostRaw] = useState<Post | null>(null);
-  const [activeProject, setActiveProject] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('compact');
   const [showStream, setShowStream] = useState(false);
 
@@ -2320,8 +1776,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
     const postSlug = new URLSearchParams(window.location.search).get('post');
     if (postSlug) {
-      const found = feed.find((p) => p.slug === postSlug);
-      if (found) setActivePostRaw(found);
+      window.location.replace(`/posts/${postSlug}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -2332,38 +1787,6 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   // ?thoughts=open deep link (used by the RSS item links).
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('thoughts') === 'open') setShowThoughts(true);
-  }, []);
-
-  // Opening a panel pushes a history entry so the phone's back gesture closes
-  // it instead of leaving the site (the panel is fullscreen on mobile). Only
-  // one entry is pushed no matter how many posts are viewed in a row.
-  const panelOpenRef = useRef(false);
-  const pushPanelState = () => {
-    if (!panelOpenRef.current) {
-      window.history.pushState({ hpPanel: true }, '');
-      panelOpenRef.current = true;
-    }
-  };
-  const setActivePost = (p: Post | null) => {
-    setActivePostRaw(p); setActiveProject(null);
-    if (p) pushPanelState();
-    else if (panelOpenRef.current) { panelOpenRef.current = false; window.history.back(); }
-  };
-  const openProject = (id: string) => { setActiveProject(id); setActivePostRaw(null); pushPanelState(); };
-  const closeRightPanel = () => {
-    setActivePostRaw(null); setActiveProject(null);
-    if (panelOpenRef.current) { panelOpenRef.current = false; window.history.back(); }
-  };
-  useEffect(() => {
-    const onPop = () => {
-      if (panelOpenRef.current) {
-        panelOpenRef.current = false;
-        setActivePostRaw(null);
-        setActiveProject(null);
-      }
-    };
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   useEffect(() => {
@@ -2394,15 +1817,9 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     leftScrollRef.current?.scrollBy({ top: e.deltaY });
   };
 
-  const panelOpen = !!(activePost || activeProject);
   // Rail-grid (editorial) layout only when the column has the full page to
-  // itself; the open-panel 50% column and mobile fall back to stacked labels.
-  const wide = !isMobile && !panelOpen;
-  const rightContent = activePost
-    ? <PostPanel post={activePost} onClose={closeRightPanel} isMobile={isMobile} />
-    : activeProject
-      ? <ProjectPanel projectId={activeProject} onClose={closeRightPanel} isMobile={isMobile} />
-      : null;
+  // itself; mobile falls back to stacked labels.
+  const wide = !isMobile;
 
   return (
     <MotionConfig reducedMotion={a11y ? 'always' : 'user'}>
@@ -2440,60 +1857,34 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
             <source src="/intro/intro.mp4" type="video/mp4" />
           </video>
         )}
-        {/* Left column: full width in wide mode (the rail grid centers its
-            own 34rem column), 50% when the detail panel is open. */}
-        {(!isMobile || !panelOpen) && (
-          <div style={{
-            flexShrink: 0,
-            width: isMobile || !panelOpen ? '100%' : '50%',
-            transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1)',
-            overflowY: 'auto',
-            height: '100%',
-            position: 'relative',
-            zIndex: 1,
-          }}>
-            <LeftColumn
-              activePost={activePost}
-              activeProject={activeProject}
-              setActivePost={setActivePost}
-              onOpenProject={openProject}
-              onOpenBioModal={setBioModal}
-              onHome={closeRightPanel}
-              onWatchStream={() => setShowStream(true)}
-              onOpenAbout={() => { const p = feed.find((r) => r.slug === 'about-me'); if (p) setActivePost(p); }}
-              feed={feed}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-              scrollRef={leftScrollRef}
-              isMobile={isMobile}
-              wide={wide}
-            />
-          </div>
-        )}
-
-        {/* Right panel */}
-        {(!isMobile || panelOpen) && (
-          <div style={{
-            flexShrink: 0,
-            width: isMobile ? '100%' : (panelOpen ? '50%' : 0),
-            overflow: 'hidden',
-            height: '100%',
-            opacity: panelOpen ? 1 : 0,
-            transform: (!isMobile && !panelOpen) ? 'translateX(16px)' : undefined,
-            transition: isMobile ? undefined : 'width 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s, transform 0.35s ease 0.08s',
-            position: 'relative',
-            zIndex: 1,
-          }}>
-            {rightContent}
-          </div>
-        )}
+        {/* Left column: full width (the rail grid centers its own column). */}
+        <div style={{
+          flexShrink: 0,
+          width: '100%',
+          overflowY: 'auto',
+          height: '100%',
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          <LeftColumn
+            onOpenBioModal={setBioModal}
+            onHome={() => leftScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+            onWatchStream={() => setShowStream(true)}
+            onOpenAbout={() => { window.location.href = '/posts/about-me'; }}
+            feed={feed}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            scrollRef={leftScrollRef}
+            isMobile={isMobile}
+            wide={wide}
+          />
+        </div>
       </div>
 
       {(() => {
         const chromeProps: ChromeProps = {
           theme, setTheme, font, setFont,
           onTimeTravel: setTimeTravel,
-          onOpenResource: (slug: string) => { const p = feed.find(r => r.slug === slug); if (p) setActivePost(p); },
           onOpenThoughts: () => setShowThoughts(true),
           themeLocked, fontLocked,
           onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,

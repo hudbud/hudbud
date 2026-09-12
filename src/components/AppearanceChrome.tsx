@@ -65,12 +65,14 @@ export default function AppearanceChrome() {
     else localStorage.removeItem('hp-lock-font');
   };
 
+  // Sit inside the project frame (20px border) with the same gap as the homepage pair.
+  const edge = 36;
   return (
     <>
-      <GlassBloom pos={{ right: 70, bottom: 'calc(16px + env(safe-area-inset-bottom))' }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
+      <GlassBloom pos={{ right: edge + 54, bottom: edge }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
         <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={toggleFontLock} />
       </GlassBloom>
-      <GlassBloom pos={{ right: 16, bottom: 'calc(16px + env(safe-area-inset-bottom))' }} anchor="end" label="theme" trigger={<Palette size={18} weight="fill" />}>
+      <GlassBloom pos={{ right: edge, bottom: edge }} anchor="end" label="theme" trigger={<Palette size={18} weight="fill" />}>
         <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={toggleThemeLock} />
       </GlassBloom>
     </>

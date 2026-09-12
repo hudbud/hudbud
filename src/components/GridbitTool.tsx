@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { CSSProperties, ReactNode, PointerEvent as ReactPointerEvent, DragEvent as ReactDragEvent } from 'react';
 import { useDialKitController } from 'dialkit';
+import { ToolEmpty, toolBtn, toolStatus, useSiteTheme } from './toolTheme';
 
 /* ---------------- types ---------------- */
 
@@ -69,17 +70,7 @@ function download(blob: Blob, name: string) {
 
 /* ---------------- palette (shared with the dimension tool) ---------------- */
 
-const INK = '#1B1D22';
-const CHROME_TXT = '#E8E6DD';
 const MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace";
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
-
-const THEMES = {
-  light: { canvas: '#F3F2EC', dot: '#D8D6CC', ink: '#1B1D22', pick: '#0E7C86' },
-  dark: { canvas: '#14161B', dot: '#2A2E37', ink: '#E8E6DD', pick: '#3DD6C3' },
-} as const;
-
-type ThemeKey = keyof typeof THEMES;
 
 const LINE_DARK = '#1B1D22';
 const LINE_LIGHT = '#F5F4EE';
@@ -119,14 +110,6 @@ export default function GridbitTool() {
     },
     look: {
       _collapsed: true,
-      canvas: {
-        type: 'select',
-        options: [
-          { value: 'light', label: 'Light' },
-          { value: 'dark', label: 'Dark' },
-        ],
-        default: 'light',
-      },
       autoColors: true,
       minorColor: '#1B1D22',
       majorColor: '#1B1D22',
@@ -148,11 +131,10 @@ export default function GridbitTool() {
   const majorEvery = Math.round(dial.values.lines.majorEvery);
   const numbers = dial.values.lines.numbers;
   const cellSize = Math.round(dial.values.output.cellSize);
-  const themeKey = dial.values.look.canvas as ThemeKey;
   const autoColors = dial.values.look.autoColors;
   const minorOpacity = dial.values.look.minorOpacity / 100;
-
-  const T = THEMES[themeKey];
+  const site = useSiteTheme();
+  const T = { canvas: site.bgInner, ink: site.fg, pick: site.accent };
 
   const clampCells = (v: number) => Math.max(1, Math.min(MAX_CELLS, Math.round(v)));
   const parseCells = (s: string, fallback: number) => {
@@ -219,9 +201,7 @@ export default function GridbitTool() {
       }
       const scale = detectScale(data);
       const c0 = clampCells(w / scale), r0 = clampCells(h / scale);
-      const lum = avgLum(data);
       dial.setValues({ grid: { cols: String(c0), rows: String(r0) } });
-      if (lum != null) dial.setValues({ look: { canvas: lum > 0.6 ? 'dark' : 'light' } });
       prevGrid.current = { cols: String(c0), rows: String(r0) };
       const m = U * 1.6;
       setView(pad({ x: -m, y: -m, w: c0 * U + 2 * m, h: r0 * U + 2 * m }, 0.04));
@@ -568,19 +548,7 @@ export default function GridbitTool() {
   }, [src, numbers, cols, rows, majorEvery, T.ink]);
 
   /* ---------- UI bits ---------- */
-  const btn: CSSProperties = {
-    background: 'rgba(27,29,34,0.92)',
-    color: CHROME_TXT,
-    border: '1px solid #3A3D45',
-    borderRadius: 3,
-    padding: '5px 10px',
-    fontFamily: MONO,
-    fontSize: 11.5,
-    letterSpacing: '0.02em',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  };
-  const btnPrimary: CSSProperties = { ...btn, background: '#C8352A', border: '1px solid #C8352A', color: '#FFF' };
+  const btn: CSSProperties = toolBtn;
 
   const viewBoxStr = view ? `${view.x} ${view.y} ${view.w} ${view.h}` : '0 0 100 100';
   const exportGeo = src && cols && rows ? geometry(exportCell) : null;
@@ -591,7 +559,7 @@ export default function GridbitTool() {
       : null;
 
   return (
-    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: T.canvas, color: INK, fontFamily: SANS }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-inner)', color: 'var(--fg)' }}>
       <input
         ref={fileRef} type="file" accept="image/png,image/gif,image/webp,image/jpeg" style={{ display: 'none' }}
         onChange={(e) => { loadFile(e.target.files && e.target.files[0]); e.target.value = ''; }}
@@ -604,32 +572,16 @@ export default function GridbitTool() {
           position: 'relative',
           flex: 1,
           overflow: 'hidden',
-          backgroundColor: T.canvas,
-          backgroundImage: `radial-gradient(circle, ${T.dot} 1px, transparent 1px)`,
+          backgroundColor: 'var(--bg-inner)',
+          backgroundImage: 'radial-gradient(circle, color-mix(in srgb, var(--fg) 16%, transparent) 1px, transparent 1px)',
           backgroundSize: '22px 22px',
-          outline: dropping ? `2px dashed ${T.pick}` : 'none',
+          outline: dropping ? '2px dashed var(--accent)' : 'none',
           outlineOffset: -6,
         }}
         onDragOver={(e) => { e.preventDefault(); setDropping(true); }}
         onDragLeave={() => setDropping(false)}
         onDrop={onDrop}
       >
-        {/* brand chip / back to the site */}
-        <a
-          href="/"
-          title="back to hudbud.net"
-          style={{
-            position: 'absolute', left: 10, top: 10, zIndex: 2,
-            background: 'rgba(27,29,34,0.92)', color: CHROME_TXT,
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '7px 11px', borderRadius: 3, textDecoration: 'none',
-          }}
-        >
-          <span style={{ fontFamily: MONO, fontSize: 11, opacity: 0.65 }}>←</span>
-          <div style={{ width: 11, height: 11, background: '#C8352A' }} />
-          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.22em' }}>GRIDBIT</span>
-        </a>
-
         {src ? (
           <svg
             ref={svgRef}
@@ -651,35 +603,17 @@ export default function GridbitTool() {
             {previewLabels}
           </svg>
         ) : (
-          <div
-            style={{
-              position: 'absolute', inset: 24, border: `1.5px solid ${themeKey === 'light' ? INK : CHROME_TXT}`,
-              color: themeKey === 'light' ? INK : CHROME_TXT,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <div style={{ position: 'absolute', right: 0, bottom: 0, borderTop: `1.5px solid currentColor`, borderLeft: `1.5px solid currentColor`, padding: '8px 14px', fontFamily: MONO, fontSize: 10, letterSpacing: '0.1em', opacity: 0.55 }}>
-              CHART 1 OF 1 · NO FILE LOADED
-            </div>
-            <div style={{ textAlign: 'center', maxWidth: 420 }}>
-              <div style={{ fontFamily: MONO, fontSize: 13, letterSpacing: '0.18em', marginBottom: 10 }}>DROP OR PASTE A PNG</div>
-              <div style={{ fontSize: 13.5, opacity: 0.7, lineHeight: 1.55, marginBottom: 18 }}>
-                Pixel art in, crochet chart out. It guesses the true stitch dimensions (even for scaled-up art) — adjust them if it's wrong. Minor lines mark every stitch, major lines every 10, with numbered rows and columns along the edges. Export a big PNG, JPEG, or SVG to follow along on an iPad. All the knobs live in the dial panel.
-              </div>
-              <button
-                style={{ ...btnPrimary, fontSize: 12, padding: '8px 16px' }}
-                onClick={() => fileRef.current?.click()}
-              >
-                Choose file
-              </button>
-              {error && <div style={{ marginTop: 14, fontFamily: MONO, fontSize: 11.5, color: '#C8352A' }}>{error}</div>}
-            </div>
-          </div>
+          <ToolEmpty
+            title="Drop a PNG"
+            hint="It becomes a crochet chart."
+            onChoose={() => fileRef.current?.click()}
+            error={error}
+          />
         )}
 
         {/* ------- zoom cluster ------- */}
         {src && (
-          <div style={{ position: 'absolute', right: 10, bottom: 10, display: 'flex', gap: 4 }}>
+          <div style={{ position: 'absolute', right: 152, bottom: 36, display: 'flex', gap: 6 }}>
             <button style={btn} title="Zoom out" onClick={() => zoomCenter(1.25)}>−</button>
             <button style={btn} title="Zoom in" onClick={() => zoomCenter(0.8)}>+</button>
             <button style={btn} title="Fit chart" onClick={zoomFit}>Fit</button>
@@ -688,19 +622,11 @@ export default function GridbitTool() {
 
         {/* ------- status bar ------- */}
         {src && (
-          <div
-            style={{
-              position: 'absolute', left: 10, bottom: 10,
-              background: 'rgba(27,29,34,0.92)', color: CHROME_TXT,
-              fontFamily: MONO, fontSize: 11, padding: '6px 10px', borderRadius: 3,
-              display: 'flex', gap: 16, pointerEvents: 'none', letterSpacing: '0.02em',
-              maxWidth: 'calc(100% - 220px)', flexWrap: 'wrap',
-            }}
-          >
+          <div style={toolStatus}>
             <span style={{ minWidth: 110 }}>
               {cellUnder ? `col ${cellUnder.c}  row ${cellUnder.r}` : 'col —  row —'}
             </span>
-            <span style={{ color: THEMES.dark.pick }}>
+            <span style={{ color: 'var(--accent)' }}>
               {cols}×{rows} sts
             </span>
             {exportGeo && (
@@ -711,7 +637,7 @@ export default function GridbitTool() {
           </div>
         )}
         {src && error && (
-          <div style={{ position: 'absolute', right: 10, bottom: 46, fontFamily: MONO, fontSize: 11, color: '#C8352A' }}>{error}</div>
+          <div style={{ position: 'absolute', right: 152, bottom: 72, fontSize: 12, color: 'var(--fg-dim)' }}>{error}</div>
         )}
       </div>
     </div>

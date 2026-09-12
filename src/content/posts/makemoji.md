@@ -5,6 +5,7 @@ tags: ["projects"]
 category: "product"
 excerpt: "Long story short, I wanted an easier & faster way to make slack emojis of my dog. So I threw this together. It's quite nice!"
 feature_image: "https://media.hudbud.net/posts/70/feature.webp"
+link: "https://makemoji.net"
 ---
 Long story short, I wanted an easier & faster way to make slack emojis of my dog. So I threw this together. It's quite nice!
 

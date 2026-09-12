@@ -1,0 +1,154 @@
+---
+/** Same outer border as the homepage. Back control lives in that padding; the tool cannot paint over it. */
+interface Props {
+  /** Tools should fill the space inside the border instead of scrolling. */
+  fill?: boolean;
+}
+
+const { fill = false } = Astro.props;
+---
+<div class="project-frame">
+  <div class="project-rim" aria-hidden="true">
+    <i class="t"></i>
+    <i class="r"></i>
+    <i class="b"></i>
+    <i class="l"></i>
+  </div>
+  <a class="project-back" href="/">back to hudbud.net</a>
+  <span class="project-credit">a project by Hudson Paine</span>
+  <div class:list={['project-body', { 'is-fill': fill }]}>
+    <slot />
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var INSET = 32;
+    var clamping = false;
+    function clamp() {
+      if (clamping) return;
+      var panel = document.querySelector('.dialkit-panel');
+      if (!panel || panel.getAttribute('data-mode') === 'inline') return;
+      var r = panel.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var maxL = window.innerWidth - INSET - r.width;
+      var maxT = window.innerHeight - INSET - r.height;
+      var left = Math.min(Math.max(r.left, INSET), Math.max(INSET, maxL));
+      var top = Math.min(Math.max(r.top, INSET), Math.max(INSET, maxT));
+      if (Math.abs(left - r.left) < 0.5 && Math.abs(top - r.top) < 0.5) return;
+      clamping = true;
+      panel.style.left = left + 'px';
+      panel.style.top = top + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+      clamping = false;
+    }
+    window.addEventListener('pointermove', clamp);
+    window.addEventListener('pointerup', clamp);
+    window.addEventListener('resize', clamp);
+    new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        if (records[i].target.classList && records[i].target.classList.contains('dialkit-panel')) {
+          clamp();
+          return;
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'data-position'] });
+  })();
+</script>
+
+<style is:global>
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* DialKit portals to the body. Keep the default dock, and any drag, inside the inner frame. */
+  body .dialkit-panel {
+    max-height: calc(100dvh - 64px) !important;
+    max-width: calc(100vw - 64px) !important;
+  }
+  body .dialkit-panel[data-position="top-right"] {
+    top: 36px !important;
+    right: 36px !important;
+  }
+  body .dialkit-panel[data-position="top-left"] {
+    top: 36px !important;
+    left: 36px !important;
+  }
+  body .dialkit-panel[data-position="bottom-right"] {
+    bottom: 36px !important;
+    right: 36px !important;
+  }
+  body .dialkit-panel[data-position="bottom-left"] {
+    bottom: 36px !important;
+    left: 36px !important;
+  }
+  body .dialkit-timeline {
+    left: 32px !important;
+    right: 32px !important;
+    bottom: 32px !important;
+  }
+</style>
+
+<style>
+  .project-frame {
+    height: 100dvh;
+    padding: 20px;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  .project-rim {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    pointer-events: none;
+  }
+  .project-rim i {
+    position: absolute;
+    background: var(--bg);
+    pointer-events: auto;
+  }
+  .project-rim .t { top: 0; left: 0; right: 0; height: 20px; }
+  .project-rim .b { bottom: 0; left: 0; right: 0; height: 20px; }
+  .project-rim .l { top: 20px; bottom: 20px; left: 0; width: 20px; }
+  .project-rim .r { top: 20px; bottom: 20px; right: 0; width: 20px; }
+  .project-back,
+  .project-credit {
+    position: fixed;
+    z-index: 10051;
+    top: 0;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    letter-spacing: 0.2px;
+    color: var(--fg-faint);
+    user-select: none;
+  }
+  .project-back { left: 20px; }
+  .project-back:hover { color: var(--accent); }
+  .project-credit { right: 20px; }
+  .project-body {
+    height: 100%;
+    background: var(--bg-inner);
+    border-radius: 4px;
+    overflow: auto;
+    position: relative;
+  }
+  .project-body.is-fill {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .project-body.is-fill > :global(*) {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+  }
+  .project-body.is-fill :global(astro-island) {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

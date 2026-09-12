@@ -9,6 +9,12 @@ export interface Post {
   discipline?: string;
   html?: string;
   slug?: string;
+  /** Hosted mini-app path. Name click goes here instead of the post. */
+  app?: string;
+  /** External site. Name click leaves the site; the post is not a destination. */
+  link?: string;
+  /** Body is long enough to deserve a "read more" next to the app name. */
+  writeup?: boolean;
   tags: string[];
   category?: string;
   feature_image?: string;

@@ -1,13 +1,13 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
+import ProjectFrame from '../layouts/ProjectFrame.astro';
 import GridbitTool from '../components/GridbitTool.tsx';
+import AppearanceChrome from '../components/AppearanceChrome.tsx';
 ---
 <Layout title="gridbit — hudbud.net" description="Turn pixel art into a crochet or knitting chart — numbered rows and stitches, minor and major grid lines, exportable as a big PNG, JPEG, or SVG.">
-  <GridbitTool client:only="react" />
+  <ProjectFrame fill>
+    <GridbitTool client:only="react" />
+  </ProjectFrame>
+  <AppearanceChrome client:load />
 </Layout>
-<style is:global>
-  body {
-    overflow: hidden;
-  }
-</style>

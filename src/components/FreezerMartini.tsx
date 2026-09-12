@@ -397,20 +397,6 @@ export default function FreezerMartini({ embedded = false }: { embedded?: boolea
 
   const content = (
     <>
-      {!embedded && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18 }}>
-          <a
-            href="/"
-            style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.9)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
-          >
-            ← paine.design
-          </a>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>idea · 01</span>
-        </div>
-      )}
-
         <div
           style={{
             display: 'flex',
@@ -547,7 +533,7 @@ export default function FreezerMartini({ embedded = false }: { embedded?: boolea
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '100%',
         background:
           'radial-gradient(ellipse at top, rgba(60,90,140,0.18), transparent 60%), radial-gradient(ellipse at bottom right, rgba(120,80,140,0.1), transparent 50%), #000',
         color: 'rgba(255,255,255,0.95)',

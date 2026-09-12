@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { CSSProperties, PointerEvent as ReactPointerEvent, DragEvent as ReactDragEvent } from 'react';
 import { useDialKitController } from 'dialkit';
+import { ToolEmpty, toolBtn, toolStatus, useSiteTheme } from './toolTheme';
 
 /* ---------------- types ---------------- */
 
@@ -80,29 +81,7 @@ function shade(hex: string) {
 
 /* ---------------- palette ---------------- */
 
-const INK = '#1B1D22';
-const CHROME_TXT = '#E8E6DD';
 const MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace";
-const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
-
-const THEMES = {
-  light: {
-    canvas: '#F3F2EC',
-    dot: '#D8D6CC',
-    dim: '#C8352A',
-    dimSel: '#8E1F16',
-    pick: '#0E7C86',
-  },
-  dark: {
-    canvas: '#14161B',
-    dot: '#2A2E37',
-    dim: '#FF6B5C',
-    dimSel: '#FFB3AA',
-    pick: '#3DD6C3',
-  },
-} as const;
-
-type ThemeKey = keyof typeof THEMES;
 
 /* ---------------- component ---------------- */
 
@@ -163,14 +142,6 @@ export default function SvgDimensionTool() {
     },
     look: {
       _collapsed: true,
-      canvas: {
-        type: 'select',
-        options: [
-          { value: 'light', label: 'Light' },
-          { value: 'dark', label: 'Dark' },
-        ],
-        default: 'light',
-      },
       autoColors: true,
       dimColor: '#C8352A',
       artColor: '#1B1D22',
@@ -191,12 +162,11 @@ export default function SvgDimensionTool() {
   const scaleStr = dial.values.measure.unitsPer;
   const units = dial.values.measure.units;
   const precision = Math.round(dial.values.measure.decimals);
-  const themeKey = dial.values.look.canvas as ThemeKey;
   const autoColors = dial.values.look.autoColors;
   const dimColor = autoColors ? null : dial.values.look.dimColor;
   const svgColor = autoColors ? null : dial.values.look.artColor;
-
-  const T = THEMES[themeKey];
+  const site = useSiteTheme();
+  const T = { canvas: site.bgInner, dim: site.accent, dimSel: site.fg, pick: site.accent };
 
   const scale = (() => { const v = parseFloat(scaleStr); return isFinite(v) && v > 0 ? v : 1; })();
   const fmt = useCallback(
@@ -319,7 +289,6 @@ export default function SvgDimensionTool() {
         if (n > 0) {
           const avg = lum / n;
           setArtLum(avg);
-          dial.setValues({ look: { canvas: avg > 0.6 ? 'dark' : 'light' } });
         }
       } catch { /* keep current theme */ }
 
@@ -746,7 +715,7 @@ export default function SvgDimensionTool() {
   // current background, invert lightness (hue-rotate keeps colors sane).
   // A custom artwork color is explicit, so it's never auto-inverted.
   const needsInvert =
-    !svgColor && artLum != null && (themeKey === 'light' ? artLum > 0.55 : artLum < 0.45);
+    !svgColor && artLum != null && (site.light ? artLum > 0.55 : artLum < 0.45);
   const artFilter = needsInvert ? 'invert(1) hue-rotate(180deg)' : 'none';
   const dimC = dimColor || T.dim;
   const dimSelC = dimColor ? shade(dimColor) : T.dimSel;
@@ -836,19 +805,7 @@ export default function SvgDimensionTool() {
   }
 
   /* ---------- UI bits ---------- */
-  const btn: CSSProperties = {
-    background: 'rgba(27,29,34,0.92)',
-    color: CHROME_TXT,
-    border: '1px solid #3A3D45',
-    borderRadius: 3,
-    padding: '5px 10px',
-    fontFamily: MONO,
-    fontSize: 11.5,
-    letterSpacing: '0.02em',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  };
-  const btnPrimary: CSSProperties = { ...btn, background: '#C8352A', border: '1px solid #C8352A', color: '#FFF' };
+  const btn: CSSProperties = toolBtn;
 
   const viewBoxStr = view ? `${view.x} ${view.y} ${view.w} ${view.h}` : '0 0 100 100';
 
@@ -860,7 +817,7 @@ export default function SvgDimensionTool() {
         : 'click first point · snaps to corners + edges';
 
   return (
-    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: T.canvas, color: INK, fontFamily: SANS }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-inner)', color: 'var(--fg)' }}>
       <input
         ref={fileRef} type="file" accept=".svg,image/svg+xml" style={{ display: 'none' }}
         onChange={(e) => { loadFile(e.target.files && e.target.files[0]); e.target.value = ''; }}
@@ -873,29 +830,16 @@ export default function SvgDimensionTool() {
           position: 'relative',
           flex: 1,
           overflow: 'hidden',
-          backgroundColor: T.canvas,
-          backgroundImage: `radial-gradient(circle, ${T.dot} 1px, transparent 1px)`,
+          backgroundColor: 'var(--bg-inner)',
+          backgroundImage: 'radial-gradient(circle, color-mix(in srgb, var(--fg) 16%, transparent) 1px, transparent 1px)',
           backgroundSize: '22px 22px',
-          outline: dropping ? `2px dashed ${T.pick}` : 'none',
+          outline: dropping ? '2px dashed var(--accent)' : 'none',
           outlineOffset: -6,
         }}
         onDragOver={(e) => { e.preventDefault(); setDropping(true); }}
         onDragLeave={() => setDropping(false)}
         onDrop={onDrop}
       >
-        {/* brand chip */}
-        <div
-          style={{
-            position: 'absolute', left: 10, top: 10, zIndex: 2,
-            background: 'rgba(27,29,34,0.92)', color: CHROME_TXT,
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '7px 11px', borderRadius: 3, pointerEvents: 'none',
-          }}
-        >
-          <div style={{ width: 11, height: 11, background: '#C8352A' }} />
-          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.22em' }}>DIMENSION</span>
-        </div>
-
         {doc ? (
           <svg
             ref={svgRef}
@@ -943,35 +887,17 @@ export default function SvgDimensionTool() {
             {dims.map((d) => <DimGlyph key={d.id} d={d} />)}
           </svg>
         ) : (
-          <div
-            style={{
-              position: 'absolute', inset: 24, border: `1.5px solid ${themeKey === 'light' ? INK : CHROME_TXT}`,
-              color: themeKey === 'light' ? INK : CHROME_TXT,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <div style={{ position: 'absolute', right: 0, bottom: 0, borderTop: `1.5px solid currentColor`, borderLeft: `1.5px solid currentColor`, padding: '8px 14px', fontFamily: MONO, fontSize: 10, letterSpacing: '0.1em', opacity: 0.55 }}>
-              SHEET 1 OF 1 · NO FILE LOADED
-            </div>
-            <div style={{ textAlign: 'center', maxWidth: 400 }}>
-              <div style={{ fontFamily: MONO, fontSize: 13, letterSpacing: '0.18em', marginBottom: 10 }}>DROP AN SVG HERE</div>
-              <div style={{ fontSize: 13.5, opacity: 0.7, lineHeight: 1.55, marginBottom: 18 }}>
-                Click an edge to dimension it, or use the Distance tool to measure between any two points. Drag a dimension line to move it along its axis. Scroll pans, pinch zooms. All the knobs live in the dial panel.
-              </div>
-              <button
-                style={{ ...btnPrimary, fontSize: 12, padding: '8px 16px' }}
-                onClick={() => fileRef.current?.click()}
-              >
-                Choose file
-              </button>
-              {error && <div style={{ marginTop: 14, fontFamily: MONO, fontSize: 11.5, color: '#C8352A' }}>{error}</div>}
-            </div>
-          </div>
+          <ToolEmpty
+            title="Drop an SVG"
+            hint="Click an edge to measure it."
+            onChoose={() => fileRef.current?.click()}
+            error={error}
+          />
         )}
 
         {/* ------- zoom cluster ------- */}
         {doc && (
-          <div style={{ position: 'absolute', right: 10, bottom: 10, display: 'flex', gap: 4 }}>
+          <div style={{ position: 'absolute', right: 152, bottom: 36, display: 'flex', gap: 6 }}>
             {selectedDim && (
               <button style={btn} title="Delete selected dimension (⌫)" onClick={() => removeDim(selectedDim.id)}>Delete dim</button>
             )}
@@ -983,19 +909,11 @@ export default function SvgDimensionTool() {
 
         {/* ------- status bar ------- */}
         {doc && (
-          <div
-            style={{
-              position: 'absolute', left: 10, bottom: 10,
-              background: 'rgba(27,29,34,0.92)', color: CHROME_TXT,
-              fontFamily: MONO, fontSize: 11, padding: '6px 10px', borderRadius: 3,
-              display: 'flex', gap: 16, pointerEvents: 'none', letterSpacing: '0.02em',
-              maxWidth: 'calc(100% - 220px)', flexWrap: 'wrap',
-            }}
-          >
+          <div style={toolStatus}>
             <span style={{ minWidth: 150 }}>
               {cursor ? `X ${(cursor.x * scale).toFixed(precision)}  Y ${(cursor.y * scale).toFixed(precision)}` : 'X —  Y —'}
             </span>
-            <span style={{ color: THEMES.dark.pick, minWidth: 120 }}>
+            <span style={{ color: 'var(--accent)', minWidth: 120 }}>
               {tool === 'edge'
                 ? hovered ? `edge ${fmt(dist(hovered.p1, hovered.p2))}` : 'no edge'
                 : previewLabel || (hoverSnap ? hoverSnap.kind : '—')}
