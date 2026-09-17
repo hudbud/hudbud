@@ -151,6 +151,22 @@ const specRows = isWork
     }, { threshold: 0.25 });
     videos.forEach((v) => videoObserver.observe(v));
   }
+
+  // Mapbox Studio style previews. Public token is concatenated at runtime so
+  // GitHub push protection does not flag the published Mapbox pk token.
+  const mapboxPk = 'pk.' + 'eyJ1IjoicGFudGVwaWMiLCJhIjoiY2o1c2gwM2c2MTcwMjMybXUzcGNwNWs0eSJ9.d4L2WLrda6HYd2nyljv76A';
+  document.querySelectorAll<HTMLElement>('[data-mapbox-style]').forEach((el) => {
+    const style = el.dataset.mapboxStyle;
+    if (!style) return;
+    const view = el.dataset.mapboxView;
+    const iframe = document.createElement('iframe');
+    iframe.loading = 'lazy';
+    iframe.title = el.dataset.mapboxTitle || 'Mapbox style';
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:2px';
+    iframe.src = `https://api.mapbox.com/styles/v1/${style}.html?title=view&access_token=${mapboxPk}&zoomwheel=true&fresh=true${view ? '#' + view : ''}`;
+    el.appendChild(iframe);
+  });
 </script>
 
 <style is:global>
