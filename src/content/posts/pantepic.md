@@ -61,6 +61,6 @@ Pantepic is a map-based secure messenger that successfully launched on iOS and A
 
 <div class="mapbox-embed" style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9" data-mapbox-style="pantepic/cje4y332f84472spec8z3uplw" data-mapbox-view="9.82/37.64/-122.2157" data-mapbox-title="Night Design Team"></div>
 
-<div class="mapbox-embed" style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9" data-mapbox-style="pantepic/cjfdjpj0w87962rny88gbirvk" data-mapbox-title="Night Design Team copy"></div>
+<div class="mapbox-embed" style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9" data-mapbox-style="pantepic/cjfdjpj0w87962rny88gbirvk" data-mapbox-view="10.82/37.7056/-122.1423" data-mapbox-title="Night Design Team copy"></div>
 
-<div class="mapbox-embed" style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9" data-mapbox-style="pantepic/cjdpaqbgt0dsc2so0mkzh24r9" data-mapbox-title="Classic Design Team"></div>
+<div class="mapbox-embed" style="margin:12px 0;position:relative;width:100%;aspect-ratio:16/9" data-mapbox-style="pantepic/cjdpaqbgt0dsc2so0mkzh24r9" data-mapbox-view="13.41/37.77967/-122.38577" data-mapbox-title="Classic Design Team"></div>
