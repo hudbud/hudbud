@@ -255,41 +255,22 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenTho
 }
 
 // ---------- Editorial rail layout ----------
-// Borrowed bones: a five-column grid (1fr / 9rem / 34rem / 9rem / 1fr) with
-// sticky mono labels in the left rail and content in a 34rem center column.
-// Collapses to a stacked layout when the detail panel halves the column
-// (or on mobile), where the label renders above its section instead.
-const RAIL_GRID = 'minmax(0, 1fr) 9rem minmax(0, 34rem) 9rem minmax(0, 1fr)';
-
-function RailRow({ label, wide, children, right }: {
+// Rows sit on the site-wide grid (.hp-grid in global.css): sticky labels in
+// the left rail, content in the 34rem measure. The CSS collapses the rail
+// above its section on mobile, so layout doesn't wait on hydration.
+function RailRow({ label, wide, children }: {
   label: React.ReactNode;
   wide: boolean;
   children: React.ReactNode;
-  /** Optional right-rail content (sticky, like the label). */
-  right?: React.ReactNode;
 }) {
-  if (!wide) {
-    return (
-      <section>
-        {label && <div style={{ marginBottom: 6 }}>{label}</div>}
-        {children}
-        {right}
-      </section>
-    );
-  }
   return (
-    <section style={{ display: 'grid', gridTemplateColumns: RAIL_GRID, columnGap: 32 }}>
+    <section className="hp-grid">
       {label && (
-        <div style={{ gridColumn: 2, gridRow: 1, position: 'sticky', top: 24, alignSelf: 'start', justifySelf: 'end', textAlign: 'right', lineHeight: '2rem' }}>
+        <div className="hp-rail" style={wide ? { lineHeight: '2rem' } : undefined}>
           {label}
         </div>
       )}
-      <div style={{ gridColumn: 3, gridRow: 1, minWidth: 0 }}>{children}</div>
-      {right && (
-        <div style={{ gridColumn: 4, gridRow: 1, position: 'sticky', top: 24, alignSelf: 'start' }}>
-          {right}
-        </div>
-      )}
+      <div>{children}</div>
     </section>
   );
 }
@@ -399,7 +380,7 @@ function buildSections({ feed }: { feed: Post[] }): Section[] {
     summary: p.summary,
     isActive: false,
     href: p.app ?? p.link ?? (p.slug ? `/posts/${p.slug}` : undefined),
-    external: !p.app && !!p.link,
+    external: !p.app && /^https?:/.test(p.link ?? ''),
     readMore: p.app && p.writeup && p.slug ? `/posts/${p.slug}` : undefined,
   });
 
@@ -822,12 +803,8 @@ function SectionToggle({ label, expanded, onClick }: {
   );
 }
 
-function SectionHeader({ label, alignEnd }: { label: string; alignEnd?: boolean }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: alignEnd ? 0 : 6, justifyContent: alignEnd ? 'flex-end' : undefined }}>
-      <span style={{ fontSize: 14, color: 'var(--fg-dim)' }}>{label}</span>
-    </div>
-  );
+function SectionHeader({ label }: { label: string }) {
+  return <span style={{ fontSize: 14, color: 'var(--fg-dim)' }}>{label}</span>;
 }
 
 // Case-insensitive match across everything a visitor can see on a row.
@@ -899,7 +876,7 @@ function Feed({ feed, viewMode, gallerySeed, hasRenderedPosts, isMobile, wide, q
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-7)' }}>
       {sections.map((section) => {
         // Each section has its own layout: projects are icon-tile rows, work
         // is title/year/description rows, photos are always the 3-up image
@@ -973,7 +950,7 @@ function Feed({ feed, viewMode, gallerySeed, hasRenderedPosts, isMobile, wide, q
             animate={{ opacity: 1 }}
             transition={{ duration: 1.6, delay: hasRenderedPosts ? 0 : baseDelay + 1.1, ease: 'easeOut' }}
           >
-            <SectionHeader label={section.label} alignEnd={wide} />
+            <SectionHeader label={section.label} />
           </motion.div>
         );
         return (
@@ -1498,8 +1475,8 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
   return (
     <div ref={scrollRef} style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{
-      display: 'flex', flexDirection: 'column', gap: 24,
-      padding: isMobile ? '32px 20px 120px' : '56px 40px 120px 48px',
+      display: 'flex', flexDirection: 'column', gap: 'var(--space-5)',
+      padding: 'var(--page-top) var(--page-x) var(--page-bottom)',
       minHeight: '100%', justifyContent: 'flex-start',
     }}>
       {header}
@@ -1823,11 +1800,11 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
   return (
     <MotionConfig reducedMotion={a11y ? 'always' : 'user'}>
-    <div onWheel={handleFrameWheel} style={{ height: '100dvh', padding: isMobile ? 0 : 20, background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
+    <div onWheel={handleFrameWheel} style={{ height: '100dvh', padding: 'var(--frame)', background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
       {!isMobile && <FrameFooter />}
       <div
         style={{
-          height: isMobile ? '100dvh' : 'calc(100dvh - 40px)',
+          height: 'calc(100dvh - 2 * var(--frame))',
           background: 'var(--bg-inner)',
           borderRadius: isMobile ? 0 : 4,
           display: 'flex',

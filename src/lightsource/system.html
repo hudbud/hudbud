@@ -1,0 +1,154 @@
+<header class="hero">
+  <div>
+    <div class="eyebrow">Case study 2 — 2025 to 2026</div>
+    <h1>A design system engineers <em>actually use</em></h1>
+    <p class="lede">The company asked for a design system. What it needed was a small, opinionated one that nineteen engineers could build with unsupervised, and a navigation that made the app feel like one product instead of a collection of features. This is how the system, the page pattern and the sidebar came together.</p>
+  </div>
+  <dl class="facts">
+    <div><dt>Role</dt><dd>Design system designer and lead. Tokens, components, page patterns, sidebar, and the front-end polish pass with engineering.</dd></div>
+    <div><dt>Before</dt><dd>A system that had drifted into a free-for-all. Primary actions in three colors. A top nav and a left nav. No learning curve.</dd></div>
+    <div><dt>After</dt><dd>One limited token and component set in Tailwind. One header, toolbar and table pattern on every list page. One sidebar.</dd></div>
+    <div><dt>Shipped</dt><dd>Nova, the new experience, live as an opt-in toggle in 2026 while classic features reach parity.</dd></div>
+  </dl>
+  <div>
+    <div class="ba" data-ba><img width="1440" height="900" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sourcing-projects.webp" alt="Sourcing projects, classic card grid"><img width="1440" height="900" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sourcing-projects.webp" alt="Sourcing projects, Nova table"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <p class="hint">Drag to compare. The sourcing projects list, classic and Nova.</p>
+  </div>
+</header>
+
+<section id="system">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">Where I started</div>
+      <h2>The system, before any screen</h2>
+    </div>
+    <div class="prose">
+      <p>I'm a design system designer. I spent three years building one at Carvana, and I took that work and put it straight into practice here. The system I built for LightSource is consistent and limited, but has every capability the product needs.</p>
+      <p>The biggest lesson I carried over, from Dave Williams, the manager who helped me build the Carvana system, is that <strong>a design system is only as good as the engineers who use it.</strong> A lot of systems get built in a vacuum by design teams who never think about the engineering experience. So this one is engineering-first: useful classes, semantic tokens, and all of it implemented inside Tailwind, which is what the engineers were already writing.</p>
+      <p>That choice did more than any component. A robust, limited system equips engineers to do front-end work well without a designer looking over their shoulder, whether they're writing from scratch or with tooling. Across the board, it led to better outcomes than reviewing every screen ever could.</p>
+      <p>And the palette came pre-decided. The rebrand had already fixed one orange, a near-black and a neutral scale, and the product interpretation was settled: airy, white, with orange held back for the few moments that carry the brand. The system's job was to make those decisions the path of least resistance.</p>
+    </div>
+  </div>
+  <div class="principles">
+    <article><h3>Limited, but complete</h3><p>A small set of tokens and components that covers every case, rather than a large set that covers each case slightly differently. If a new need appears, the first question is which existing pattern it belongs to.</p></article>
+    <article><h3>Engineering-first</h3><p>Semantic tokens and useful classes in the Tailwind the team already used. The system lives where the code lives, so using it is easier than not using it.</p></article>
+    <article><h3>Brand-constrained</h3><p>White ground, neutral hierarchy, one orange used rarely. Every screen reinforces the brand, and the restraint is what makes the orange mean something when it appears.</p></article>
+  </div>
+</section>
+
+<section id="pattern">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">Unifying the visual language</div>
+      <h2>Every page opens the same way</h2>
+    </div>
+    <div class="prose">
+      <p>The strips below are the classic page headers, cropped from the live app, beside their Nova equivalents. In classic, the primary action is an orange gradient on Items, blue on the sourcing project, blue in a different size on bid comparison, blue again on Programs, and a black button sitting right beside an orange one on the item list. Some pages open with a title and subtitle, some with a search bar, some with a banner. Secondary actions like Export are styled as loudly as primary ones.</p>
+      <p><strong>Nova replaces all of it with one page-header pattern.</strong> The page name sits top-left. A toolbar on the right carries search, filter, column options and expand in one weight, and the single primary action is always the last element, always the same filled dark button. Underneath, one table component with the same row height, chips, status pills, number alignment and hover states on Items, BOMs, RFIs, Contracts, Programs and Sourcing projects. Hierarchy comes from weight and spacing rather than color, so the eye lands on the record, then the status, then the action.</p>
+      <p>Because the header and table are one component, adding a page means configuring them, not designing them. That's what a learning curve looks like from the inside: learn one page, and you've learned them all.</p>
+    </div>
+  </div>
+  <div class="audit">
+    <div class="audit-col"><div class="audit-lab">Classic: page headers and primary actions</div><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-items-header.webp" alt="Classic Items: orange gradient Import items beside a black Create new item"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-sp-overview-header.webp" alt="Classic sourcing project: blue Create RFQ"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-sp-bid-comparison-header.webp" alt="Classic bid comparison: blue Award Sourcing in a standalone toolbar"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-programs-header.webp" alt="Classic Programs: blue Create new program beside a search bar"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-contracts-header.webp" alt="Classic Item Contracts: title, subtitle and a blue Export button"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-boms-header.webp" alt="Classic BOMs: blue Create new"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-rfi-header.webp" alt="Classic Information Request: title, subtitle and tabs"></div>
+    <div class="audit-col"><div class="audit-lab">Nova: the same pages</div><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-items-header.webp" alt="Nova Items: breadcrumb tabs, toolbar, one dark Add items button"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-sp-overview-header.webp" alt="Nova sourcing project header: breadcrumb, tabs, Messages, Send RFQ"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-sp-bid-comparison-header.webp" alt="Nova analysis inside the Suppliers tab"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-programs-header.webp" alt="Nova Programs: toolbar and dark Create new program"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-contracts-header.webp" alt="Nova Item contracts as a table with the shared toolbar"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-boms-header.webp" alt="Nova BOMs: toolbar and dark Create BOM"><img width="1204" height="240" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-rfi-header.webp" alt="Nova RFI events: toolbar, templates, dark New RFI"></div>
+  </div>
+  <p class="hint">Cropped from 1440×900 captures of the live product. Savings projects is not shown because it hasn't yet been migrated to the pattern.</p>
+</section>
+
+<section id="sidebar">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">The sidebar</div>
+      <h2>Two navs became one</h2>
+      <div class="prose">
+        <p>Classic had a top nav and a left nav. The top bar carried global search, a link to the supplier side of LightSource, the Help Center, the agent, notifications and the avatar. The sidebar carried the destinations, a gradient "New Sourcing Project" pill, and the team and account buried in a chevron at the bottom, with display preferences hidden inside that menu. I consolidated all of it into a single left nav.</p>
+        <p><strong>The idea was to make the sidebar feel like the user's workspace.</strong> So the team name moved to the top, with a team selector that replaced a very janky one, partly to make switching intuitive and partly to encourage teams to grow inside LightSource. The nav items were grouped by category, and I went very deep on the icon design and alignment; there are a lot of turns on that in the Figma. The username moved to the bottom, and all settings moved down next to it.</p>
+        <p>The hardest single problem was display preferences. Currency, rounding and language are core features people use constantly to see things in their own terms, and they had been buried in a menu. Finding a place for them that made sense to an end user took real iteration; they ended up as visible rows in the footer.</p>
+        <p>The other challenge was collapse. The old sidebar expanded and collapsed on its own through a Tailwind behavior. I wanted it deliberately openable and closable, with a real collapse control, and I wanted the collapsed state to stay functional rather than decorative. Everything in the sidebar got touched.</p>
+      </div>
+    </div>
+    <div class="sb-pair">
+      <figure><img width="236" height="900" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-sidebar.webp" alt="Classic sidebar"><figcaption>Classic. Wordmark, gradient pill, five rule-divided groups with Beta tags, team and account in a chevron at the bottom.</figcaption></figure>
+      <figure><img width="236" height="900" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-sidebar.webp" alt="Nova sidebar"><figcaption>Nova. Workspace switcher on top, the shared dark button, one flat list grouped by spacing, preferences and account in the footer, wordmark where the brand guide puts it.</figcaption></figure>
+      <figure><img width="480" height="900" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/old-sidebar-menu.webp" alt="Classic sidebar with the team menu open"><figcaption>Classic, team menu open. Display preferences, team actions and other teams all inside one menu.</figcaption></figure>
+      <figure><img width="480" height="900" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/screenshots/crops/new-sidebar-menu.webp" alt="Nova sidebar with the workspace switcher open"><figcaption>Nova, workspace switcher open. Switching teams is the first thing in the sidebar, not the last.</figcaption></figure>
+    </div>
+  </div>
+  <figure class="single"><img width="1988" height="833" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/figma/sidebar-variants.webp" alt="Nine sidebar variants in Figma showing the wordmark moving from top to bottom, the team switcher taking the top slot, and the new-project action changing from a text link to a black pill"><figcaption><time>Figma, sidebar iterations.</time> Left to right you can watch the decisions get made: the wordmark migrates to the footer, the team switcher takes the top, "New project" goes from a text link to a black button, the agent and search hunt for a home, and currency and rounding settle into the footer.</figcaption></figure>
+  <div class="duo">
+    <figure><img width="2000" height="1281" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/figma/sidebar-board.webp" alt="Figma board with sidebar nav v0, alignment studies, icon options, layout v2 and font sizing experiments" style="aspect-ratio:3/2"><figcaption><time>Figma, the working board.</time> Sidebar nav v0 marked ready for dev, an alignment study, an icon-options sweep, two layout revisions, an announcement modal and font-sizing experiments A through D.</figcaption></figure>
+    <figure><img width="1800" height="1350" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_4177.webp" alt="Whiteboard with page layouts sketched in green and red marker" style="aspect-ratio:3/2"><figcaption><time>April 2026.</time> Layout sketches for the new shell on the office whiteboard.</figcaption></figure>
+  </div>
+</section>
+
+<section id="moments">
+  <div class="eyebrow">Before and after</div>
+  <h2>The pattern applied</h2>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Contracts</h3><div class="route">/source/item-contract</div><div class="chips"><span class="chip">Cards to rows</span><span class="chip">Promoted in nav</span></div></div>
+      <div class="prose"><p>Item contracts were two-column cards with a supplier logo, four figures and a status pill each. Nova turns them into rows with item, supplier, status, price, quantity, dates and the linked sourcing project, and moves Contracts up the sidebar beside RFI.</p></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-contracts.webp" alt="Classic contracts"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-contracts.webp" alt="Nova contracts"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Items</h3><div class="route">/source/part</div><div class="chips"><span class="chip">Dense table</span><span class="chip">Shared toolbar</span></div></div>
+      <div class="prose"><p>The classic item library stacked each item as a card with properties as colored chips, four or five to a screen. Nova shows the library as a table with category, creator and update columns, the same toolbar as every other list page, and one primary action.</p>
+      <blockquote class="aside-q"><p>I do love the extra ability to put in all the fields and manage this the way you want.</p><cite>Sourcing manager, customer team, on the configurable tables</cite></blockquote></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-items.webp" alt="Classic items"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-items.webp" alt="Nova items"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Dashboard and shell</h3><div class="route">/source/dashboard</div><div class="chips"><span class="chip">No top bar</span><span class="chip">Neutral states</span></div></div>
+      <div class="prose"><p>With the top bar gone, search moves into each page's toolbar, the agent and notifications move into the sidebar, and the dashboard starts at the top of the viewport. The same widgets sit on a quieter ground, so the numbers carry the page instead of the chrome.</p></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-dashboard.webp" alt="Classic dashboard"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-dashboard.webp" alt="Nova dashboard"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+</section>
+
+<section id="gallery">
+  <div class="eyebrow">All navigation pages</div>
+  <h2>Every page, both ways</h2>
+  <p class="lede">Tap a card to flip between classic and Nova, or switch them all at once.</p>
+  <div class="toggle-all" role="group" aria-label="Show version"><button id="all-old" aria-pressed="true">Classic</button><button id="all-new" aria-pressed="false">Nova</button></div>
+  <div class="gallery" id="gallery-grid">
+    <div class="card"><button type="button" aria-label="Dashboard: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-dashboard.webp" alt="Dashboard, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-dashboard.webp" alt="Dashboard, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Dashboard</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Sourcing projects: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-sourcing-projects.webp" alt="Sourcing projects, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-sourcing-projects.webp" alt="Sourcing projects, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Sourcing projects</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="RFI: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-rfi.webp" alt="RFI, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-rfi.webp" alt="RFI, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>RFI</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Items: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-items.webp" alt="Items, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-items.webp" alt="Items, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Items</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="BOMs: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-boms.webp" alt="BOMs, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-boms.webp" alt="BOMs, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>BOMs</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Contracts: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-contracts.webp" alt="Contracts, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-contracts.webp" alt="Contracts, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Contracts</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Suppliers: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-my-suppliers.webp" alt="Suppliers, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-my-suppliers.webp" alt="Suppliers, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Suppliers</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Data rooms: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-data-rooms.webp" alt="Data rooms, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-data-rooms.webp" alt="Data rooms, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Data rooms</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Scorecards: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-scorecards.webp" alt="Scorecards, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-scorecards.webp" alt="Scorecards, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Scorecards</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Supplier discovery: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-supplier-discovery.webp" alt="Supplier discovery, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-supplier-discovery.webp" alt="Supplier discovery, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Supplier discovery</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="Programs: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-programs.webp" alt="Programs, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-programs.webp" alt="Programs, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>Programs</h3><span>tap to flip</span></div></div>
+    <div class="card"><button type="button" aria-label="My supply chain: toggle classic and Nova"><div class="frame"><img width="1440" height="900" class="old" src="https://media.hudbud.net/lightsource/screenshots/old-my-supply-chain.webp" alt="My supply chain, classic" loading="lazy" decoding="async"><img width="1440" height="900" class="new" src="https://media.hudbud.net/lightsource/screenshots/new-my-supply-chain.webp" alt="My supply chain, Nova" loading="lazy" decoding="async"><span class="tag">Classic</span></div></button><div class="cap"><h3>My supply chain</h3><span>tap to flip</span></div></div>
+  </div>
+</section>
+
+<section id="outcome">
+  <div class="eyebrow">Where it landed</div>
+  <h2>Opt-in, in customers' hands</h2>
+  <div class="stats">
+    <div><b>1</b><span>header, toolbar and table pattern on every list page, replacing a different treatment on each.</span></div>
+    <div><b>2 → 1</b><span>navigation bars. The top bar's search, portal link, help, agent and notifications all found homes in the sidebar or the page toolbar.</span></div>
+    <div><b>3×</b><span>more sourcing projects visible per screen on the list page, from a card grid to a dense table.</span></div>
+  </div>
+  <div class="qrow">
+    <blockquote class="q"><span class="kind">On the shipped product</span><p>Nova is almost at exact parity, plus new features from what we had in the past. People are happy with that change.</p><cite>Customer-facing team, LightSource, 2026</cite></blockquote>
+    <blockquote class="q"><span class="kind">On the shipped product</span><p>I get really good feedback on the table views. This table is just more useful.</p><cite>Customer-facing team, LightSource, 2026</cite></blockquote>
+    <blockquote class="q"><span class="kind">On the shipped product</span><p>Searching has definitely improved.</p><cite>Sourcing lead, medical device manufacturer</cite></blockquote>
+  </div>
+  <div class="note">Nova shipped as an opt-in toggle. We have too many users to flip everyone at once, and I didn't want to disturb anyone's flow. Running it as a beta also meant early feedback from real customers on what worked and what didn't, so we could be sure we were accelerating the workflow rather than just redesigning it. Classic stays the default until the last features reach parity.</div>
+</section>
+
+<div class="next">
+  <a href="/lightsource/rebrand"><span class="lab">Previous</span><h3>The rebrand</h3></a>
+  <a href="/lightsource/sourcing"><span class="lab">Next</span><h3>Sourcing projects</h3></a>
+</div>

@@ -6,8 +6,9 @@ tags: ["work"]
 category: "portfolio"
 discipline: "product design, brand design"
 summary: "Founding designer, head of design"
-excerpt: "Design Lead at LightSource — access to this work is restricted."
+excerpt: "Brand, design system and the core sourcing workflow. Password protected."
+link: "/lightsource"
 feature_image: "https://media.hudbud.net/posts/69/cover.webp"
 ---
 
-Access to this work is restricted. Contact me to learn more.
+The case study is [password protected](/lightsource). Need access? [hudbud@gmail.com](mailto:hudbud@gmail.com).

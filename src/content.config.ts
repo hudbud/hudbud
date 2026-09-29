@@ -18,7 +18,9 @@ const posts = defineCollection({
     feature_image: z.string().optional(),
     /** Hosted mini-app. Homepage name goes here; the post stays the write-up. */
     app: z.string().optional(),
-    /** Live site. Homepage name goes here and there is no local post destination. */
+    /** Live site, or an on-site page like /lightsource. Homepage name goes
+        here and there is no local post destination. External URLs open in a
+        new tab. */
     link: z.string().optional(),
     draft: z.boolean().default(false),
     roles: z.string().optional(),

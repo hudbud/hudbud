@@ -9,21 +9,20 @@ import { KEYBOARD_HTML } from '../data/keyboard';
   description="Senior project, 2019. A quieter, split mechanical keyboard."
 >
   <ProjectFrame>
-    <article class="writeup">
+    <article class="writeup hp-grid">
       <header>
         <p class="meta">project · senior project, 2019</p>
         <h1>A Better Mechanical Keyboard</h1>
       </header>
-      <div set:html={KEYBOARD_HTML} />
+      <div class="hp-flow" set:html={KEYBOARD_HTML} />
     </article>
   </ProjectFrame>
 </Layout>
 
 <style>
+  /* The frame already draws the border; pad like the homepage inside it. */
   .writeup {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 48px 24px 120px;
+    padding: var(--page-top) var(--page-x) var(--page-bottom);
     color: var(--fg);
   }
   .meta {

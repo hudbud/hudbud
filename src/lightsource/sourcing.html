@@ -1,0 +1,165 @@
+<header class="hero">
+  <div>
+    <div class="eyebrow">Case study 3 — late 2025 to 2026</div>
+    <h1>Rethinking the workflow, <em>not just the screens</em></h1>
+    <p class="lede">A sourcing project is the whole ecosystem for sending and receiving quotes, and it's where LightSource buyers spend most of their day. In classic, all of it lived on one Overview page. We rebuilt it as a workspace: Overview as mission control, items and suppliers promoted to first-class citizens, an analysis toolkit, and nothing that spits you out of the project.</p>
+  </div>
+  <dl class="facts">
+    <div><dt>Role</dt><dd>Design lead. Workflow rethink, information architecture, every screen in the project shell, customer sessions, engineering collaboration.</dd></div>
+    <div><dt>Before</dt><dd>Items, suppliers, RFQ status, milestones, contracts and pricing stacked on one Overview. Analysis in a standalone full-screen tool.</dd></div>
+    <div><dt>After</dt><dd>Overview, Items, Suppliers, Quote format and Award as tabs. Supplier detail in a side panel. Analysis becoming its own tab.</dd></div>
+    <div><dt>Shipped</dt><dd>Opt-in on production in 2026, per browser, alongside classic. Analysis toolkit in beta under Suppliers.</dd></div>
+  </dl>
+  <div>
+    <div class="ba" data-ba><img width="1440" height="900" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Classic overview"><img width="1440" height="900" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-overview.webp" alt="Nova overview"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <p class="hint">Drag to compare. Ocean FCL, an in-progress project with 33 items and four suppliers, in classic and Nova.</p>
+  </div>
+</header>
+
+<section id="workflow">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">The workflow</div>
+      <h2>Nine steps from spec to award</h2>
+      <blockquote class="pull"><p>The platform requires way too many clicks.</p><cite><b>Senior buyer, aerospace manufacturer</b><br>Customer interview</cite></blockquote>
+    </div>
+    <div class="prose">
+      <p>This is the workflow as a buyer lives it. Almost everything in this case study is about steps three through eight, and about the fact that the old UI treated the two most important nouns in it, items and suppliers, as second-class citizens.</p>
+    </div>
+  </div>
+  <ol class="flow">
+    <li><b>Bring items in</b><span>From the ERP, another system, or just Excel, onto LightSource.</span></li>
+    <li><b>Organize into BOMs</b><span>Assemble items into bills of materials as needed with BOM management.</span></li>
+    <li class="hot"><b>Create a sourcing project</b><span>Name it, set delivery date and location, and add items: from a BOM, or from scratch, as many as you want.</span></li>
+    <li class="hot"><b>Add suppliers</b><span>A few or dozens. Then build the custom quote format they'll fill in.</span></li>
+    <li class="hot"><b>Send the RFQ</b><span>The request for quote goes out to every supplier on the project.</span></li>
+    <li class="hot"><b>Quotes come back</b><span>Into a quote management view organized by supplier.</span></li>
+    <li class="hot"><b>Analyze and optimize</b><span>Bid comparison, bid ranking, and award optimization across suppliers on any criteria, with AI assistance.</span></li>
+    <li class="hot"><b>Submit the award</b><span>Award to one supplier or several.</span></li>
+    <li><b>Reopen or resource</b><span>Keep sourcing the project, or duplicate it and run it again.</span></li>
+  </ol>
+  <div class="photo-grid">
+    <figure class="wide"><img width="1800" height="1350" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_3247.webp" alt="Glass whiteboard covered in red marker mapping the sourcing workflow from quote format through send RFQ, quote collection, TCO templates, analysis, AI optimization and award"><figcaption><time>March 2026.</time> The whole workflow on one wall: quote format → send RFQ → quote collection → TCO templates and variables → analysis (bid comparison, time, calc, total cost) → AI optimization → request approval → award.</figcaption></figure>
+    <figure class="tall"><img width="1600" height="2844" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/glass-item-x-supplier.webp" alt="Hudson at a glass whiteboard drawing an items by suppliers by fields cube labelled item x supplier"><figcaption><time>Working session.</time> Items × suppliers × fields. The data model behind the analysis toolkit, drawn before any screen.</figcaption></figure>
+  </div>
+</section>
+
+<section id="tabs">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">Information architecture</div>
+      <h2>Overview as mission control</h2>
+    </div>
+    <div class="prose">
+      <p>We broke the Overview into tabs because every one of these features deserved its own full-screen experience. That decision came out of a massive design exercise rethinking the sourcing workflow completely: how do you move through this meaningfully and comfortably? What we wanted was to surface the important parts of the workflow instead of piling them up.</p>
+      <p><strong>Overview still has everything, but as a high-level mission control.</strong> Six tiles put items, suppliers, response rate, baseline, best quote and savings in one row; supplier status and a compact milestone strip sit beneath; recent activity replaces the long timeline. Going into any tab gives you granular control: Items for what's being sourced, Suppliers for who's quoting and what they've sent, Quote format for how they'll answer, Award for the decision.</p>
+      <p>The biggest shift is what moved from buried to front and center. Items and suppliers had been treated as secondary; they're the two key elements of the entire process. The items are what's getting sourced. The suppliers are the people you're doing it with. Each now has a page that treats it that way.</p>
+      <blockquote class="aside-q"><p>The percent quoted is really helpful.</p><cite>Feedback on the shipped Overview tiles</cite></blockquote>
+    </div>
+  </div>
+  <div class="qrow">
+    <blockquote class="q pain"><span class="kind">What we heard</span><p>You literally never see this part, so you're not prompted to update it.</p><cite>Sourcing manager, customer team, on project details buried below the fold</cite></blockquote>
+    <blockquote class="q pain"><span class="kind">What we heard</span><p>I'm not even sure what this is showing.</p><cite>Sourcing manager, customer team, on the classic cost breakdown chart</cite></blockquote>
+    <blockquote class="q pain"><span class="kind">What we heard</span><p>Comparing quotes meant scrolling back and forth. Comfort with the tool: 4 out of 5, with the comparison screen as the main friction.</p><cite>Buyer, customer team, summarized from a usability session</cite></blockquote>
+  </div>
+</section>
+
+<section id="moments">
+  <div class="eyebrow">Before and after</div>
+  <h2>Screen by screen</h2>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Items</h3><div class="route">(on Overview) → /items</div><div class="chips"><span class="chip">New tab</span><span class="chip">First-class</span></div></div>
+      <div class="prose"><p>In classic the items table was one block among many on the Overview, with its own edit mode and a horizontal scroll. In Nova it's a full page with the shared table pattern: search, filter, columns, expand, and the primary action in the same place as every other list in the product.</p></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Classic overview with the items table"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-items.webp" alt="Nova items tab"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Suppliers and supplier detail</h3><div class="route">/quote-package/… → /suppliers/review/…</div><div class="chips"><span class="chip">New tab</span><span class="chip">Side panel</span></div></div>
+      <div class="prose"><p>Classic had an RFQ timeline on the Overview and opened each supplier's quote package as a full page. Nova has a Suppliers tab with participation, response rate and quote status up top, and opens the supplier in a panel over the list. <strong>We had too much, and I wanted to keep the user in the project.</strong> Too many places in the old UI spat you out into a random part of the app; the rolodex is for managing suppliers globally, not in the context of this project. The panel previews everything without leaving the page.</p></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-supplier-quote-package.webp" alt="Classic supplier quote package page"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-supplier-review-panel.webp" alt="Nova supplier review panel"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Analysis</h3><div class="route">/bid-comparison/details → /suppliers/analyze/…</div><div class="chips"><span class="chip">Toolkit, not a tool</span><span class="chip">Beta</span></div></div>
+      <div class="prose"><p>Classic bid comparison was sloppy UI in a standalone full-screen tool. Bringing it up to the new design language and making it scannable was table stakes. The bigger change is what it's becoming: <strong>an analysis toolkit rather than a fixed report.</strong> Bid comparison, bid ranking, flattened view and data explorer are the named views today, but the point is that you can generate any slice of the data your company needs, by asking the AI or by building it manually. It's under Suppliers while we beta test it; it's getting its own tab.</p>
+      <blockquote class="aside-q"><p>100% would be useful.</p><cite>Senior buyer, aerospace manufacturer, reacting to the heat-mapped comparison prototype</cite></blockquote></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-bid-comparison.webp" alt="Classic bid comparison"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-bid-comparison.webp" alt="Nova analysis"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+
+  <article class="moment">
+    <div class="head">
+      <div><h3>Award</h3><div class="route">/overview/awards → /award</div><div class="chips"><span class="chip">Scenarios</span><span class="chip">Manual or AI</span></div></div>
+      <div class="prose"><p>Award scenarios let a buyer compare ways to split a project across suppliers before committing. The whiteboards below are where we worked out how many paths into an award there really are: from the Overview, from a scenario tab, manual across several suppliers, AI-generated across several suppliers, and a pre-existing award with an approval flow.</p></div>
+    </div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-award-scenarios.webp" alt="Classic award scenarios"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-award.webp" alt="Nova award"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+  </article>
+</section>
+
+<section id="process">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">Process</div>
+      <h2>Months on the whiteboard, with engineers</h2>
+    </div>
+    <div class="prose">
+      <p>The photos are dated from their metadata, and the dates tell the story: this ran from October 2025 into spring 2026, in sessions with the engineers who would build it. Approval flows in October. An engineer sketching the quote-format builder in November. Messaging and the package view in January. Award paths in early March. The full end-to-end map in late March. Layout passes in April.</p>
+      <p>Customer sessions ran alongside, with buyers at aerospace, medical device and automotive companies. They taught us what people actually do in the software: they want the tool to work for them and be fast. They also taught us how wide the spectrum of sourcing practice is. Every company runs projects differently, so the interface has to be robust and agnostic to any one company's essential workflow.</p>
+    </div>
+  </div>
+  <div class="photo-grid">
+    <figure class="std"><img width="1800" height="1350" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_3565.webp" alt="Whiteboard flow in red marker with boxes labelled submit, check and sign"><figcaption><time>October 2025.</time> Submit, check, sign: the approval flow.</figcaption></figure>
+    <figure class="std"><img width="1350" height="1800" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_5509.webp" alt="Erin Scott sketching wireframes for the quote format builder on a whiteboard"><figcaption><time>November 2025.</time> Erin Scott sketching the quote-format builder and its steps.</figcaption></figure>
+    <figure class="std"><img width="1800" height="1350" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_9770.webp" alt="Whiteboard wireframes of a chat thread beside a quote package view"><figcaption><time>January 2026.</time> Messaging beside the package view.</figcaption></figure>
+    <figure class="std"><img width="1800" height="1350" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_2247.webp" alt="Glass whiteboard listing Award 1, Award 2, manual multi, AI multi and pre-existing award paths"><figcaption><time>March 2026.</time> Five paths into an award.</figcaption></figure>
+    <figure class="std"><img width="1600" height="2844" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/glass-bid-comp.webp" alt="Hudson at a glass whiteboard with bid comp, supplier by item field, and group by item format written in marker"><figcaption><time>Working session.</time> "Bid comp", supplier × item → field, group by item format.</figcaption></figure>
+    <figure class="std"><img width="1800" height="1350" loading="lazy" decoding="async" src="https://media.hudbud.net/lightsource/whiteboards/IMG_4178.webp" alt="Whiteboard with several page layouts sketched in green and red marker"><figcaption><time>April 2026.</time> Layout passes on the project shell.</figcaption></figure>
+  </div>
+</section>
+
+<section id="validation">
+  <div class="split">
+    <div class="side">
+      <div class="eyebrow">Concept validation</div>
+      <h2>Tested with buyers before it was built</h2>
+    </div>
+    <div class="prose">
+      <p>The prototypes went in front of buyers before engineering picked them up. The reactions below are to Figma prototypes, not shipped software, so they read as a signal that the direction was right rather than as measured results. The strongest response came from the heat-mapped comparison, the custom analysis and total-cost tooling, and one-click access to item details from anywhere in the project.</p>
+    </div>
+  </div>
+  <div class="qrow">
+    <blockquote class="q"><span class="kind">Prototype reaction</span><p>It eliminates the four or five clicks that frustrate me daily.</p><cite>Senior buyer, aerospace manufacturer, on one-click item details. Lightly paraphrased.</cite></blockquote>
+    <blockquote class="q"><span class="kind">Prototype reaction</span><p>Really big. Awesome.</p><cite>Senior buyer, aerospace manufacturer, on custom analysis and TCO tools</cite></blockquote>
+    <blockquote class="q"><span class="kind">Prototype reaction</span><p>It's better than the current one.</p><cite>Senior buyer, aerospace manufacturer, comparing the redesign to classic</cite></blockquote>
+  </div>
+</section>
+
+<section id="outcome">
+  <div class="eyebrow">Where it landed</div>
+  <h2>Opt-in, on purpose</h2>
+  <div class="prose">
+    <p>We shipped it as an opt-in toggle. We have too many users to flip things over instantly, and I didn't want to disturb anyone's flow. Opting in also let us run it as a beta: collect early feedback, see what's working and what isn't, and make sure we're building something that actually accelerates the workflow rather than just redesigning it without using what users tell us.</p>
+  </div>
+  <div class="stats">
+    <div><b>1 → 5</b><span>tabs. The single Overview became Overview, Items, Suppliers, Quote format and Award, with Analysis on the way.</span></div>
+    <div><b>0</b><span>places in the new project that send you to another part of the app. Supplier detail, messages and project details all stay in context.</span></div>
+    <div><b>Oct → Apr</b><span>of whiteboarding with engineers and sessions with customers before the new project shell went live.</span></div>
+  </div>
+  <div class="qrow">
+    <blockquote class="q"><span class="kind">On the shipped product</span><p>The main theme is that setting up the project is a lot better.</p><cite>Customer-facing team, LightSource, 2026</cite></blockquote>
+    <blockquote class="q"><span class="kind">On the shipped product</span><p>It's definitely moving forward as a standard of practice.</p><cite>Sourcing lead, medical device manufacturer</cite></blockquote>
+    <blockquote class="q"><span class="kind">On the shipped product</span><p>People are happy with that change.</p><cite>Customer-facing team, LightSource, 2026</cite></blockquote>
+  </div>
+  <div class="note"><strong>What still bugs me.</strong> I'd love this to be a step-by-step wizard, and it can't be, for exactly the reason above: there is no one way companies run a sourcing project. The tool is semi-nondeterministic, because people will use it however they want. So the best version of it brings every tool to the front without overwhelming anyone, makes each one easy, and lets the buyer work the way that fits their company. That's a harder design problem than a wizard, and it's the one I'm proudest of taking on.</div>
+</section>
+
+<div class="next">
+  <a href="/lightsource/system"><span class="lab">Previous</span><h3>Design system and navigation</h3></a>
+  <a href="/lightsource"><span class="lab">Back</span><h3>Redesigning LightSource</h3></a>
+</div>

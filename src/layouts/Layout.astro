@@ -6,12 +6,15 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  /** e.g. 'noindex, nofollow' for pages that shouldn't be found. */
+  robots?: string;
 }
 
 const {
   title = 'hudbud.net — Hudson Paine',
   description = "design bike fish climb — Hudson Paine's personal site. Product design case studies, life posts, and weird little web experiments.",
   image = '/posts/graph-zoomed-in.jpg',
+  robots,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
@@ -33,6 +36,7 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>{title}</title>
   <meta name="description" content={description} />
+  {robots && <meta name="robots" content={robots} />}
   <link rel="canonical" href={canonicalURL} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="alternate" type="application/rss+xml" title="hudbud thoughts" href="/thoughts.xml" />
@@ -106,6 +110,17 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
     })();
   </script>
   <slot />
+  <div class="hp-grid hp-grid-overlay" aria-hidden="true">
+    <i class="o-rail"></i><i class="o-measure"></i><i class="o-aside"></i>
+  </div>
+  <script is:inline>
+    // Ctrl+G toggles the layout grid overlay (same chord as Figma).
+    window.addEventListener('keydown', function (e) {
+      if (!e.ctrlKey || e.metaKey || e.altKey || e.key.toLowerCase() !== 'g') return;
+      e.preventDefault();
+      document.documentElement.classList.toggle('hp-show-grid');
+    });
+  </script>
   <DialKitRoot client:load />
 </body>
 </html>

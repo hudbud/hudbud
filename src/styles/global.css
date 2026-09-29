@@ -91,6 +91,148 @@ body.rainbow-trail {
   --font: 'Geist Mono', ui-monospace, Menlo, monospace;
 }
 
+/* ---------- Grid system ---------- */
+/* One layout grid for every page, grown out of the homepage's editorial
+   rail: a label rail and a balancing aside flank a fixed text measure,
+   centered inside the page inset. Named lines let content sit on, or break
+   out across, the same columns anywhere on the site:
+
+     full ─┬─ rail ─┬─ measure ─┬─ aside ─┬─ full
+           └──────────── wide ────────────┘
+
+   Pages without the site frame pad by --page-inset (frame + page gutter) so
+   their columns land exactly where the homepage's do. Under 1080px the aside
+   drops out so the measure keeps its width; under 768px every line
+   collapses onto one column and the same markup stacks. Ctrl+G overlays it. */
+:root {
+  /* spacing scale — 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 56px;
+  --space-9: 80px;
+  --space-10: 120px;
+
+  --frame: 20px;                 /* outer site border */
+  --page-x: var(--space-7);      /* frame → grid */
+  --page-top: var(--space-8);
+  --page-bottom: var(--space-10);
+  --page-inset: calc(var(--frame) + var(--page-x));
+
+  --rail: 9rem;
+  --measure: 34rem;
+  --gutter: var(--space-6);
+  --grid-columns:
+    [full-start] minmax(0, 1fr)
+    [wide-start rail-start] var(--rail)
+    [rail-end measure-start] minmax(0, var(--measure))
+    [measure-end aside-start] var(--rail)
+    [aside-end wide-end] minmax(0, 1fr)
+    [full-end];
+}
+
+@media (max-width: 1079px) {
+  :root {
+    --grid-columns:
+      [full-start wide-start rail-start] var(--rail)
+      [rail-end measure-start] minmax(0, var(--measure))
+      [measure-end aside-start] 0
+      [aside-end] minmax(0, 1fr)
+      [wide-end full-end];
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --frame: 0px;
+    --page-x: var(--space-5);
+    --page-top: var(--space-6);
+    --grid-columns:
+      [full-start wide-start rail-start measure-start aside-start]
+      minmax(0, 1fr)
+      [full-end wide-end rail-end measure-end aside-end];
+  }
+}
+
+/* Defaults sit at zero specificity (:where) so any page class can place
+   an item on other lines without fighting these. */
+.hp-grid,
+.hp-subgrid,
+.hp-flow {
+  display: grid;
+  column-gap: var(--gutter);
+  align-items: start;
+}
+.hp-grid { grid-template-columns: var(--grid-columns); }
+:where(.hp-grid, .hp-subgrid, .hp-flow) > * { grid-column: measure; min-width: 0; }
+
+/* Nested rows that keep the parent's lines. .hp-flow is long-form (post
+   bodies, write-ups): text holds the measure, media breaks out wide. */
+:where(.hp-grid, .hp-subgrid) > :where(.hp-subgrid, .hp-flow) { grid-column: full; }
+.hp-subgrid,
+.hp-flow { grid-template-columns: subgrid; }
+:where(.hp-flow) > :where(figure, div, iframe, video, table, hr) { grid-column: wide; }
+:where(.hp-grid, .hp-subgrid) > :where(.hp-wide) { grid-column: wide; }
+
+/* Rail label: right-aligned against the measure and sticky through its
+   row, sharing row 1 with the content it annotates. */
+:where(.hp-grid, .hp-subgrid) > :where(.hp-rail) {
+  grid-column: rail;
+  grid-row: 1;
+  justify-self: end;
+  text-align: right;
+  position: sticky;
+  top: var(--space-5);
+}
+:where(.hp-grid, .hp-subgrid) > :where(.hp-rail + *) { grid-row: 1; }
+
+@media (max-width: 767px) {
+  :where(.hp-grid, .hp-subgrid) > :where(.hp-rail) {
+    grid-row: auto;
+    justify-self: start;
+    text-align: left;
+    position: static;
+    margin-bottom: var(--space-3);
+  }
+  :where(.hp-grid, .hp-subgrid) > :where(.hp-rail + *) { grid-row: auto; }
+}
+
+/* Page wrapper for pages that draw no frame of their own. These scroll the
+   document, unlike the framed app pages that lock it. */
+html:has(.hp-page),
+html:has(.hp-page) body { height: auto; overflow-y: auto; }
+.hp-page {
+  padding: calc(var(--frame) + var(--page-top)) var(--page-inset) calc(var(--frame) + var(--page-bottom));
+}
+
+/* Overlay (Ctrl+G) — columns tinted, 8px rhythm ruled across the page. */
+.hp-grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10100;
+  pointer-events: none;
+  padding-inline: var(--page-inset);
+  display: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--space-2) - 1px),
+    color-mix(in srgb, var(--accent) 7%, transparent) calc(var(--space-2) - 1px) var(--space-2)
+  );
+}
+html.hp-show-grid .hp-grid-overlay { display: grid; }
+.hp-grid-overlay > i {
+  height: 100%;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--accent) 45%, transparent), inset -1px 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.hp-grid-overlay > .o-rail { grid-column: rail; }
+.hp-grid-overlay > .o-measure { grid-column: measure; }
+.hp-grid-overlay > .o-aside { grid-column: aside; }
+
 body[data-font='mono']   { --font: 'Geist Mono', ui-monospace, Menlo, monospace; }
 body[data-font='serif']  { --font: 'Newsreader', Georgia, serif; }
 body[data-font='sans']   { --font: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }

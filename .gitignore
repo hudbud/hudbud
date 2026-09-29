@@ -12,3 +12,6 @@ dist/
 .dev.vars
 .wrangler/
 media-out/
+
+# LightSource handoff originals and notes (published copy is in src/lightsource/)
+private/
