@@ -34,7 +34,7 @@ function rehypeExternalLinks() {
 export default defineConfig({
   output: 'static',
   site: 'https://hudbud.net',
-  integrations: [react(), sitemap()],
+  integrations: [react(), sitemap({ filter: (page) => !page.includes('/lightsource') })],
   markdown: {
     rehypePlugins: [rehypeLazyImages, rehypeExternalLinks],
   },

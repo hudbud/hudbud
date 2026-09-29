@@ -1,6 +1,7 @@
 // Worker in front of the static Astro build: serves /api/thoughts (the
-// guestbook micro-feed) and /thoughts.xml (its RSS feed) from D1, and hands
-// everything else to the static assets.
+// guestbook micro-feed) and /thoughts.xml (its RSS feed) from D1, gates
+// /lightsource behind a password, and hands everything else to the static
+// assets.
 //
 // One-time setup:
 //   npx wrangler d1 create hudbud-thoughts        -> paste database_id into wrangler.jsonc
@@ -127,9 +128,77 @@ ${items}
   });
 }
 
+// ---------- /lightsource: password-gated case study ----------
+// A simple password wall, not real security: the pages are ordinary static
+// assets and the images are public on media.hudbud.net. The cookie is a hash
+// of the password, so changing it signs everyone out.
+//
+//   npx wrangler secret put LIGHTSOURCE_PASSWORD
+
+const LS_COOKIE = 'ls_auth';
+const LS_TTL_S = 30 * 24 * 60 * 60;
+
+async function lsToken(password) {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`lightsource:${password}`));
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function lsAuthed(request, password) {
+  if (!password) return false;
+  const cookie = request.headers.get('Cookie') ?? '';
+  return cookie.split(/;\s*/).includes(`${LS_COOKIE}=${await lsToken(password)}`);
+}
+
+/** Where to land after unlocking: only ever a /lightsource page. */
+function lsNext(raw) {
+  const next = String(raw ?? '');
+  return /^\/lightsource(\/[a-z-]*)?\/?$/.test(next) ? next : '/lightsource';
+}
+
+async function lightsource(request, env, url) {
+  const password = env.LIGHTSOURCE_PASSWORD;
+  const sub = url.pathname.slice('/lightsource'.length).replace(/^\/|\/$/g, '');
+
+  if (sub === 'unlock' && request.method === 'POST') {
+    const form = await request.formData().catch(() => null);
+    const next = lsNext(form?.get('next'));
+    if (!password || form?.get('password') !== password) {
+      return Response.redirect(`${url.origin}/lightsource/unlock?next=${encodeURIComponent(next)}&error=wrong`, 303);
+    }
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: next,
+        'Set-Cookie': `${LS_COOKIE}=${await lsToken(password)}; Path=/lightsource; Max-Age=${LS_TTL_S}; HttpOnly; Secure; SameSite=Lax`,
+      },
+    });
+  }
+
+  if (sub === 'lock') {
+    return new Response(null, {
+      status: 303,
+      headers: { Location: '/', 'Set-Cookie': `${LS_COOKIE}=; Path=/lightsource; Max-Age=0; HttpOnly; Secure; SameSite=Lax` },
+    });
+  }
+
+  if (sub !== 'unlock' && !(await lsAuthed(request, password))) {
+    return Response.redirect(`${url.origin}/lightsource/unlock?next=${encodeURIComponent(url.pathname)}`, 302);
+  }
+
+  const response = await env.ASSETS.fetch(request);
+  const headers = new Headers(response.headers);
+  headers.set('X-Robots-Tag', 'noindex, nofollow');
+  headers.set('Cache-Control', 'private, no-store');
+  return new Response(response.body, { status: response.status, headers });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    if (url.pathname === '/lightsource' || url.pathname.startsWith('/lightsource/')) {
+      return lightsource(request, env, url);
+    }
 
     if (url.pathname === '/api/thoughts') {
       if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });

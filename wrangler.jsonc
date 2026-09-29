@@ -7,6 +7,8 @@
 //   2. npx wrangler d1 execute hudbud-thoughts --remote --file worker/schema.sql
 //   3. npx wrangler secret put HUDBUD_SECRET
 //      -> the codeword you type in the name field to post as "hudbud"
+//   4. npx wrangler secret put LIGHTSOURCE_PASSWORD
+//      -> the password for the /lightsource case study
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hudbud",
@@ -14,7 +16,9 @@
   "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Static assets normally skip the Worker; the password wall has to see these first.
+    "run_worker_first": ["/lightsource", "/lightsource/*"]
   },
   "d1_databases": [
     {

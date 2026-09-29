@@ -1,0 +1,87 @@
+---
+/** Shell for the LightSource case study. Page bodies live in
+    src/lightsource/<page>.html; the Worker puts /lightsource behind a
+    password (worker/index.js). Images are on media.hudbud.net/lightsource/. */
+import Layout from '../layouts/Layout.astro';
+import '../styles/lightsource.css';
+
+interface Props {
+  page: 'index' | 'rebrand' | 'system' | 'sourcing';
+  title: string;
+}
+
+const { page, title } = Astro.props;
+
+const NAV = [
+  { page: 'index', href: '/lightsource', label: 'Overview' },
+  { page: 'rebrand', href: '/lightsource/rebrand', label: 'Rebrand' },
+  { page: 'system', href: '/lightsource/system', label: 'Design system and navigation' },
+  { page: 'sourcing', href: '/lightsource/sourcing', label: 'Sourcing projects' },
+];
+
+const bodies = import.meta.glob<string>('../lightsource/*.html', { query: '?raw', import: 'default', eager: true });
+const body = bodies[`../lightsource/${page}.html`];
+---
+<Layout title={`${title} — Hudson Paine`} description="LightSource case study by Hudson Paine. Password protected." robots="noindex, nofollow">
+  <main class="ls hp-page hp-grid" data-dev={import.meta.env.DEV ? '' : undefined}>
+    <a class="ls-back hp-rail" href="/">← back</a>
+    <nav class="ls-nav" aria-label="Case studies">
+      {NAV.map((n) => <a href={n.href} aria-current={n.page === page ? 'page' : undefined}>{n.label}</a>)}
+    </nav>
+    <Fragment set:html={body} />
+    <footer class="ls-footer">
+      <span>Hudson Paine. Product design at LightSource, 2025 to 2026. Screens captured from the live product.</span>
+      <a href="/lightsource/lock">lock</a>
+    </footer>
+  </main>
+  <dialog class="ls-lb" aria-label="Image">
+    <div class="top"><span class="cap"></span><button type="button" class="close">close</button></div>
+    <div class="inner"><img alt="" /></div>
+  </dialog>
+</Layout>
+
+<script>
+  // Before/after sliders: the range input drives the reveal.
+  document.querySelectorAll<HTMLElement>('.ls [data-ba]').forEach((ba) => {
+    const input = ba.querySelector('input')!;
+    const set = () => ba.style.setProperty('--x', `${input.value}%`);
+    input.addEventListener('input', set);
+    set();
+  });
+
+  // Gallery: flip one card, or every card, between classic and Nova.
+  const gallery = document.getElementById('gallery-grid');
+  if (gallery) {
+    const flip = (frame: Element, isNew: boolean) => {
+      frame.classList.toggle('show-new', isNew);
+      frame.querySelector('.tag')!.textContent = isNew ? 'Nova' : 'Classic';
+    };
+    const setAll = (isNew: boolean) => {
+      gallery.querySelectorAll('.frame').forEach((f) => flip(f, isNew));
+      document.getElementById('all-old')?.setAttribute('aria-pressed', String(!isNew));
+      document.getElementById('all-new')?.setAttribute('aria-pressed', String(isNew));
+    };
+    document.getElementById('all-old')?.addEventListener('click', () => setAll(false));
+    document.getElementById('all-new')?.addEventListener('click', () => setAll(true));
+    gallery.addEventListener('click', (e) => {
+      const frame = (e.target as Element).closest('button')?.querySelector('.frame');
+      if (frame) flip(frame, !frame.classList.contains('show-new'));
+    });
+  }
+
+  // Lightbox for figures and the header audit.
+  const lb = document.querySelector<HTMLDialogElement>('.ls-lb')!;
+  const lbImg = lb.querySelector('img')!;
+  document.addEventListener('click', (e) => {
+    const img = (e.target as Element).closest<HTMLImageElement>('.ls figure img, .ls .audit img');
+    if (!img) return;
+    lbImg.src = img.currentSrc || img.src;
+    lbImg.alt = img.alt;
+    lb.querySelector('.cap')!.textContent = img.closest('figure')?.querySelector('figcaption')?.textContent ?? img.alt;
+    lb.showModal();
+  });
+  lb.querySelector('.close')!.addEventListener('click', () => lb.close());
+  lb.addEventListener('click', (e) => {
+    if (e.target === lb || (e.target as Element).classList.contains('inner')) lb.close();
+  });
+</script>
