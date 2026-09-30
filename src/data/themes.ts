@@ -11,6 +11,10 @@ export interface MonkeytypeTheme {
 export const MT_THEMES: MonkeytypeTheme[] = [
   { name: "livestream", bg: "#000000", bgInner: "#0a0a0a", fg: "#ffffff", dim: "#888888", accent: "#ffffff", videoBackground: true },
   { name: "livestream_bw", bg: "#000000", bgInner: "#0a0a0a", fg: "#ffffff", dim: "#888888", accent: "#ffffff", videoBackground: true },
+  // The site's own quiet pair: near-monochrome, accent = fg, so the color
+  // themes stay a surprise.
+  { name: "hudbud_light", bg: "#e8e8e6", bgInner: "#f7f7f5", fg: "#151515", dim: "#6e6e6c", accent: "#151515" },
+  { name: "hudbud_dark", bg: "#000000", bgInner: "#0d0d0d", fg: "#ececec", dim: "#8c8c8c", accent: "#ececec" },
   { name: "8008", bg: "#333a45", bgInner: "#2e343d", fg: "#e9ecf0", dim: "#939eae", accent: "#f44c7f" },
   { name: "9009", bg: "#eeebe2", bgInner: "#d3cfc1", fg: "#080909", dim: "#99947f", accent: "#080909" },
   { name: "80s_after_dark", bg: "#1b1d36", bgInner: "#17182c", fg: "#e1e7ec", dim: "#99d6ea", accent: "#fca6d1" },
@@ -255,6 +259,8 @@ export const SAFE_THEME_NAMES: string[] = MT_THEMES.filter(
 
 // Themes with light/dark variants
 export const THEME_PAIRS: Record<string, string> = {
+  "hudbud_light": "hudbud_dark",
+  "hudbud_dark": "hudbud_light",
   "blueberry_light": "blueberry_dark",
   "blueberry_dark": "blueberry_light",
   "gruvbox_light": "gruvbox_dark",

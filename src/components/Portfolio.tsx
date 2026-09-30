@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
-import { BIO_LEAD, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
+import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'framer-motion';
+import { BIO_LEAD, BENTO_ABOUT, BIO_BODY, BIO_BODY_2, BIO_ORIGIN, MODAL_CONTENT } from '../data/bio';
 import { RESUME, LINKS, SELECT_CLIENTS } from '../data/resume';
 import { IDEAS, type Idea, type IdeaStatus } from '../data/ideas';
 import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 import { type Post } from '../data/posts';
-import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, FONT_FAMILY, GLASS, applyThemeVars, type FontId } from './chrome';
+import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, ShuffleButton, FONT_FAMILY, GLASS, applyThemeVars, randomLook, type FontId } from './chrome';
 import ThoughtsModal, { ThoughtsButton } from './ThoughtsModal';
-import { Shuffle, CaretUp, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, ListDashes, Image as ImageIcon, MagnifyingGlass, PersonArmsSpread } from '@phosphor-icons/react';
+import { Shuffle, CaretUp, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, ListDashes, Image as ImageIcon, MagnifyingGlass, PersonArmsSpread, SquaresFour } from '@phosphor-icons/react';
 
 // The feed is grouped into labeled sections rather than one flat filtered
 // list. projects = projects/thoughts posts + IDEAS (with in-development items
@@ -17,7 +17,7 @@ import { Shuffle, CaretUp, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple,
 type SectionKey = 'projects' | 'photos' | 'work';
 
 const DEFAULTS = {
-  theme: 'earthsong',
+  theme: 'hudbud_light',
   density: '3x5',
   font: 'apfel' as FontId,
 };
@@ -136,12 +136,34 @@ interface ChromeProps {
   setFont: (f: FontId) => void;
   onTimeTravel: (v: SiteVersion) => void;
   onOpenThoughts: () => void;
-  themeLocked: boolean;
-  fontLocked: boolean;
-  onToggleThemeLock: () => void;
-  onToggleFontLock: () => void;
+  onShuffle: () => void;
   a11y: boolean;
   onToggleA11y: () => void;
+  siteLayout: SiteLayout;
+  setSiteLayout: (l: SiteLayout) => void;
+}
+
+// The homepage's three views. 'list' and 'gallery' are the editorial feed's
+// two modes; bento is the default.
+type SiteLayout = 'bento' | 'list' | 'gallery';
+const SITE_LAYOUTS: { id: SiteLayout; label: string; icon: React.ReactNode }[] = [
+  { id: 'bento', label: 'bento', icon: <SquaresFour size={15} /> },
+  { id: 'list', label: 'list', icon: <ListDashes size={15} /> },
+  { id: 'gallery', label: 'gallery', icon: <ImageIcon size={15} /> },
+];
+
+function LayoutPanelBody({ siteLayout, setSiteLayout }: { siteLayout: SiteLayout; setSiteLayout: (l: SiteLayout) => void }) {
+  return (
+    <>
+      <GlassSectionLabel>layout</GlassSectionLabel>
+      {SITE_LAYOUTS.map((l) => (
+        <GlassPanelItem key={l.id} active={l.id === siteLayout} onClick={() => setSiteLayout(l.id)}>
+          <span>{l.label}</span>
+          <span style={{ display: 'flex', opacity: 0.6 }}>{l.icon}</span>
+        </GlassPanelItem>
+      ))}
+    </>
+  );
 }
 
 // Glass icon button matching ThoughtsButton — accessibility toggle. Active
@@ -182,7 +204,7 @@ const DIALOG_POP = {
   transition: SPRING,
 } as const;
 
-function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock, a11y, onToggleA11y }: ChromeProps) {
+function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThoughts, onShuffle, a11y, onToggleA11y, siteLayout, setSiteLayout }: ChromeProps) {
   const mobileBottom = 'calc(16px + env(safe-area-inset-bottom))';
   return (
     <>
@@ -205,33 +227,39 @@ function MobileChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThou
 
       <ThoughtsButton pos={{ left: 70, bottom: mobileBottom }} onClick={onOpenThoughts} />
 
-      <A11yButton pos={{ right: 70, bottom: mobileBottom }} active={a11y} onClick={onToggleA11y} />
-      <GlassBloom pos={{ right: 16, bottom: mobileBottom }} anchor="end" label="appearance settings" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
-        <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
-        <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
+      <A11yButton pos={{ right: 124, bottom: mobileBottom }} active={a11y} onClick={onToggleA11y} />
+      <ShuffleButton pos={{ right: 70, bottom: mobileBottom }} onClick={onShuffle} />
+      <GlassBloom pos={{ right: 16, bottom: mobileBottom }} anchor="end" label="view options" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
+        <LayoutPanelBody siteLayout={siteLayout} setSiteLayout={setSiteLayout} />
+        <FontPanelBody font={font} setFont={setFont} />
+        <ThemePanelBody theme={theme} setTheme={setTheme} />
       </GlassBloom>
     </>
   );
 }
 
 // ---------- Desktop chrome: same glass buttons, one bloom menu per panel ----------
-function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThoughts, themeLocked, fontLocked, onToggleThemeLock, onToggleFontLock, a11y, onToggleA11y }: ChromeProps) {
+function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenThoughts, onShuffle, a11y, onToggleA11y, siteLayout, setSiteLayout }: ChromeProps) {
+  // Buttons float inside the inner panel, clear of the outer frame and the
+  // frame footer, stepping 54px (46px button + gap) per slot.
+  const bottom = 'calc(var(--frame) + 12px)';
+  const slot = (n: number) => `calc(var(--frame) + ${12 + n * 54}px)`;
   return (
     <>
       {/* left: time machine, resources, links */}
-      <GlassBloom pos={{ left: 16, bottom: 16 }} anchor="start" label="time machine" trigger={<ClockCounterClockwise size={18} weight="fill" />}>
+      <GlassBloom pos={{ left: slot(0), bottom }} anchor="start" label="time machine" trigger={<ClockCounterClockwise size={18} weight="fill" />}>
         <GlassSectionLabel>time machine</GlassSectionLabel>
         {SITE_VERSIONS.map((v) => (
           <GlassPanelItem key={v.label} active={!v.url} onClick={() => { if (v.url) onTimeTravel(v); }}>{v.label}</GlassPanelItem>
         ))}
       </GlassBloom>
-      <GlassBloom pos={{ left: 70, bottom: 16 }} anchor="start" label="resources" trigger={<BookOpen size={18} weight="fill" />}>
+      <GlassBloom pos={{ left: slot(1), bottom }} anchor="start" label="resources" trigger={<BookOpen size={18} weight="fill" />}>
         <GlassSectionLabel>resources</GlassSectionLabel>
         {RESOURCES.map((r) => (
           <GlassPanelItem key={r.slug} href={`/posts/${r.slug}`}>{r.label}</GlassPanelItem>
         ))}
       </GlassBloom>
-      <GlassBloom pos={{ left: 124, bottom: 16 }} anchor="start" label="links" trigger={<LinkSimple size={18} weight="bold" />}>
+      <GlassBloom pos={{ left: slot(2), bottom }} anchor="start" label="links" trigger={<LinkSimple size={18} weight="bold" />}>
         <GlassSectionLabel>links</GlassSectionLabel>
         <GlassPanelItem href="https://github.com/hudbud/hudbud" external>github <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
         <GlassPanelItem href="https://www.linkedin.com/in/hudsonpaine" external>linkedin <span style={{ opacity: 0.45, fontSize: 11 }}>↗</span></GlassPanelItem>
@@ -240,15 +268,17 @@ function DesktopChrome({ theme, setTheme, font, setFont, onTimeTravel, onOpenTho
         <GlassPanelItem href="/graph">space</GlassPanelItem>
         <div style={{ fontSize: 11, color: 'var(--fg-faint)', padding: '10px 16px 8px' }}>© 2026 Hudson Paine</div>
       </GlassBloom>
-      <ThoughtsButton pos={{ left: 178, bottom: 16 }} onClick={onOpenThoughts} />
+      <ThoughtsButton pos={{ left: slot(3), bottom }} onClick={onOpenThoughts} />
 
-      {/* right: accessibility, font, theme */}
-      <A11yButton pos={{ right: 124, bottom: 16 }} active={a11y} onClick={onToggleA11y} />
-      <GlassBloom pos={{ right: 70, bottom: 16 }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
-        <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={onToggleFontLock} />
+      {/* right: accessibility, view options (layout + font), shuffle, theme */}
+      <A11yButton pos={{ right: slot(3), bottom }} active={a11y} onClick={onToggleA11y} />
+      <GlassBloom pos={{ right: slot(2), bottom }} anchor="end" label="view options" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
+        <LayoutPanelBody siteLayout={siteLayout} setSiteLayout={setSiteLayout} />
+        <FontPanelBody font={font} setFont={setFont} />
       </GlassBloom>
-      <GlassBloom pos={{ right: 16, bottom: 16 }} anchor="end" label="theme" trigger={<Palette size={18} weight="fill" />}>
-        <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={onToggleThemeLock} />
+      <ShuffleButton pos={{ right: slot(1), bottom }} onClick={onShuffle} />
+      <GlassBloom pos={{ right: slot(0), bottom }} anchor="end" label="theme" trigger={<Palette size={18} weight="fill" />}>
+        <ThemePanelBody theme={theme} setTheme={setTheme} />
       </GlassBloom>
     </>
   );
@@ -389,6 +419,7 @@ function buildSections({ feed }: { feed: Post[] }): Section[] {
     title: idea.title,
     date: formatIdeaDate(idea.date),
     dateValue: +new Date(idea.date),
+    image: idea.image,
     meta: idea.statusNote || STATUS_LABEL[idea.status],
     desc: idea.desc,
     tag: idea.statusNote || STATUS_LABEL[idea.status],
@@ -1370,8 +1401,7 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
         </motion.div>
       )}
 
-      {/* Name — hover previews the office selfie, click opens the about-me
-          post in the detail panel like any other post. */}
+      {/* Name — hover previews the office selfie, click opens /about. */}
       <motion.h1
         style={{ margin: 0, marginBottom: 16, fontSize: 16, fontWeight: 400 }}
         {...fade(0.2)}
@@ -1476,7 +1506,7 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
     <div ref={scrollRef} style={{ height: '100%', overflowY: 'auto' }}>
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 'var(--space-5)',
-      padding: 'var(--page-top) var(--page-x) var(--page-bottom)',
+      padding: 'var(--page-top) var(--page-x) var(--space-9)',
       minHeight: '100%', justifyContent: 'flex-start',
     }}>
       {header}
@@ -1491,11 +1521,424 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
         wide={wide}
         query={query}
       />
+      {/* On the page grid so it lines up with the feed's measure. */}
+      <div className="hp-grid" style={{ marginTop: 'auto' }}><SiteFooter /></div>
     </div>
     </div>
   );
 }
 
+
+// ---------- Bento layout ----------
+// The same feed as the rail layout, packed into one scannable grid: the bio
+// and key work get big tiles, hosted projects get a tile each, and every
+// photo post shares one mosaic tile. Anything not called out below still
+// lands somewhere — new projects become 1x1 tiles, new work joins the index.
+type TileSize = '1x1' | '2x1' | '1x2' | '2x2';
+
+// Portfolio pieces promoted to feature tiles, in grid order.
+const FEATURED_WORK: { slug: string; size: TileSize }[] = [
+  { slug: 'lightsource', size: '2x2' },
+  { slug: 'carvanads', size: '2x1' },
+  { slug: 'dave-and-busters', size: '2x1' },
+];
+
+const PHOTO_MOSAIC_COUNT = 6;
+
+function Tile({ size, index, className = '', children }: {
+  size: TileSize;
+  index: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <motion.div
+      className={`hp-tile hp-tile-${size} ${className}`}
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.9, delay: 0.1 + index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function yearOf(row: Row): string {
+  const isPlainDate = /^\d{2}\.\d{2}\.\d{4}$/.test(row.date) && row.dateValue > 0 && row.dateValue <= Date.now();
+  return isPlainDate ? String(new Date(row.dateValue).getFullYear()) : row.date;
+}
+
+// Name, then the thesis as a second line; the bio lives in the about tile.
+// The mark is the easter egg: the page opens monochrome and each click rolls
+// a color theme.
+function BentoIntro({ onRollTheme, onOpenAbout }: { onRollTheme: () => void; onOpenAbout: () => void }) {
+  const fade = (delay: number) => ({
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] as const },
+  });
+  return (
+    <div className="hp-bento-intro">
+      <motion.div {...fade(0.1)} className="hp-mark-roll" style={{ marginBottom: 'var(--space-6)' }}>
+        <HudMark size={40} onClick={onRollTheme} />
+      </motion.div>
+      <motion.h1 {...fade(0.2)} className="hp-bento-headline">
+        <CursorImagesHover
+          label="Hudson Paine"
+          images={HOVER_IMAGES.hudson}
+          onClick={onOpenAbout}
+          className=""
+          style={{ color: 'var(--fg)' }}
+        />
+        <SwapLine a="exploration" b="creativity" />
+      </motion.h1>
+    </div>
+  );
+}
+
+// "exploration is creativity" ⇄ "creativity is exploration". The words trade
+// places letter by letter: each letter rolls through its own mask, the first
+// slot turning down and the second turning up, like two meshed gears. Letters
+// leave from the word's end and arrive from its start, so the outgoing word
+// clears the way while "is" glides to its new spot.
+const SWAP_EVERY = 6500;
+const ROLL = { duration: 0.85, ease: [0.65, 0, 0.35, 1] as const };
+const LETTER_GAP = 0.018;
+
+function SwapWord({ word, dir, delay }: { word: string; dir: 1 | -1; delay: number }) {
+  const n = word.length;
+  return (
+    <span className="hp-swap-slot">
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span key={word} className="hp-swap-word" initial="below" animate="in" exit="out">
+          {word.split('').map((ch, i) => (
+            <span key={i} className="hp-swap-mask">
+              <motion.span
+                style={{ display: 'inline-block' }}
+                variants={{
+                  below: { y: `${-120 * dir}%` },
+                  in: { y: '0%', transition: { ...ROLL, delay: delay + 0.12 + i * LETTER_GAP } },
+                  out: { y: `${120 * dir}%`, transition: { ...ROLL, delay: delay + (n - 1 - i) * LETTER_GAP } },
+                }}
+              >
+                {ch}
+              </motion.span>
+            </span>
+          ))}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+function SwapLine({ a, b }: { a: string; b: string }) {
+  const [flipped, setFlipped] = useState(false);
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => {
+      if (!document.hidden) setFlipped((f) => !f);
+    }, SWAP_EVERY);
+    return () => clearInterval(id);
+  }, [reduce]);
+  const [first, second] = flipped ? [b, a] : [a, b];
+  const glide = { layout: 'position' as const, transition: { layout: { duration: 1, delay: 0.1, ease: [0.65, 0, 0.35, 1] as const } } };
+  return (
+    <span className="hp-swap-line" style={{ color: 'var(--fg-dim)' }}>
+      <span className="sr-only">{a} is {b}, {b} is {a}</span>
+      <span aria-hidden="true">
+        <SwapWord word={first} dir={1} delay={0} />
+        <motion.span {...glide} style={{ display: 'inline-block', whiteSpace: 'pre' }}> is </motion.span>
+        <motion.span {...glide} style={{ display: 'inline-block' }}>
+          <SwapWord word={second} dir={-1} delay={0.05} />
+        </motion.span>
+      </span>
+    </span>
+  );
+}
+
+// The bio (lead, now, making, outside) as a tile, with a door to the about post.
+function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
+  const paras = BENTO_ABOUT.split('\n');
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div className="hp-tile-pad" style={{ flex: 1 }}>
+        <span className="post-spec-cell" style={{ display: 'block', color: 'var(--fg-dim)', marginBottom: 14 }}>about</span>
+        {paras.map((para, i) => (
+          <p key={i} style={{ margin: 0, marginBottom: 12, fontSize: 15, lineHeight: 1.6, letterSpacing: '-0.006em', color: i === 0 ? 'var(--fg)' : 'var(--fg-dim)' }}>
+            {renderBioInlineLinks(para)}
+          </p>
+        ))}
+        <div style={{ display: 'flex', gap: 16, fontSize: 15, marginTop: 4 }}>
+          <CopyEmailLink />
+          <a href="https://www.cosmos.so/hudbud" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="cosmos">co</a>
+          <a href="https://www.youtube.com/@hudbud22" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="youtube">yt</a>
+          <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="linkedin">li</a>
+        </div>
+      </div>
+      <button onClick={onOpenAbout} className="hp-tile-footer">
+        <span>more about me</span>
+        <span className="post-spec-cell hp-tile-arrow">→</span>
+      </button>
+    </div>
+  );
+}
+
+// Full-bleed cover with the caption laid over a bottom scrim.
+function FeatureTile({ row, big }: { row: Row; big: boolean }) {
+  return (
+    <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
+      {row.image && <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />}
+      <span className="hp-tile-scrim" />
+      <span className="post-spec-cell hp-tile-chip">{yearOf(row)}</span>
+      <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 18, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <span style={{ fontSize: big ? 22 : 17, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>
+          {row.title}{row.external ? ' ↗' : ''}
+        </span>
+        {(row.summary ?? row.desc) && (
+          <span style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.78)' }}>{row.summary ?? row.desc}</span>
+        )}
+      </span>
+    </AppLink>
+  );
+}
+
+// Inset cover on top, name and one-liner underneath — an app icon's worth of
+// information per project.
+function ProjectTile({ row }: { row: Row }) {
+  return (
+    <AppLink row={row} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <span className="hp-tile-media">
+        {row.image
+          ? <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />
+          : <Sparkle size={22} color="var(--fg-dim)" weight="fill" />}
+      </span>
+      <span style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <span className="hp-tile-title" style={{ display: 'flex', alignItems: 'baseline', gap: 6, fontSize: 15, fontWeight: 500 }}>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.title}</span>
+          <span className="hp-tile-arrow" style={{ fontSize: 12 }}>↗</span>
+        </span>
+        {row.desc && (
+          <span style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--fg-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.desc}</span>
+        )}
+      </span>
+    </AppLink>
+  );
+}
+
+// Every photo post in one square: a mosaic of the newest covers, each a link
+// to its post, plus a door to the full set.
+function PhotosTile({ rows, onOpenAll }: { rows: Row[]; onOpenAll: () => void }) {
+  const mosaic = rows.filter((r) => r.image).slice(0, PHOTO_MOSAIC_COUNT);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div className="hp-photo-mosaic">
+        {mosaic.map((row) => (
+          <a key={row.key} href={row.href} className="hp-gallery-tile" style={{ position: 'relative', overflow: 'hidden', borderRadius: 6 }}>
+            <img src={row.image} alt={row.title} loading="lazy" className="hp-tile-cover" />
+            <span className="hp-gallery-caption"><span>{row.title}</span></span>
+          </a>
+        ))}
+      </div>
+      <button onClick={onOpenAll} className="hp-tile-footer">
+        <span>photos</span>
+        <span className="post-spec-cell hp-tile-arrow">all {rows.length} →</span>
+      </button>
+    </div>
+  );
+}
+
+function StreamTile({ onOpen }: { onOpen: () => void }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  return (
+    <button
+      onClick={onOpen}
+      className="hp-stream-tile"
+      onMouseEnter={() => videoRef.current?.play().catch(() => {})}
+      onMouseLeave={() => videoRef.current?.pause()}
+      aria-label="watch a live stream"
+      style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <video ref={videoRef} muted playsInline loop preload="none" className="hp-tile-cover">
+        <source src="/intro/intro.mp4" type="video/mp4" />
+      </video>
+      <span className="post-spec-cell" style={{ position: 'absolute', top: 14, left: 14, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--fg-dim)' }}>
+        <span className="hp-live-dot" /> live
+      </span>
+      <svg viewBox="0 0 912 81" fill="none" style={{ position: 'relative', width: '72%', height: 'auto' }}>
+        <path fillRule="evenodd" clipRule="evenodd" d={STREAM_PATH} fill="currentColor" />
+      </svg>
+    </button>
+  );
+}
+
+function HelloTile() {
+  return (
+    <a href="mailto:hudbud@gmail.com" className="hp-tile-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <span className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>say hi</span>
+      <span className="hp-tile-title hp-hello-email" style={{ marginTop: 'auto', letterSpacing: '-0.01em', overflowWrap: 'anywhere' }}>
+        hudbud@gmail.com <span className="hp-tile-arrow" style={{ fontSize: '0.72em' }}>↗</span>
+      </span>
+    </a>
+  );
+}
+
+// In-development posts and undated ideas: names only, no covers yet.
+function BenchTile({ rows }: { rows: Row[] }) {
+  return (
+    <div className="hp-tile-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <span className="post-spec-cell" style={{ color: 'var(--fg-dim)', marginBottom: 10 }}>in the works</span>
+      {rows.map((row) => (
+        <AppLink
+          key={row.key}
+          row={row}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, padding: '7px 0', borderTop: '1px solid var(--rule)', opacity: row.href ? 1 : 0.6 }}
+        >
+          <span className="hp-tile-title" style={{ fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.title}</span>
+          <span className="post-spec-cell" style={{ color: 'var(--fg-faint)', whiteSpace: 'nowrap' }}>{row.tag ?? 'in dev'}</span>
+        </AppLink>
+      ))}
+    </div>
+  );
+}
+
+// The long tail of client work as a run of names; the sheet has the rest.
+function WorkIndexTile({ rows, total, onOpenAll }: { rows: Row[]; total: number; onOpenAll: () => void }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Absolutely filled so the run of names never grows the grid row. */}
+      <div style={{ flex: 1, position: 'relative' }}>
+      <div className="hp-tile-pad hp-fade-bottom" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        <span className="post-spec-cell" style={{ display: 'block', color: 'var(--fg-dim)', marginBottom: 10 }}>more work</span>
+        <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6 }}>
+          {rows.map((row, i) => (
+            <span key={row.key}>
+              <AppLink row={row} style={{ color: 'var(--fg)' }}>
+                <span className="hp-name-link">{row.title}</span>
+              </AppLink>
+              {i < rows.length - 1 && <span style={{ color: 'var(--fg-faint)' }}> · </span>}
+            </span>
+          ))}
+        </p>
+      </div>
+      </div>
+      <button onClick={onOpenAll} className="hp-tile-footer">
+        <span>work</span>
+        <span className="post-spec-cell hp-tile-arrow">all {total} →</span>
+      </button>
+    </div>
+  );
+}
+
+function BentoSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <motion.div
+      {...OVERLAY_FADE}
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.72)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 'var(--space-8) var(--page-x)', overflowY: 'auto' }}
+    >
+      <motion.div
+        {...DIALOG_POP}
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: 'min(880px, 100%)', background: 'var(--bg-inner)', border: '1px solid var(--rule)', borderRadius: 14, padding: '24px 28px 32px', boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
+          <span style={{ fontSize: 14, color: 'var(--fg-dim)' }}>{title}</span>
+          <button onClick={onClose} className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>close ×</button>
+        </div>
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, scrollRef, isMobile }: {
+  feed: Post[];
+  onRollTheme: () => void;
+  onWatchStream: () => void;
+  onOpenAbout: () => void;
+  scrollRef?: React.Ref<HTMLDivElement>;
+  isMobile: boolean;
+}) {
+  const [sheet, setSheet] = useState<'photos' | 'work' | null>(null);
+  const sections = useMemo(() => buildSections({ feed }), [feed]);
+  const rowsOf = (key: SectionKey) => sections.find((s) => s.key === key);
+
+  const projects = rowsOf('projects');
+  const photos = rowsOf('photos')?.rows ?? [];
+  const work = rowsOf('work')?.rows ?? [];
+
+  const featured = FEATURED_WORK
+    .map((f) => ({ ...f, row: work.find((r) => r.key === f.slug) }))
+    .filter((f): f is typeof f & { row: Row } => !!f.row);
+  const featuredKeys = new Set(featured.map((f) => f.row.key));
+  const moreWork = work.filter((r) => !featuredKeys.has(r.key));
+  const projectTiles = (projects?.rows ?? []).filter((r) => r.href);
+  const bench = [...(projects?.devRows ?? []), ...(projects?.rows ?? []).filter((r) => !r.href)];
+
+  // Interleave so the dense grid packs without holes: big tiles first, 1x1
+  // projects filling around them, index tiles toward the end.
+  const tiles: { key: string; size: TileSize; className?: string; node: ReactNode }[] = [];
+  const project = (i: number) => {
+    const row = projectTiles[i];
+    if (row) tiles.push({ key: row.key, size: '1x1', className: 'hp-tile-link', node: <ProjectTile row={row} /> });
+  };
+  const feature = (i: number) => {
+    const f = featured[i];
+    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} /> });
+  };
+
+  feature(0);
+  tiles.push({ key: 'about', size: '2x2', node: <AboutTile onOpenAbout={onOpenAbout} /> });
+  tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
+  feature(1);
+  project(0); project(1);
+  feature(2);
+  project(2);
+  tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
+  project(3); project(4);
+  project(5);
+  if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
+  tiles.push({ key: 'work', size: '2x1', node: <WorkIndexTile rows={moreWork} total={work.length} onOpenAll={() => setSheet('work')} /> });
+  for (let i = 6; i < projectTiles.length; i++) project(i);
+  for (let i = 3; i < featured.length; i++) feature(i);
+  tiles.push({ key: 'hello', size: '1x1', className: 'hp-tile-link', node: <HelloTile /> });
+
+  return (
+    <div ref={scrollRef} style={{ height: '100%', overflowY: 'auto' }}>
+      <div className="hp-bento-page">
+        <BentoIntro onRollTheme={onRollTheme} onOpenAbout={onOpenAbout} />
+        <div className="hp-bento">
+          {tiles.map((t, i) => (
+            <Tile key={t.key} size={t.size} index={i + 4} className={t.className}>{t.node}</Tile>
+          ))}
+        </div>
+        <SiteFooter />
+      </div>
+      <AnimatePresence>
+        {sheet === 'photos' && (
+          <BentoSheet key="photos" title={`photos · ${photos.length}`} onClose={() => setSheet(null)}>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
+              {photos.map((row, i) => <GridCard key={row.key} row={row} index={i} isMobile={isMobile} />)}
+            </div>
+          </BentoSheet>
+        )}
+        {sheet === 'work' && (
+          <BentoSheet key="work" title={`work · ${work.length}`} onClose={() => setSheet(null)}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {work.map((row) => <WorkRow key={row.key} row={row} />)}
+            </div>
+          </BentoSheet>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ---------- Post panel (replaces lightbox) ----------
 function Lightbox({ images, index, onClose, onChange }: { images: string[]; index: number; onClose: () => void; onChange: (i: number) => void }) {
@@ -1586,9 +2029,9 @@ function SpecTable({ rows }: { rows: { label: string; value: string; accent?: bo
 }
 
 
-// ---------- FrameFooter ----------
-// Lives in the outer border padding around the site (desktop only).
-function FrameFooter() {
+// ---------- SiteFooter ----------
+// Last line of the scrolling page, under the feed or the bento grid.
+function SiteFooter() {
   // null until mount: the server-rendered time can never match the client's,
   // and that one stale string used to fail hydration for the whole app.
   const [now, setNow] = useState<Date | null>(null);
@@ -1604,21 +2047,9 @@ function FrameFooter() {
   const date = now ? `${pad(now.getMonth() + 1)}.${pad(now.getDate())}.${now.getFullYear()}` : '';
 
   return (
-    <div
-      className="hp-frame-footer"
-      style={{
-        position: 'absolute',
-        right: 20,
-        bottom: 3,
-        fontSize: 10,
-        letterSpacing: 0.2,
-        color: 'var(--fg-faint)',
-        userSelect: 'none',
-        pointerEvents: 'none',
-      }}
-    >
+    <footer className="hp-site-footer">
       &copy;&nbsp; {time} {date} &nbsp;|&nbsp; this website subject to change
-    </div>
+    </footer>
   );
 }
 
@@ -1686,9 +2117,11 @@ function TimeTravelOverlay({ version, onClose }: { version: SiteVersion; onClose
 // ---------- App ----------
 interface PortfolioProps {
   feed?: Post[];
+  /** The layout the page prerenders in; a visitor's pick (hp-layout) wins after mount. */
+  layout?: SiteLayout;
 }
 
-export default function Portfolio({ feed: feedProp }: PortfolioProps) {
+export default function Portfolio({ feed: feedProp, layout: defaultLayout = 'bento' }: PortfolioProps) {
   const feed = feedProp ?? [];
 
   // isMobile starts false to match the server render; the mount effect below
@@ -1704,23 +2137,10 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
 
   const [theme, setThemeRaw] = useState(getInitialTheme);
   const [font, setFontRaw] = useState<FontId>(getInitialFont);
-  const [themeLocked, setThemeLocked] = useState(false);
-  const [fontLocked, setFontLocked] = useState(false);
 
+  // Picks are saved and hold across pages and visits (see Layout.astro).
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
-  const toggleThemeLock = () => {
-    const next = !themeLocked;
-    setThemeLocked(next);
-    if (next) localStorage.setItem('hp-lock-theme', '1');
-    else localStorage.removeItem('hp-lock-theme');
-  };
-  const toggleFontLock = () => {
-    const next = !fontLocked;
-    setFontLocked(next);
-    if (next) localStorage.setItem('hp-lock-font', '1');
-    else localStorage.removeItem('hp-lock-font');
-  };
 
   // Accessibility mode: reduced motion + contrast-checked theme palette.
   // Persisted so the head script constrains the random theme on future loads.
@@ -1736,7 +2156,23 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
     }
   };
 
-  const [viewMode, setViewMode] = useState<ViewMode>('compact');
+  // Any theme but the current one (contrast-checked ones in a11y mode).
+  const rollTheme = () => {
+    const pool = (a11y ? SAFE_THEME_NAMES : MT_THEMES.map((t) => t.name)).filter((n) => n !== theme);
+    setTheme(pool[Math.floor(Math.random() * pool.length)]);
+  };
+
+  const [layout, setLayout] = useState<'list' | 'bento'>(defaultLayout === 'bento' ? 'bento' : 'list');
+  const [viewMode, setViewModeRaw] = useState<ViewMode>(defaultLayout === 'gallery' ? 'gallery' : 'compact');
+  const siteLayout: SiteLayout = layout === 'bento' ? 'bento' : viewMode === 'gallery' ? 'gallery' : 'list';
+  const setSiteLayout = (l: SiteLayout) => {
+    setLayout(l === 'bento' ? 'bento' : 'list');
+    if (l !== 'bento') setViewModeRaw(l === 'gallery' ? 'gallery' : 'compact');
+    localStorage.setItem('hp-layout', l);
+    leftScrollRef.current?.scrollTo({ top: 0 });
+  };
+  // The list's own list/gallery toggle is the same choice, so it persists too.
+  const setViewMode = (m: ViewMode) => setSiteLayout(m === 'gallery' ? 'gallery' : 'list');
   const [showStream, setShowStream] = useState(false);
 
   // Reconcile deferred, client-only state: the theme/font the inline head
@@ -1748,13 +2184,23 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
       setFontRaw(initial.font);
       setA11y(!!initial.a11y);
     }
-    setThemeLocked(!!localStorage.getItem('hp-lock-theme'));
-    setFontLocked(!!localStorage.getItem('hp-lock-font'));
+    // A saved layout replaces the prerendered one; the head script hid the
+    // column until now so it doesn't flash the default first.
+    const savedLayout = localStorage.getItem('hp-layout');
+    if (savedLayout === 'bento' || savedLayout === 'list' || savedLayout === 'gallery') {
+      setLayout(savedLayout === 'bento' ? 'bento' : 'list');
+      if (savedLayout !== 'bento') setViewModeRaw(savedLayout === 'gallery' ? 'gallery' : 'compact');
+    }
+    requestAnimationFrame(() => document.documentElement.classList.remove('hp-layout-pending'));
+    // The ⌘K palette can roll the theme too; keep state in step with it.
+    const onTheme = (e: Event) => setThemeRaw((e as CustomEvent<string>).detail);
+    window.addEventListener('hp:theme', onTheme);
 
     const postSlug = new URLSearchParams(window.location.search).get('post');
     if (postSlug) {
       window.location.replace(`/posts/${postSlug}`);
     }
+    return () => window.removeEventListener('hp:theme', onTheme);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [bioModal, setBioModal] = useState<string | null>(null);
@@ -1801,12 +2247,11 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
   return (
     <MotionConfig reducedMotion={a11y ? 'always' : 'user'}>
     <div onWheel={handleFrameWheel} style={{ height: '100dvh', padding: 'var(--frame)', background: 'var(--bg)', overflow: 'hidden', position: 'relative' }}>
-      {!isMobile && <FrameFooter />}
       <div
         style={{
           height: 'calc(100dvh - 2 * var(--frame))',
           background: 'var(--bg-inner)',
-          borderRadius: isMobile ? 0 : 4,
+          borderRadius: isMobile ? 0 : 'var(--frame-radius)',
           display: 'flex',
           position: 'relative',
           overflow: 'hidden',
@@ -1835,7 +2280,7 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
           </video>
         )}
         {/* Left column: full width (the rail grid centers its own column). */}
-        <div style={{
+        <div className="hp-layout-col" style={{
           flexShrink: 0,
           width: '100%',
           overflowY: 'auto',
@@ -1843,18 +2288,29 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
           position: 'relative',
           zIndex: 1,
         }}>
-          <LeftColumn
-            onOpenBioModal={setBioModal}
-            onHome={() => leftScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-            onWatchStream={() => setShowStream(true)}
-            onOpenAbout={() => { window.location.href = '/posts/about-me'; }}
-            feed={feed}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            scrollRef={leftScrollRef}
-            isMobile={isMobile}
-            wide={wide}
-          />
+          {layout === 'bento' ? (
+            <BentoColumn
+              feed={feed}
+              onRollTheme={rollTheme}
+              onWatchStream={() => setShowStream(true)}
+              onOpenAbout={() => { window.location.href = '/about'; }}
+              scrollRef={leftScrollRef}
+              isMobile={isMobile}
+            />
+          ) : (
+            <LeftColumn
+              onOpenBioModal={setBioModal}
+              onHome={() => leftScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+              onWatchStream={() => setShowStream(true)}
+              onOpenAbout={() => { window.location.href = '/about'; }}
+              feed={feed}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              scrollRef={leftScrollRef}
+              isMobile={isMobile}
+              wide={wide}
+            />
+          )}
         </div>
       </div>
 
@@ -1863,9 +2319,9 @@ export default function Portfolio({ feed: feedProp }: PortfolioProps) {
           theme, setTheme, font, setFont,
           onTimeTravel: setTimeTravel,
           onOpenThoughts: () => setShowThoughts(true),
-          themeLocked, fontLocked,
-          onToggleThemeLock: toggleThemeLock, onToggleFontLock: toggleFontLock,
+          onShuffle: () => { const next = randomLook(theme, font, a11y); setTheme(next.theme); setFont(next.font); },
           a11y, onToggleA11y: toggleA11y,
+          siteLayout, setSiteLayout,
         };
         return isMobile ? <MobileChrome {...chromeProps} /> : <DesktopChrome {...chromeProps} />;
       })()}

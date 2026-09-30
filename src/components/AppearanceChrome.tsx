@@ -1,14 +1,14 @@
-// Standalone font + theme floating buttons for pages that don't render the
+// Standalone font, shuffle, and theme floating buttons for pages that don't render the
 // full Portfolio island (e.g. /halftone). Reads the same localStorage keys and
 // window.__hpInitial handoff as Portfolio, so choices carry across pages.
 import { useEffect, useState } from 'react';
 import {
-  GlassBloom, FontPanelBody, ThemePanelBody, applyThemeVars,
-  FONT_FAMILY, type FontId,
+  GlassBloom, FontPanelBody, ThemePanelBody, ShuffleButton, applyThemeVars,
+  randomLook, FONT_FAMILY, type FontId,
 } from './chrome';
 import { Palette } from '@phosphor-icons/react';
 
-const DEFAULT_THEME = 'earthsong';
+const DEFAULT_THEME = 'hudbud_light';
 const DEFAULT_FONT: FontId = 'apfel';
 
 interface HpInitial {
@@ -24,8 +24,6 @@ function readHpInitial(): HpInitial | null {
 export default function AppearanceChrome() {
   const [theme, setThemeRaw] = useState(DEFAULT_THEME);
   const [font, setFontRaw] = useState<FontId>(DEFAULT_FONT);
-  const [themeLocked, setThemeLocked] = useState(false);
-  const [fontLocked, setFontLocked] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -34,9 +32,11 @@ export default function AppearanceChrome() {
       setThemeRaw(initial.theme);
       setFontRaw(initial.font);
     }
-    setThemeLocked(!!localStorage.getItem('hp-lock-theme'));
-    setFontLocked(!!localStorage.getItem('hp-lock-font'));
     setMounted(true);
+    // The ⌘K palette can roll the theme too; keep state in step with it.
+    const onTheme = (e: Event) => setThemeRaw((e as CustomEvent<string>).detail);
+    window.addEventListener('hp:theme', onTheme);
+    return () => window.removeEventListener('hp:theme', onTheme);
   }, []);
 
   // The inline head script already painted the initial theme/font; only
@@ -52,28 +52,22 @@ export default function AppearanceChrome() {
 
   const setTheme = (t: string) => { setThemeRaw(t); localStorage.setItem('hp-theme', t); };
   const setFont = (f: FontId) => { setFontRaw(f); localStorage.setItem('hp-font', f); };
-  const toggleThemeLock = () => {
-    const next = !themeLocked;
-    setThemeLocked(next);
-    if (next) localStorage.setItem('hp-lock-theme', '1');
-    else localStorage.removeItem('hp-lock-theme');
-  };
-  const toggleFontLock = () => {
-    const next = !fontLocked;
-    setFontLocked(next);
-    if (next) localStorage.setItem('hp-lock-font', '1');
-    else localStorage.removeItem('hp-lock-font');
+  const shuffle = () => {
+    const next = randomLook(theme, font, document.documentElement.classList.contains('hp-a11y'));
+    setTheme(next.theme);
+    setFont(next.font);
   };
 
   // Sit inside the project frame (20px border) with the same gap as the homepage pair.
   const edge = 36;
   return (
     <>
-      <GlassBloom pos={{ right: edge + 54, bottom: edge }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
-        <FontPanelBody font={font} setFont={setFont} fontLocked={fontLocked} onToggleFontLock={toggleFontLock} />
+      <GlassBloom pos={{ right: edge + 108, bottom: edge }} anchor="end" label="font" trigger={<span style={{ fontFamily: FONT_FAMILY[font], fontWeight: 500 }}>Aa</span>}>
+        <FontPanelBody font={font} setFont={setFont} />
       </GlassBloom>
+      <ShuffleButton pos={{ right: edge + 54, bottom: edge }} onClick={shuffle} />
       <GlassBloom pos={{ right: edge, bottom: edge }} anchor="end" label="theme" trigger={<Palette size={18} weight="fill" />}>
-        <ThemePanelBody theme={theme} setTheme={setTheme} themeLocked={themeLocked} onToggleThemeLock={toggleThemeLock} />
+        <ThemePanelBody theme={theme} setTheme={setTheme} />
       </GlassBloom>
     </>
   );

@@ -34,6 +34,10 @@ function rehypeExternalLinks() {
 export default defineConfig({
   output: 'static',
   site: 'https://hudbud.net',
+  // /about is the one about page; the old about-me post points there.
+  redirects: {
+    '/posts/about-me': '/about',
+  },
   integrations: [react(), sitemap({ filter: (page) => !page.includes('/lightsource') })],
   markdown: {
     rehypePlugins: [rehypeLazyImages, rehypeExternalLinks],

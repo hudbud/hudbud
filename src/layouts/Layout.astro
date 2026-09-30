@@ -1,6 +1,7 @@
 ---
 import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 import DialKitRoot from '../components/DialKitRoot';
+import CommandPalette from '../components/CommandPalette';
 
 interface Props {
   title?: string;
@@ -24,10 +25,6 @@ const ogImageURL = new URL(image, Astro.site).toString();
 const THEME_DATA = Object.fromEntries(
   MT_THEMES.map((t) => [t.name, { bg: t.bg, bgInner: t.bgInner, fg: t.fg, dim: t.dim, accent: t.accent }])
 );
-const THEME_NAMES = MT_THEMES.map((t) => t.name);
-// Fonts eligible for the random pick on refresh. OpenDyslexic ('dys') stays
-// available in the font menu but is only ever an explicit choice.
-const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -63,49 +60,65 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
   </style>
 </head>
 <body data-font="apfel">
-  <script is:inline define:vars={{ themeData: THEME_DATA, themeNames: THEME_NAMES, safeThemeNames: SAFE_THEME_NAMES, fontIds: FONT_IDS }}>
+  <script is:inline define:vars={{ themeData: THEME_DATA, safeThemeNames: SAFE_THEME_NAMES }}>
     (function () {
       try {
-        var DEFAULT_THEME = 'earthsong';
         var DEFAULT_FONT = 'apfel';
 
         // Accessibility mode (toggled from the site chrome, or inherited from
-        // the OS reduced-motion preference on first visit) constrains the
-        // random pick to contrast-checked themes and disables motion.
+        // the OS reduced-motion preference on first visit) limits themes to
+        // contrast-checked ones and disables motion.
         var a11yStored = localStorage.getItem('hp-a11y');
         var a11y = a11yStored !== null
           ? a11yStored === '1'
           : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (a11y) document.documentElement.classList.add('hp-a11y');
 
-        var pool = a11y ? safeThemeNames : themeNames;
-        var themeLocked = localStorage.getItem('hp-lock-theme');
-        var theme = themeLocked
-          ? (localStorage.getItem('hp-theme') || DEFAULT_THEME)
-          : pool[Math.floor(Math.random() * pool.length)];
+        // A homepage visitor who picked a non-default layout: hide the
+        // prerendered one until Portfolio swaps theirs in (it drops the class).
+        var savedLayout = localStorage.getItem('hp-layout');
+        if (location.pathname === '/' && (savedLayout === 'list' || savedLayout === 'gallery')) document.documentElement.classList.add('hp-layout-pending');
 
-        var fontLocked = localStorage.getItem('hp-lock-font');
-        var font = fontLocked
-          ? (localStorage.getItem('hp-font') || DEFAULT_FONT)
-          : fontIds[Math.floor(Math.random() * fontIds.length)];
+        // Everyone starts monochrome, light or dark with the OS. A theme or
+        // font the visitor picks (FABs, shuffle, the mark, ⌘K) is saved and
+        // then holds on every page until they pick again.
+        var dark = window.matchMedia('(prefers-color-scheme: dark)');
+        var mono = function () { return dark.matches ? 'hudbud_dark' : 'hudbud_light'; };
+        var chosen = function () {
+          var t = localStorage.getItem('hp-theme');
+          return t && themeData[t] && (!a11y || safeThemeNames.indexOf(t) !== -1) ? t : null;
+        };
+        var paint = function (theme) {
+          var mt = themeData[theme];
+          var root = document.documentElement;
+          root.style.setProperty('--bg', mt.bg);
+          root.style.setProperty('--bg-inner', mt.bgInner);
+          root.style.setProperty('--fg', mt.fg);
+          root.style.setProperty('--fg-dim', mt.dim);
+          root.style.setProperty('--fg-faint', 'color-mix(in srgb, ' + mt.fg + ' 30%, ' + mt.bg + ')');
+          root.style.setProperty('--rule', 'color-mix(in srgb, ' + mt.fg + ' 14%, ' + mt.bg + ')');
+          root.style.setProperty('--tile', 'color-mix(in srgb, ' + mt.fg + ' 8%, ' + mt.bg + ')');
+          if (theme === 'rainbow_trail') {
+            root.style.removeProperty('--accent');
+            document.body.classList.add('rainbow-trail');
+          } else {
+            root.style.setProperty('--accent', mt.accent);
+            document.body.classList.remove('rainbow-trail');
+          }
+        };
 
-        var mt = themeData[theme] || themeData[DEFAULT_THEME];
-        var root = document.documentElement;
-        root.style.setProperty('--bg', mt.bg);
-        root.style.setProperty('--bg-inner', mt.bgInner);
-        root.style.setProperty('--fg', mt.fg);
-        root.style.setProperty('--fg-dim', mt.dim);
-        root.style.setProperty('--fg-faint', 'color-mix(in srgb, ' + mt.fg + ' 30%, ' + mt.bg + ')');
-        root.style.setProperty('--rule', 'color-mix(in srgb, ' + mt.fg + ' 14%, ' + mt.bg + ')');
-        root.style.setProperty('--tile', 'color-mix(in srgb, ' + mt.fg + ' 8%, ' + mt.bg + ')');
-        if (theme === 'rainbow_trail') {
-          root.style.removeProperty('--accent');
-          document.body.classList.add('rainbow-trail');
-        } else {
-          root.style.setProperty('--accent', mt.accent);
-        }
+        var theme = chosen() || mono();
+        var font = localStorage.getItem('hp-font') || DEFAULT_FONT;
+        paint(theme);
         document.body.dataset.font = font;
         window.__hpInitial = { theme: theme, font: font, a11y: a11y };
+
+        // Until they pick a theme, follow the OS live (and tell the chrome).
+        dark.addEventListener('change', function () {
+          if (chosen()) return;
+          paint(mono());
+          window.dispatchEvent(new CustomEvent('hp:theme', { detail: mono() }));
+        });
       } catch (e) {}
     })();
   </script>
@@ -122,5 +135,6 @@ const FONT_IDS = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
     });
   </script>
   <DialKitRoot client:load />
+  <CommandPalette client:idle />
 </body>
 </html>

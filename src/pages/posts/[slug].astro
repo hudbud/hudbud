@@ -45,13 +45,14 @@ const specRows = isWork
   description={entry.data.excerpt}
   image={entry.data.feature_image}
 >
-  <main class="post-page hp-page hp-grid">
-    <a class="back hp-rail" href="/">← back</a>
-    <div class="top-row">
-      <button id="fullscreen-btn" class="fullscreen-btn post-spec-cell" type="button">Full screen</button>
-    </div>
+  <main class="post-page hp-page hp-grid hp-framed">
+    <nav class="post-nav hp-wide">
+      <a class="back hp-glass-pill" href="/">← back</a>
+      <button id="fullscreen-btn" class="fullscreen-btn hp-glass-pill" type="button">full screen ⤢</button>
+    </nav>
     <header>
-      <h1>{entry.data.title}</h1>
+      {/* Hyphenated words stay whole ("X-Cover", not "X- / Cover"). */}
+      <h1>{entry.data.title.split(' ').map((w, i) => [i ? ' ' : '', w.includes('-') ? <span class="nobr">{w}</span> : w])}</h1>
       <div class="post-spec">
         {specRows.map((r) => (
           <div class:list={['spec-row', { 'post-spec-cell': r.mono, accent: r.accent }]}>{r.value}</div>
@@ -196,50 +197,40 @@ const specRows = isWork
 
 <style>
   .post-page { color: var(--fg); }
-  .top-row {
+  /* Chrome row spans the hero's width: back and full screen sit on its edges. */
+  .post-nav {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     min-height: 26px;
   }
-  .back {
-    align-self: center;
-    color: var(--fg-dim);
-    font-size: 12px;
-    text-decoration: none;
-  }
-  .back:hover { color: var(--accent); }
-  /* Stacked: back and full screen share the first row, as on desktop. */
+  /* Text runs the same width as the photos. */
+  .post-page > header,
+  .prose > :global(*) { grid-column: wide; }
+  /* Phones tap a photo to open the lightbox; this corner belongs to ⌘K. */
   @media (max-width: 767px) {
-    .back { grid-row: 1; margin: 0; }
-    .top-row { grid-row: 1; justify-self: end; }
+    .fullscreen-btn { display: none; }
   }
-  header { margin: var(--space-6) 0 var(--space-5); }
-  .fullscreen-btn {
-    color: var(--fg-dim);
-    padding: 5px 12px;
-    border: 1px solid var(--fg-dim);
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  .fullscreen-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
+  header { margin: var(--space-7) 0 var(--space-6); }
   h1 {
     font-size: 44px;
     line-height: 1.02;
     color: var(--fg);
     letter-spacing: -0.03em;
     font-weight: 700;
+    text-wrap: balance;
     margin: 0;
   }
+  .nobr { white-space: nowrap; }
   .post-spec {
-    margin: var(--space-5) 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 20px;
+    margin: var(--space-4) 0 0;
   }
   .spec-row {
     color: var(--fg-dim);
-    padding: 5px 0;
     font-size: 14px;
   }
   .spec-row.post-spec-cell { font-size: 11px; }

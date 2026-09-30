@@ -183,3 +183,62 @@ export async function loadGraphData(): Promise<GraphPost[]> {
     };
   });
 }
+
+// ---------- Search index ----------
+// Everything the ⌘K palette can find, flattened at build time and served as
+// /search.json. `text` is the lowercase haystack (title, tags, credits, and
+// the post body as plain text); the palette never renders it.
+export type SearchKind = 'work' | 'project' | 'photos' | 'thought' | 'resource';
+
+export interface SearchItem {
+  kind: SearchKind;
+  title: string;
+  sub?: string;
+  href: string;
+  external?: boolean;
+  year?: string;
+  text: string;
+}
+
+const KIND_BY_TAG: [Tag, SearchKind][] = [
+  ['work', 'work'],
+  ['archive', 'work'],
+  ['projects', 'project'],
+  ['thoughts', 'thought'],
+  ['life', 'photos'],
+  ['resources', 'resource'],
+];
+
+function plainText(md: string | undefined, max = 1500): string {
+  if (!md) return '';
+  return md
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[#>*_`|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max);
+}
+
+export async function loadSearchIndex(): Promise<SearchItem[]> {
+  const entries = await getCollection('posts', (e) => !e.data.draft);
+  entries.sort((a, b) => +b.data.date - +a.data.date);
+  return entries.map((entry) => {
+    const p = entryToMeta(entry);
+    const kind = KIND_BY_TAG.find(([tag]) => p.tags.includes(tag))?.[1] ?? 'thought';
+    const credits = [p.discipline, p.agency, p.roles, p.tools, p.category].filter(Boolean).join(' ');
+    return {
+      kind,
+      title: p.title,
+      sub: p.summary || p.excerpt || p.discipline || undefined,
+      // Same destination the feed rows use: hosted app, outbound link, or post.
+      href: p.app ?? p.link ?? `/posts/${p.slug}`,
+      external: !p.app && /^https?:/.test(p.link ?? ''),
+      // In-development posts carry a far-future sort date; their label says it.
+      year: entry.data.dateLabel ?? (+entry.data.date <= Date.now() ? String(entry.data.date.getFullYear()) : undefined),
+      text: [p.title, p.excerpt, p.summary, p.tags.join(' '), credits, plainText(entry.body)]
+        .filter(Boolean).join(' ').toLowerCase(),
+    };
+  });
+}

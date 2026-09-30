@@ -13,6 +13,8 @@ export interface Idea {
   status: IdeaStatus;
   statusNote?: string;
   internal?: boolean;
+  /** Cover for the bento tile. */
+  image?: string;
   /** Which home section this lands in; defaults to projects. */
   section?: 'projects' | 'work';
   // Best-guess dates so ideas can sort into the chronological feed like
@@ -27,6 +29,7 @@ export const IDEAS: Idea[] = [
     desc: 'Pick a ratio, dial in dilution, scale by any volume. For when you batch-prep and stash the bottle in the freezer',
     status: 'new',
     internal: true,
+    image: '/images/freezer-martini.webp',
     date: '2026-07-20',
   },
   {
@@ -67,6 +70,7 @@ export const IDEAS: Idea[] = [
     status: 'new',
     statusNote: 'completed',
     internal: true,
+    image: '/images/keyboard/image20.jpg',
     date: '2019-06-01',
   },
 ];
