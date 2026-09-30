@@ -2,14 +2,30 @@
 // panel bodies. Portfolio.tsx composes these into its full Mobile/Desktop
 // chrome; AppearanceChrome.tsx mounts just the font + theme pair on
 // standalone pages (e.g. /halftone).
-import { useState, type CSSProperties } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { Menu } from 'bloom-menu';
-import { MT_THEMES, THEME_PAIRS } from '../data/themes';
-import { Lock, LockOpen, Shuffle, Moon, Sun } from '@phosphor-icons/react';
+import { MT_THEMES, SAFE_THEME_NAMES, THEME_PAIRS } from '../data/themes';
+import { Shuffle, Moon, Sun } from '@phosphor-icons/react';
 
 export type FontId = 'mono' | 'serif' | 'sans' | 'dys' | 'apfel' | 'outfit';
 
 export const FONT_IDS: FontId[] = ['mono', 'serif', 'sans', 'dys', 'apfel', 'outfit'];
+// Fonts the shuffle can land on. OpenDyslexic stays an explicit choice.
+const SHUFFLE_FONTS: FontId[] = ['mono', 'serif', 'sans', 'apfel', 'outfit'];
+
+const pickOther = <T,>(pool: T[], current: T): T => {
+  const rest = pool.filter((x) => x !== current);
+  return rest[Math.floor(Math.random() * rest.length)];
+};
+
+/** A fresh random theme and font, never the current ones (contrast-checked
+    themes only in accessibility mode). */
+export function randomLook(theme: string, font: FontId, a11y: boolean): { theme: string; font: FontId } {
+  return {
+    theme: pickOther(a11y ? SAFE_THEME_NAMES : MT_THEMES.map((t) => t.name), theme),
+    font: pickOther(SHUFFLE_FONTS, font),
+  };
+}
 
 export const FONT_FAMILY: Record<FontId, string> = {
   mono: "'Geist Mono', ui-monospace, Menlo, monospace",
@@ -54,7 +70,8 @@ export function applyThemeVars(themeName: string) {
   }
 }
 
-// The glass surface; bloom's Container animates its own (subtle) shadow.
+// The glass surface. bloom's Container animates its own shadow inline;
+// .hp-glass-bloom strips it (global.css) so the FABs sit flat.
 export const GLASS: CSSProperties = {
   background: 'color-mix(in srgb, var(--bg) 70%, transparent)',
   WebkitBackdropFilter: 'blur(18px) saturate(1.6)',
@@ -93,7 +110,7 @@ export function GlassBloom({ pos, anchor, label, trigger, children }: {
   return (
     <div style={{ position: 'fixed', zIndex: 140, ...pos }}>
       <Menu.Root direction="top" anchor={anchor}>
-        <Menu.Container buttonSize={46} menuWidth={300} menuRadius={18} style={{ ...GLASS, color: 'var(--fg)' }}>
+        <Menu.Container buttonSize={46} menuWidth={300} menuRadius={18} className="hp-glass-bloom" style={{ ...GLASS, color: 'var(--fg)' }}>
           <Menu.Trigger style={{ color: 'var(--fg)', fontSize: 16 }}>
             <span role="img" aria-label={label} title={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {trigger}
@@ -112,35 +129,43 @@ export function GlassSectionLabel({ children }: { children: React.ReactNode }) {
   return <div style={{ fontSize: 11, letterSpacing: '0.04em', color: 'var(--fg-faint)', padding: '10px 16px 4px' }}>{children}</div>;
 }
 
-export function GlassLockButton({ locked, toggle }: { locked: boolean; toggle: () => void }) {
+/** Floating glass shuffle: rolls theme and font together. The icon turns a
+    half step per press. */
+export function ShuffleButton({ pos, onClick }: { pos: CSSProperties; onClick: () => void }) {
+  const [turns, setTurns] = useState(0);
   return (
-    <button onClick={toggle} title={locked ? 'locked (tap to unlock)' : 'randomizes on reload (tap to lock)'} style={{ color: locked ? 'var(--accent)' : 'var(--fg-faint)', padding: 6, lineHeight: 1 }}>
-      {locked ? <Lock size={15} weight="fill" /> : <LockOpen size={15} weight="fill" />}
-    </button>
+    <div style={{ position: 'fixed', zIndex: 140, ...pos }}>
+      <button
+        onClick={() => { setTurns((n) => n + 1); onClick(); }}
+        title="shuffle theme and font"
+        aria-label="shuffle theme and font"
+        style={{
+          ...GLASS,
+          width: 46, height: 46, borderRadius: 23,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--fg)',
+        }}
+      >
+        <Shuffle size={18} weight="bold" style={{ transform: `rotate(${turns * 180}deg)`, transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)' }} />
+      </button>
+    </div>
   );
 }
 
 export interface FontPanelProps {
   font: FontId;
   setFont: (f: FontId) => void;
-  fontLocked: boolean;
-  onToggleFontLock: () => void;
 }
 
 export interface ThemePanelProps {
   theme: string;
   setTheme: (t: string) => void;
-  themeLocked: boolean;
-  onToggleThemeLock: () => void;
 }
 
-export function FontPanelBody({ font, setFont, fontLocked, onToggleFontLock }: FontPanelProps) {
+export function FontPanelBody({ font, setFont }: FontPanelProps) {
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
-        <GlassSectionLabel>font</GlassSectionLabel>
-        <GlassLockButton locked={fontLocked} toggle={onToggleFontLock} />
-      </div>
+      <GlassSectionLabel>font</GlassSectionLabel>
       {FONT_IDS.map((f) => (
         <GlassPanelItem key={f} active={f === font} closeOnSelect={false} onClick={() => setFont(f)}>
           <span style={{ fontFamily: FONT_FAMILY[f] }}>{FONT_LABELS[f]}</span>
@@ -150,9 +175,16 @@ export function FontPanelBody({ font, setFont, fontLocked, onToggleFontLock }: F
   );
 }
 
-export function ThemePanelBody({ theme, setTheme, themeLocked, onToggleThemeLock }: ThemePanelProps) {
+export function ThemePanelBody({ theme, setTheme }: ThemePanelProps) {
   const [search, setSearch] = useState('');
-  const filtered = search ? MT_THEMES.filter((t) => t.name.replace(/_/g, ' ').includes(search.toLowerCase())) : MT_THEMES;
+  // The theme that was active when the panel opened sits first. It's captured
+  // once so the list doesn't reshuffle under the cursor while you browse.
+  const [pinned] = useState(theme);
+  const ordered = useMemo(() => {
+    const top = MT_THEMES.find((t) => t.name === pinned);
+    return top ? [top, ...MT_THEMES.filter((t) => t !== top)] : MT_THEMES;
+  }, [pinned]);
+  const filtered = search ? ordered.filter((t) => t.name.replace(/_/g, ' ').includes(search.toLowerCase())) : ordered;
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 8 }}>
@@ -166,7 +198,6 @@ export function ThemePanelBody({ theme, setTheme, themeLocked, onToggleThemeLock
           <button onClick={() => { const r = MT_THEMES[Math.floor(Math.random() * MT_THEMES.length)]; setTheme(r.name); }} title="random theme" style={{ color: 'var(--fg-dim)', padding: 6, lineHeight: 1 }}>
             <Shuffle size={15} weight="fill" />
           </button>
-          <GlassLockButton locked={themeLocked} toggle={onToggleThemeLock} />
         </div>
       </div>
       <div style={{ padding: '0 10px 6px' }}>

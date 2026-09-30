@@ -118,6 +118,9 @@ body.rainbow-trail {
   --space-10: 120px;
 
   --frame: 20px;                 /* outer site border */
+  /* Inner panel corners, concentric with chrome inset 12px: the 34px pills
+     up top (17 + 12) and the 46px FABs along the bottom (23 + 12). */
+  --frame-radius: 29px 29px 35px 35px;
   --page-x: var(--space-7);      /* frame → grid */
   --page-top: var(--space-8);
   --page-bottom: var(--space-10);
@@ -205,6 +208,23 @@ body.rainbow-trail {
    document, unlike the framed app pages that lock it. */
 html:has(.hp-page),
 html:has(.hp-page) body { height: auto; overflow-y: auto; }
+
+/* Scrolling pages that still want the site frame: the page paints the inner
+   panel color and a fixed mask draws the border (and its corners) over it. */
+html:has(.hp-framed),
+html:has(.hp-framed) body { background: var(--bg-inner); }
+.hp-framed::before {
+  content: '';
+  position: fixed;
+  inset: var(--frame);
+  z-index: 50;
+  pointer-events: none;
+  border-radius: var(--frame-radius);
+  box-shadow: 0 0 0 100vmax var(--bg);
+}
+@media (max-width: 767px) {
+  .hp-framed::before { display: none; }
+}
 .hp-page {
   padding: calc(var(--frame) + var(--page-top)) var(--page-inset) calc(var(--frame) + var(--page-bottom));
 }
@@ -462,6 +482,361 @@ html.hp-a11y *::after {
 }
 
 /* ---------- Frame footer (always mono, regardless of active font) ---------- */
-.hp-frame-footer {
+/* Closes the scrolling page; the bottom padding under it clears the FABs. */
+.hp-site-footer {
+  margin-top: auto;
+  padding-top: var(--space-8);
   font-family: 'Geist Mono', ui-monospace, Menlo, monospace !important;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--fg-faint);
+}
+
+/* ---------- Bento layout ---------- */
+/* Four columns of square-ish tiles, packed dense so 1x1s fill around the
+   big ones. Three columns on tablets, two on phones; every size keeps its
+   span where it fits and clamps to the full width where it doesn't. */
+.hp-bento {
+  --bento-row: 216px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(var(--bento-row), auto);
+  grid-auto-flow: row dense;
+  gap: var(--space-3);
+}
+.hp-bento-page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: var(--page-top) var(--page-x) var(--space-9);
+}
+.hp-bento-intro {
+  padding-top: var(--space-5);
+  margin-bottom: var(--space-8);
+}
+.hp-bento-headline {
+  margin: 0;
+  max-width: 32ch;
+  font-size: clamp(30px, 4vw, 50px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+html.hp-layout-pending .hp-layout-col { visibility: hidden; }
+
+/* The swap line under the name. Each letter rolls inside its own mask; the
+   mask's padding (cancelled by margin) leaves room for descenders. */
+.hp-swap-line { display: block; }
+.hp-swap-slot { position: relative; display: inline-block; }
+.hp-swap-word { display: inline-block; white-space: nowrap; }
+.hp-swap-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.06em 0 0.16em;
+  margin: -0.06em 0 -0.16em;
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+@media (max-width: 767px) {
+  .hp-bento-intro { padding-top: 0; margin-bottom: var(--space-7); }
+}
+.hp-hello-email { font-size: 18px; }
+@media (max-width: 767px) {
+  .hp-hello-email { font-size: 14px; }
+}
+/* The mark rolls the theme; a quarter turn on hover is the only hint. */
+.hp-mark-roll svg { transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.hp-mark-roll:hover svg { transform: rotate(90deg); }
+.hp-mark-roll:active svg { transform: rotate(90deg) scale(0.9); }
+@media (max-width: 1079px) {
+  .hp-bento { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .hp-bento {
+    --bento-row: 184px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+}
+
+.hp-tile {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--fg) 5%, var(--bg-inner));
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.hp-tile-1x1 { grid-column: span 1; grid-row: span 1; }
+.hp-tile-2x1 { grid-column: span 2; grid-row: span 1; }
+.hp-tile-1x2 { grid-column: span 1; grid-row: span 2; }
+.hp-tile-2x2 { grid-column: span 2; grid-row: span 2; }
+
+.hp-tile-pad { padding: var(--space-5); }
+@media (max-width: 767px) {
+  .hp-tile-pad { padding: var(--space-4); }
+}
+
+.hp-tile-link:hover { border-color: var(--rule); }
+.hp-tile-image { border-color: transparent; }
+
+.hp-tile-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.hp-tile-link:hover .hp-tile-cover,
+.hp-photo-mosaic > a:hover .hp-tile-cover { transform: scale(1.03); }
+
+.hp-tile-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.1) 55%, transparent);
+  pointer-events: none;
+}
+.hp-tile-chip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+/* Project tiles: cover inset from the tile edge like an app card. */
+.hp-tile-media {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 8px 8px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--tile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hp-tile-title { color: var(--fg); transition: color 0.15s; }
+.hp-tile-arrow { color: var(--fg-dim); display: inline-block; transition: color 0.15s, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+.hp-tile-link:hover .hp-tile-title,
+.hp-tile-link:hover .hp-tile-arrow,
+a:hover > .hp-tile-title,
+.hp-tile-footer:hover .hp-tile-arrow { color: var(--accent); }
+.hp-tile-link:hover .hp-tile-arrow,
+.hp-tile-footer:hover .hp-tile-arrow { transform: translate(2px, -2px); }
+
+.hp-photo-mosaic {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 6px;
+  padding: 8px 8px 0;
+}
+@media (max-width: 767px) {
+  .hp-photo-mosaic { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+}
+
+.hp-tile-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  padding: 12px 16px 14px;
+  font-size: 14px;
+  color: var(--fg-dim);
+  text-align: left;
+}
+
+.hp-fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.hp-name-link { transition: color 0.15s; }
+.hp-name-link:hover { color: var(--accent); }
+
+/* Live-stream tile: the script sits over a dimmed clip that plays on hover. */
+.hp-stream-tile { color: var(--fg-dim); transition: color 0.2s; }
+.hp-stream-tile video { opacity: 0; filter: grayscale(0.3); }
+.hp-stream-tile:hover { color: #fff; }
+.hp-stream-tile:hover video { opacity: 0.6; }
+.hp-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e5484d;
+  animation: hp-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes hp-live-pulse {
+  50% { opacity: 0.35; }
+}
+
+/* Flat FABs: beats the box-shadow bloom-menu animates inline. */
+.hp-glass-bloom { box-shadow: none !important; }
+
+/* ⌘K search palette */
+/* Glass pill buttons: same surface as the FABs, 34px tall. */
+.hp-glass-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.hp-glass-pill:hover { color: var(--fg); }
+
+.hp-cmdk-trigger {
+  position: fixed;
+  z-index: 60;
+  top: calc(var(--frame) + 12px);
+  right: calc(var(--frame) + 12px);
+  padding: 0 12px;
+}
+/* Tool pages park their DialKit panel in this corner; ⌘K still works there. */
+body:has(.dialkit-panel) .hp-cmdk-trigger { display: none; }
+.hp-cmdk-trigger-keys { letter-spacing: 0.02em; }
+@media (max-width: 767px) {
+  .hp-cmdk-trigger { width: 38px; height: 38px; padding: 0; justify-content: center; }
+  .hp-cmdk-trigger-keys { display: none; }
+}
+
+.hp-cmdk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 16vh;
+  background: color-mix(in srgb, var(--bg) 55%, rgb(0 0 0 / 0.35));
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.hp-cmdk {
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(560px, 72vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--bg-inner);
+  border: 1px solid var(--rule);
+  color: var(--fg);
+  box-shadow: 0 24px 64px -16px rgb(0 0 0 / 0.35), 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.hp-cmdk-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 58px;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.hp-cmdk-input-row input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 17px;
+}
+.hp-cmdk-input-row input::placeholder { color: var(--fg-faint); }
+.hp-cmdk-dim { color: var(--fg-dim); flex-shrink: 0; }
+.hp-cmdk-kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.hp-cmdk-list {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 8px 8px;
+}
+.hp-cmdk-group {
+  padding: 12px 10px 6px;
+  font-size: 12px;
+  color: var(--fg-faint);
+}
+.hp-cmdk-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  scroll-margin: 32px 0 8px;
+}
+.hp-cmdk-item[aria-selected='true'] { background: color-mix(in srgb, var(--fg) 7%, transparent); }
+.hp-cmdk-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--fg) 6%, var(--bg-inner));
+  color: var(--fg-dim);
+}
+.hp-cmdk-item[aria-selected='true'] .hp-cmdk-icon { color: var(--fg); }
+.hp-cmdk-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hp-cmdk-title, .hp-cmdk-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hp-cmdk-title { font-size: 15px; }
+.hp-cmdk-sub { font-size: 13px; color: var(--fg-dim); }
+.hp-cmdk-chip {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--fg-faint);
+}
+.hp-cmdk-empty { padding: 28px 10px; text-align: center; color: var(--fg-dim); font-size: 14px; }
+.hp-cmdk-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--fg-faint);
+  flex-shrink: 0;
+}
+.hp-cmdk-footer span { display: inline-flex; align-items: center; gap: 6px; }
+.hp-cmdk-footer .hp-cmdk-kbd { cursor: default; height: 20px; padding: 0 5px; }
+.hp-cmdk-hint { margin-left: auto; }
+@media (max-width: 767px) {
+  .hp-cmdk-overlay { padding-top: 12px; }
+  .hp-cmdk { max-height: calc(100dvh - 24px); }
+  .hp-cmdk-chip, .hp-cmdk-footer { display: none; }
 }
