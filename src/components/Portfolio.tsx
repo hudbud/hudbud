@@ -108,6 +108,8 @@ interface SiteVersion {
   url: string;
   /** Human-viewable wayback page (with toolbar) for the "open ↗" escape hatch. */
   pageUrl?: string;
+  /** Screenshot for the websites sheet. */
+  image?: string;
 }
 
 function wayback(timestamp: string, original: string): Pick<SiteVersion, 'url' | 'pageUrl'> {
@@ -119,9 +121,9 @@ function wayback(timestamp: string, original: string): Pick<SiteVersion, 'url' |
 
 const SITE_VERSIONS: SiteVersion[] = [
   { label: '2026 (current)', url: '' },
-  { label: '2023', ...wayback('20230907005627', 'https://www.paine.design/') },
+  { label: '2023', ...wayback('20230907005627', 'https://www.paine.design/'), image: 'https://media.hudbud.net/posts/websites/paine-design-2023.webp' },
   { label: '2022', ...wayback('20220405235635', 'https://www.paine.design/') },
-  { label: '2020', ...wayback('20201101080101', 'https://www.paine.design/') },
+  { label: '2020', ...wayback('20201101080101', 'https://www.paine.design/'), image: 'https://media.hudbud.net/posts/websites/paine-design-2020.webp' },
 ];
 
 const RESOURCES = [
@@ -1545,6 +1547,24 @@ const FEATURED_WORK: { slug: string; size: TileSize }[] = [
 
 const PHOTO_MOSAIC_COUNT = 6;
 
+// Every site in the website stack, front of the pile first. Each opens its
+// post once one is published, else the live site, else the Cosmo Studio post.
+const SITE_THUMB = (key: string) => `https://media.hudbud.net/posts/websites/${key}.webp`;
+const WEBSITES: { name: string; key: string; slug?: string; url?: string; year?: string }[] = [
+  { name: 'Cosmo Studio', key: 'cosmo-studio', slug: 'cosmo-studio', url: 'https://insurance-accept-955160.framer.app' },
+  { name: 'Componentry', key: 'componentry', slug: 'componentry', url: 'https://componentry.io', year: '2025' },
+  { name: 'Keith David Fan Day', key: 'keith-david-fan-day', slug: 'keith-david-fan-day', year: '2024' },
+  { name: 'The Healing Images', key: 'the-healing-images', slug: 'the-healing-images', url: 'https://thehealingimages.com', year: '2022' },
+  { name: 'Chipped SF', key: 'chipped-sf' },
+  { name: 'CPI Hamilton', key: 'cpi-hamilton' },
+  { name: 'CPP Transactions', key: 'cpp-transactions' },
+  { name: 'Pacific Bay Financial', key: 'pacific-bay-financial' },
+  { name: 'Paine Pacific', key: 'paine-pacific', slug: 'painepacificgallery' },
+  { name: 'Zib', key: 'zib', slug: 'zib' },
+  { name: 'In-App Chat', key: 'in-app-chat', slug: 'inappchat' },
+];
+const STACK_HAND = 4;
+
 function Tile({ size, index, className = '', children }: {
   size: TileSize;
   index: number;
@@ -1830,6 +1850,43 @@ function WorkIndexTile({ rows, total, onOpenAll }: { rows: Row[]; total: number;
   );
 }
 
+// A pile of site screenshots that fans out like a hand of cards on hover.
+// --o is each card's offset from the middle of the hand.
+function WebsitesTile({ rows, onOpenAll }: { rows: Row[]; onOpenAll: () => void }) {
+  const hand = rows.filter((r) => r.image).slice(0, STACK_HAND).reverse();
+  const mid = (hand.length - 1) / 2;
+  return (
+    <button onClick={onOpenAll} className="hp-site-stack-tile" aria-label={`websites, all ${rows.length}`}>
+      <span className="hp-site-stack" aria-hidden>
+        {hand.map((row, i) => (
+          <img key={row.key} src={row.image} alt="" loading="lazy" className="hp-site-card" style={{ '--o': i - mid } as CSSProperties} />
+        ))}
+      </span>
+      <span className="hp-tile-footer">
+        <span>websites</span>
+        <span className="post-spec-cell hp-tile-arrow">all {rows.length} →</span>
+      </span>
+    </button>
+  );
+}
+
+// An old portfolio in the websites sheet; opens the time machine.
+function PastSiteCard({ version, onOpen }: { version: SiteVersion; onOpen: () => void }) {
+  return (
+    <button onClick={onOpen} className="hp-past-site" style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left', minWidth: 0 }}>
+      <span className="hp-past-site-frame">
+        {version.image
+          ? <img src={version.image} alt="" loading="lazy" className="hp-tile-cover" />
+          : <ClockCounterClockwise size={22} color="var(--fg-dim)" weight="fill" />}
+      </span>
+      <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 14 }}>
+        <span className="hp-tile-title">paine.design</span>
+        <span className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>{version.label}</span>
+      </span>
+    </button>
+  );
+}
+
 function BentoSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -1857,15 +1914,16 @@ function BentoSheet({ title, onClose, children }: { title: string; onClose: () =
   );
 }
 
-function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, scrollRef, isMobile }: {
+function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTravel, scrollRef, isMobile }: {
   feed: Post[];
   onRollTheme: () => void;
   onWatchStream: () => void;
   onOpenAbout: () => void;
+  onTimeTravel: (v: SiteVersion) => void;
   scrollRef?: React.Ref<HTMLDivElement>;
   isMobile: boolean;
 }) {
-  const [sheet, setSheet] = useState<'photos' | 'work' | null>(null);
+  const [sheet, setSheet] = useState<'photos' | 'work' | 'websites' | null>(null);
   const sections = useMemo(() => buildSections({ feed }), [feed]);
   const rowsOf = (key: SectionKey) => sections.find((s) => s.key === key);
 
@@ -1880,6 +1938,22 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, scrollRef,
   const moreWork = work.filter((r) => !featuredKeys.has(r.key));
   const projectTiles = (projects?.rows ?? []).filter((r) => r.href);
   const bench = [...(projects?.devRows ?? []), ...(projects?.rows ?? []).filter((r) => !r.href)];
+  const cosmoPost = work.find((r) => r.key === 'cosmo-studio');
+  const sites: Row[] = WEBSITES.map((s) => {
+    const post = s.slug ? work.find((r) => r.key === s.slug) : undefined;
+    const fallback = post ?? (s.url ? undefined : cosmoPost);
+    return {
+      key: s.key,
+      title: s.name,
+      date: s.year ?? (post ? yearOf(post) : ''),
+      dateValue: 0,
+      image: SITE_THUMB(s.key),
+      isActive: false,
+      href: fallback?.href ?? s.url,
+      external: !fallback && !!s.url,
+    };
+  });
+  const pastSites = SITE_VERSIONS.filter((v) => v.url);
 
   // Interleave so the dense grid packs without holes: big tiles first, 1x1
   // projects filling around them, index tiles toward the end.
@@ -1904,6 +1978,7 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, scrollRef,
   project(3); project(4);
   project(5);
   if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
+  tiles.push({ key: 'websites', size: '2x1', className: 'hp-tile-link', node: <WebsitesTile rows={sites} onOpenAll={() => setSheet('websites')} /> });
   tiles.push({ key: 'work', size: '2x1', node: <WorkIndexTile rows={moreWork} total={work.length} onOpenAll={() => setSheet('work')} /> });
   for (let i = 6; i < projectTiles.length; i++) project(i);
   for (let i = 3; i < featured.length; i++) feature(i);
@@ -1932,6 +2007,17 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, scrollRef,
           <BentoSheet key="work" title={`work · ${work.length}`} onClose={() => setSheet(null)}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {work.map((row) => <WorkRow key={row.key} row={row} />)}
+            </div>
+          </BentoSheet>
+        )}
+        {sheet === 'websites' && (
+          <BentoSheet key="websites" title={`websites · ${sites.length}`} onClose={() => setSheet(null)}>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 1 : 2}, 1fr)`, gap: isMobile ? 16 : 20 }}>
+              {sites.map((row, i) => <GridCard key={row.key} row={row} index={i} isMobile={isMobile} />)}
+            </div>
+            <span style={{ display: 'block', fontSize: 14, color: 'var(--fg-dim)', margin: '36px 0 12px' }}>past portfolios</span>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
+              {pastSites.map((v) => <PastSiteCard key={v.label} version={v} onOpen={() => onTimeTravel(v)} />)}
             </div>
           </BentoSheet>
         )}
@@ -2294,6 +2380,7 @@ export default function Portfolio({ feed: feedProp, layout: defaultLayout = 'ben
               onRollTheme={rollTheme}
               onWatchStream={() => setShowStream(true)}
               onOpenAbout={() => { window.location.href = '/about'; }}
+              onTimeTravel={setTimeTravel}
               scrollRef={leftScrollRef}
               isMobile={isMobile}
             />
