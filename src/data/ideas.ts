@@ -55,15 +55,6 @@ export const IDEAS: Idea[] = [
     date: '2024-01-01',
   },
   {
-    title: 'Cosmo Studio',
-    href: 'https://cosmostud.io',
-    desc: 'My web design agency. I build and run brands and sites end-to-end — identity, system, shipped product',
-    status: 'dormant',
-    statusNote: 'web design',
-    section: 'work',
-    date: '2022-01-01',
-  },
-  {
     title: 'split keyboard',
     href: '/split-keyboard',
     desc: 'Custom ergonomic split mechanical keyboard — PCB layout, 3D-printed case, QMK firmware',

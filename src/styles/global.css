@@ -647,6 +647,56 @@ a:hover > .hp-tile-title,
   .hp-photo-mosaic { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
 }
 
+/* Website stack: screenshots piled with a slight offset. Hover fans them out
+   from a point below the tile, like a hand of cards. Sized in container
+   units so the fan fits whatever the tile's span. */
+.hp-site-stack-tile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+}
+.hp-site-stack {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+}
+.hp-site-card {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: min(38cqw, 108cqh);
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 6px;
+  background: var(--tile);
+  box-shadow: 0 0 0 1px var(--rule), 0 10px 30px rgba(0, 0, 0, 0.28);
+  transform-origin: 50% 160%;
+  transform: translate(-50%, -50%) translate(calc(var(--o) * 9px), calc(var(--o) * -5px)) rotate(calc(var(--o) * 2.5deg));
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hp-site-stack-tile:hover .hp-site-card,
+.hp-site-stack-tile:focus-visible .hp-site-card {
+  transform: translate(-50%, -50%) translate(calc(var(--o) * 15cqw), 0) rotate(calc(var(--o) * 5deg));
+}
+
+.hp-past-site-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--tile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hp-past-site:hover .hp-tile-title { color: var(--accent); }
+.hp-past-site:hover .hp-tile-cover { transform: scale(1.03); }
+
 .hp-tile-footer {
   display: flex;
   justify-content: space-between;
