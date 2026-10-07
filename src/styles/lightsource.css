@@ -10,23 +10,25 @@
 .ls { color: var(--fg); }
 
 /* ---------- Page top ---------- */
-.ls-back,
-.ls-nav {
-  align-self: baseline;
-  font-size: 12px;
-  color: var(--fg-dim);
+/* Same chrome row as every post: the glass back pill on the hero's left
+   edge, the case-study tabs beside it. */
+.ls .ls-top {
+  grid-column: wide;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  min-height: 26px;
 }
-.ls-back:hover { color: var(--accent); }
 .ls-nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-4);
+  font-size: 13px;
+  color: var(--fg-dim);
 }
 .ls-nav a:hover { color: var(--fg); }
 .ls-nav a[aria-current] { color: var(--accent); }
-@media (max-width: 767px) {
-  .ls-back { margin-bottom: var(--space-2); }
-}
 
 /* ---------- Structure ---------- */
 .ls :is(.hero, section, .moment, .facts) {

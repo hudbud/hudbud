@@ -16,6 +16,8 @@ const posts = defineCollection({
         product design, brand design, then specialties. */
     discipline: z.string().optional(),
     feature_image: z.string().optional(),
+    /** App icon for projects, shown in place of the cover on homepage tiles and rows. */
+    icon: z.string().optional(),
     /** Hosted mini-app. Homepage name goes here; the post stays the write-up. */
     app: z.string().optional(),
     /** Live site, or an on-site page like /lightsource. Homepage name goes

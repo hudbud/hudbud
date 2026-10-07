@@ -82,6 +82,93 @@ function HudMark({ size = 44, onClick }: { size?: number; onClick?: () => void }
   );
 }
 
+// ---------- Fidget mark ----------
+// The homepage mark is a fidget spinner: drag it around, flick it and it
+// coasts down under friction. A tap still rolls the theme and gives it a spin.
+const SPIN_FRICTION = 0.985; // velocity kept per 16ms frame
+const SPIN_TAP = 1.4; // deg/ms a tap adds
+const SPIN_MAX = 4;
+
+function FidgetMark({ size, onRoll }: { size: number; onRoll: () => void }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const spinRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const s = useRef({ angle: 0, v: 0, raf: 0, last: 0, drag: null as null | { a: number; t: number; moved: number }, dragged: false });
+
+  const paint = () => { if (spinRef.current) spinRef.current.style.transform = `rotate(${s.current.angle}deg)`; };
+  const coast = useCallback(() => {
+    const st = s.current;
+    cancelAnimationFrame(st.raf);
+    st.last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(now - st.last, 48);
+      st.last = now;
+      st.angle = (st.angle + st.v * dt) % 360;
+      st.v *= Math.pow(SPIN_FRICTION, dt / 16);
+      paint();
+      if (Math.abs(st.v) > 0.004) st.raf = requestAnimationFrame(tick);
+    };
+    st.raf = requestAnimationFrame(tick);
+  }, []);
+  useEffect(() => () => cancelAnimationFrame(s.current.raf), []);
+
+  const pointerAngle = (e: React.PointerEvent) => {
+    const r = wrapRef.current!.getBoundingClientRect();
+    return (Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180) / Math.PI;
+  };
+
+  return (
+    <div
+      ref={wrapRef}
+      className="hp-fidget"
+      style={{ width: size, height: size }}
+      onPointerDown={(e) => {
+        cancelAnimationFrame(s.current.raf);
+        e.currentTarget.setPointerCapture(e.pointerId);
+        s.current.drag = { a: pointerAngle(e), t: performance.now(), moved: 0 };
+        s.current.v = 0;
+      }}
+      onPointerMove={(e) => {
+        const st = s.current;
+        if (!st.drag) return;
+        const a = pointerAngle(e);
+        const now = performance.now();
+        const d = ((a - st.drag.a + 540) % 360) - 180;
+        const dt = Math.max(now - st.drag.t, 1);
+        st.angle += d;
+        st.v = Math.max(-SPIN_MAX, Math.min(SPIN_MAX, 0.7 * (d / dt) + 0.3 * st.v));
+        st.drag = { a, t: now, moved: st.drag.moved + Math.abs(d) };
+        paint();
+      }}
+      onPointerUp={() => {
+        const st = s.current;
+        if (!st.drag) return;
+        st.dragged = st.drag.moved > 6;
+        // Held still before letting go: no flick.
+        if (performance.now() - st.drag.t > 80) st.v = 0;
+        st.drag = null;
+        if (st.dragged && !reduce) coast();
+      }}
+      onPointerCancel={() => { s.current.drag = null; }}
+      // Pointer capture lands the click here, not on the button; keyboard
+      // presses bubble up from the button. Either way one handler rolls.
+      onClick={() => {
+        const st = s.current;
+        // A drag ends in a click too; that one doesn't roll the theme.
+        if (st.dragged) { st.dragged = false; return; }
+        onRoll();
+        if (reduce) return;
+        st.v = Math.max(-SPIN_MAX, Math.min(SPIN_MAX, st.v + SPIN_TAP));
+        coast();
+      }}
+    >
+      <div ref={spinRef} className="hp-fidget-spin">
+        <HudMark size={size} />
+      </div>
+    </div>
+  );
+}
+
 // ---------- LifeImage ----------
 function LifeImage({ color, seed = 0, height = 140 }: { color: string; seed?: number; height?: number | string }) {
   const patterns = [
@@ -358,6 +445,8 @@ interface Row {
   date: string;
   dateValue: number;
   image?: string;
+  /** App icon; tiles and rows show it in place of the cover. */
+  icon?: string;
   meta?: string;
   /** One-line description shown under the title in projects/work rows. */
   desc?: string;
@@ -407,6 +496,7 @@ function buildSections({ feed }: { feed: Post[] }): Section[] {
     date: p.date,
     dateValue: p.dateValue,
     image: p.feature_image,
+    icon: p.icon,
     meta: p.discipline ?? (p.agency || p.roles ? [p.agency, p.roles?.split(',')[0]].filter(Boolean).join(' · ') : p.category),
     desc: p.excerpt || undefined,
     summary: p.summary,
@@ -422,6 +512,7 @@ function buildSections({ feed }: { feed: Post[] }): Section[] {
     date: formatIdeaDate(idea.date),
     dateValue: +new Date(idea.date),
     image: idea.image,
+    icon: idea.icon,
     meta: idea.statusNote || STATUS_LABEL[idea.status],
     desc: idea.desc,
     tag: idea.statusNote || STATUS_LABEL[idea.status],
@@ -483,10 +574,10 @@ function FeedRow({ row, isMobile }: { row: Row; isMobile: boolean }) {
 }
 
 // ---------- Project row (icon tile / title ↗ / description) ----------
-function AppLink({ row, style, children }: { row: Row; style?: CSSProperties; children: ReactNode }) {
-  if (!row.href) return <span style={style}>{children}</span>;
+function AppLink({ row, style, className, children }: { row: Row; style?: CSSProperties; className?: string; children: ReactNode }) {
+  if (!row.href) return <span className={className} style={style}>{children}</span>;
   return (
-    <a href={row.href} target={row.external ? '_blank' : undefined} rel={row.external ? 'noopener noreferrer' : undefined} style={style}>
+    <a href={row.href} target={row.external ? '_blank' : undefined} rel={row.external ? 'noopener noreferrer' : undefined} className={className} style={style}>
       {children}
     </a>
   );
@@ -520,8 +611,8 @@ function ProjectRow({ row }: { row: Row }) {
         transform: lit ? 'rotate(-4deg) scale(1.06)' : 'none',
         transition: 'transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
       }}>
-        {row.image
-          ? <img src={row.image} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        {row.icon || row.image
+          ? <img src={row.icon ?? row.image} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           : <Sparkle size={15} color="var(--fg-dim)" weight="fill" />}
       </AppLink>
       <span style={{ minWidth: 0, flex: 1 }}>
@@ -1538,14 +1629,27 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
 // lands somewhere — new projects become 1x1 tiles, new work joins the index.
 type TileSize = '1x1' | '2x1' | '1x2' | '2x2';
 
-// Portfolio pieces promoted to feature tiles, in grid order.
-const FEATURED_WORK: { slug: string; size: TileSize }[] = [
+// Portfolio pieces promoted to feature tiles, in grid order. dated: false
+// drops the year chip where the date adds nothing.
+const FEATURED_WORK: { slug: string; size: TileSize; dated?: false }[] = [
   { slug: 'lightsource', size: '2x2' },
-  { slug: 'carvanads', size: '2x1' },
-  { slug: 'dave-and-busters', size: '2x1' },
+  { slug: 'carvanads', size: '2x2', dated: false },
+  { slug: 'dave-and-busters', size: '2x1', dated: false },
+  { slug: 'ladle', size: '2x2' },
 ];
 
 const PHOTO_MOSAIC_COUNT = 6;
+
+// Hosted projects per app list tile: two columns of four rows' worth.
+const APP_STACK = 8;
+// Work tiles dealt per scroll: a full row at four, three and two columns.
+const WORK_BATCH = 12;
+// The archive packs as masonry: these get 2x2 tiles among the 1x1s.
+const ARCHIVE_BIG = new Set(['this-is-swington', 'zib', 'odg', 'd4design', 'please-accept-our-apologies', 'componentry']);
+const ARCHIVE_PINNED = ['this-is-swington'];
+
+// Early projects that read as archive now: no tile, filed in the work index.
+const LEGACY_PROJECTS = new Set(['vjloops', 'film-1']);
 
 // Every site in the website stack, front of the pile first. Each opens its
 // post once one is published, else the live site, else the Cosmo Studio post.
@@ -1565,8 +1669,25 @@ const WEBSITES: { name: string; key: string; slug?: string; url?: string; year?:
 ];
 const STACK_HAND = 4;
 
+// Client work from Hathway in sheet order; the rest pile up as cover cards.
+// Dave & Buster's has its own feature tile, so it sits in the sheet but not
+// the pile.
+const HATHWAY: { slug: string; inPile?: false }[] = [
+  { slug: 'dave-and-busters', inPile: false },
+  { slug: 'dennys' },
+  { slug: 'dutch-bros' },
+  { slug: 'blaze' },
+  { slug: 'red-robin' },
+  { slug: 'pieology' },
+  { slug: 'pandaexpress' },
+  { slug: 'arbys' },
+];
+// Resting tilt per card, so the pile looks dropped rather than squared up.
+const PILE_TILT = [-7, 5, -3, 8, -5, 3, -1];
+
 function Tile({ size, index, className = '', children }: {
   size: TileSize;
+  /** Stagger position; fractional steps tighten the stagger. */
   index: number;
   className?: string;
   children: ReactNode;
@@ -1590,7 +1711,7 @@ function yearOf(row: Row): string {
 
 // Name, then the thesis as a second line; the bio lives in the about tile.
 // The mark is the easter egg: the page opens monochrome and each click rolls
-// a color theme.
+// a color theme. It's also a fidget spinner.
 function BentoIntro({ onRollTheme, onOpenAbout }: { onRollTheme: () => void; onOpenAbout: () => void }) {
   const fade = (delay: number) => ({
     initial: { opacity: 0, y: 8 },
@@ -1600,7 +1721,7 @@ function BentoIntro({ onRollTheme, onOpenAbout }: { onRollTheme: () => void; onO
   return (
     <div className="hp-bento-intro">
       <motion.div {...fade(0.1)} className="hp-mark-roll" style={{ marginBottom: 'var(--space-6)' }}>
-        <HudMark size={40} onClick={onRollTheme} />
+        <FidgetMark size={40} onRoll={onRollTheme} />
       </motion.div>
       <motion.h1 {...fade(0.2)} className="hp-bento-headline">
         <CursorImagesHover
@@ -1705,13 +1826,13 @@ function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
 }
 
 // Full-bleed cover with the caption laid over a bottom scrim.
-function FeatureTile({ row, big }: { row: Row; big: boolean }) {
+function FeatureTile({ row, big, dated = true }: { row: Row; big: boolean; dated?: boolean }) {
   return (
     <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
       {row.image && <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />}
       <span className="hp-tile-scrim" />
-      <span className="post-spec-cell hp-tile-chip">{yearOf(row)}</span>
-      <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 18, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {dated && <YearChip row={row} />}
+      <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 18, display: 'flex', flexDirection: 'column', gap: 2, textShadow: '0 1px 12px rgba(0, 0, 0, 0.4)' }}>
         <span style={{ fontSize: big ? 22 : 17, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>
           {row.title}{row.external ? ' ↗' : ''}
         </span>
@@ -1723,26 +1844,28 @@ function FeatureTile({ row, big }: { row: Row; big: boolean }) {
   );
 }
 
-// Inset cover on top, name and one-liner underneath — an app icon's worth of
-// information per project.
-function ProjectTile({ row }: { row: Row }) {
+// Every hosted project stacked as wide rows in one big tile: icon, name and
+// one-liner per row, each its own link.
+function AppStackTile({ rows }: { rows: Row[] }) {
   return (
-    <AppLink row={row} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <span className="hp-tile-media">
-        {row.image
-          ? <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />
-          : <Sparkle size={22} color="var(--fg-dim)" weight="fill" />}
-      </span>
-      <span style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <span className="hp-tile-title" style={{ display: 'flex', alignItems: 'baseline', gap: 6, fontSize: 15, fontWeight: 500 }}>
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.title}</span>
+    <div className="hp-app-stack">
+      {rows.map((row) => (
+        <AppLink key={row.key} row={row} className="hp-app-row hp-tile-link">
+          <span className="hp-app-row-icon">
+            {row.icon
+              ? <img src={row.icon} alt="" loading="lazy" />
+              : row.image
+              ? <img src={row.image} alt="" loading="lazy" className="hp-app-row-cover" />
+              : <Sparkle size={16} color="var(--fg-dim)" weight="fill" />}
+          </span>
+          <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+            <span className="hp-tile-title" style={{ fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.title}</span>
+            {row.desc && <span className="hp-app-row-desc">{row.desc}</span>}
+          </span>
           <span className="hp-tile-arrow" style={{ fontSize: 12 }}>↗</span>
-        </span>
-        {row.desc && (
-          <span style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--fg-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.desc}</span>
-        )}
-      </span>
-    </AppLink>
+        </AppLink>
+      ))}
+    </div>
   );
 }
 
@@ -1822,49 +1945,90 @@ function BenchTile({ rows }: { rows: Row[] }) {
   );
 }
 
-// The long tail of client work as a run of names; the sheet has the rest.
-function WorkIndexTile({ rows, total, onOpenAll }: { rows: Row[]; total: number; onOpenAll: () => void }) {
+// One piece of the long tail, dealt into the grid as the page scrolls:
+// the cover with its name over a scrim, or just the name when there's no
+// cover yet.
+function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
+  if (!row.image) {
+    return (
+      <AppLink row={row} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <span className="hp-tile-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <span className="post-spec-cell hp-tile-hover-reveal" style={{ color: 'var(--fg-faint)' }}>{yearOf(row)}</span>
+          <span className="hp-tile-title" style={{ marginTop: 'auto', fontSize: big ? 22 : 17, fontWeight: 500, letterSpacing: '-0.01em' }}>{row.title}</span>
+          {(row.summary ?? row.desc) && (
+            <span style={{ marginTop: 2, fontSize: 13, lineHeight: 1.5, color: 'var(--fg-dim)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{row.summary ?? row.desc}</span>
+          )}
+        </span>
+      </AppLink>
+    );
+  }
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Absolutely filled so the run of names never grows the grid row. */}
-      <div style={{ flex: 1, position: 'relative' }}>
-      <div className="hp-tile-pad hp-fade-bottom" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        <span className="post-spec-cell" style={{ display: 'block', color: 'var(--fg-dim)', marginBottom: 10 }}>more work</span>
-        <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6 }}>
-          {rows.map((row, i) => (
-            <span key={row.key}>
-              <AppLink row={row} style={{ color: 'var(--fg)' }}>
-                <span className="hp-name-link">{row.title}</span>
-              </AppLink>
-              {i < rows.length - 1 && <span style={{ color: 'var(--fg-faint)' }}> · </span>}
-            </span>
-          ))}
-        </p>
-      </div>
-      </div>
-      <button onClick={onOpenAll} className="hp-tile-footer">
-        <span>work</span>
-        <span className="post-spec-cell hp-tile-arrow">all {total} →</span>
-      </button>
-    </div>
+    <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
+      <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />
+      <span className="hp-tile-scrim" />
+      <YearChip row={row} />
+      <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 16, display: 'flex', flexDirection: 'column', gap: 2, textShadow: big ? '0 1px 12px rgba(0, 0, 0, 0.4)' : undefined }}>
+        <span style={{ fontSize: big ? 22 : 15, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>{row.title}{row.external ? ' ↗' : ''}</span>
+        {big && (row.summary ?? row.desc) && (
+          <span style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.78)' }}>{row.summary ?? row.desc}</span>
+        )}
+      </span>
+    </AppLink>
   );
 }
 
-// A pile of site screenshots that fans out like a hand of cards on hover.
-// --o is each card's offset from the middle of the hand.
+// Years stay out of the way until hover; status labels like "active" stay up.
+function YearChip({ row }: { row: Row }) {
+  const label = yearOf(row);
+  return <span className={`post-spec-cell hp-tile-chip${/\d{4}/.test(label) ? ' hp-tile-hover-reveal' : ''}`}>{label}</span>;
+}
+
+// Site screenshots tucked in a folder; on hover the front flap tips open and
+// they pop up and fan out like a hand of cards. --o is each card's offset
+// from the middle of the hand.
 function WebsitesTile({ rows, onOpenAll }: { rows: Row[]; onOpenAll: () => void }) {
   const hand = rows.filter((r) => r.image).slice(0, STACK_HAND).reverse();
   const mid = (hand.length - 1) / 2;
   return (
     <button onClick={onOpenAll} className="hp-site-stack-tile" aria-label={`websites, all ${rows.length}`}>
       <span className="hp-site-stack" aria-hidden>
-        {hand.map((row, i) => (
-          <img key={row.key} src={row.image} alt="" loading="lazy" className="hp-site-card" style={{ '--o': i - mid } as CSSProperties} />
-        ))}
+        <span className="hp-folder">
+          <span className="hp-folder-back" />
+          {hand.map((row, i) => (
+            <img key={row.key} src={row.image} alt="" loading="lazy" className="hp-site-card" style={{ '--o': i - mid } as CSSProperties} />
+          ))}
+          <span className="hp-folder-front" />
+        </span>
       </span>
       <span className="hp-tile-footer">
         <span>websites</span>
         <span className="post-spec-cell hp-tile-arrow">all {rows.length} →</span>
+      </span>
+    </button>
+  );
+}
+
+// The client covers dropped in a loose pile; hover fans them into a hand.
+// The middle card sits on top so the fan opens from the center.
+function HathwayTile({ rows, total, onOpenAll }: { rows: Row[]; total: number; onOpenAll: () => void }) {
+  const mid = (rows.length - 1) / 2;
+  return (
+    <button onClick={onOpenAll} className="hp-cover-pile-tile" aria-label={`hathway, all ${total}`}>
+      <span className="hp-cover-pile" aria-hidden>
+        {rows.map((row, i) => (
+          <img
+            key={row.key}
+            src={row.image}
+            alt=""
+            loading="lazy"
+            className="hp-cover-card"
+            style={{ '--o': i - mid, '--r': `${PILE_TILT[i % PILE_TILT.length]}deg`, zIndex: rows.length - Math.abs(Math.round(i - mid)) } as CSSProperties}
+          />
+        ))}
+      </span>
+      <span className="hp-tile-footer">
+        <span>hathway</span>
+        <span className="post-spec-cell hp-tile-arrow">all {total} →</span>
       </span>
     </button>
   );
@@ -1923,20 +2087,34 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   scrollRef?: React.Ref<HTMLDivElement>;
   isMobile: boolean;
 }) {
-  const [sheet, setSheet] = useState<'photos' | 'work' | 'websites' | null>(null);
+  const [sheet, setSheet] = useState<'photos' | 'websites' | 'hathway' | null>(null);
+  const [dealt, setDealt] = useState(WORK_BATCH);
+  const moreRef = useRef<HTMLDivElement>(null);
   const sections = useMemo(() => buildSections({ feed }), [feed]);
   const rowsOf = (key: SectionKey) => sections.find((s) => s.key === key);
 
   const projects = rowsOf('projects');
   const photos = rowsOf('photos')?.rows ?? [];
-  const work = rowsOf('work')?.rows ?? [];
+  const legacy = (rowsOf('projects')?.rows ?? []).filter((r) => LEGACY_PROJECTS.has(r.key));
+  const work = [...(rowsOf('work')?.rows ?? []), ...legacy].sort((a, b) => b.dateValue - a.dateValue);
 
   const featured = FEATURED_WORK
     .map((f) => ({ ...f, row: work.find((r) => r.key === f.slug) }))
     .filter((f): f is typeof f & { row: Row } => !!f.row);
-  const featuredKeys = new Set(featured.map((f) => f.row.key));
-  const moreWork = work.filter((r) => !featuredKeys.has(r.key));
-  const projectTiles = (projects?.rows ?? []).filter((r) => r.href);
+  const hathwayPost = work.find((r) => r.key === 'hathway');
+  const hathway = HATHWAY
+    .map((h) => ({ ...h, row: work.find((r) => r.key === h.slug) }))
+    .filter((h): h is typeof h & { row: Row } => !!h.row);
+  const pile = hathway.filter((h) => h.inPile !== false && h.row.image).map((h) => h.row);
+  // The index skips anything that already has a tile of its own.
+  const tiledKeys = new Set([...featured.map((f) => f.row.key), ...hathway.map((h) => h.row.key), 'hathway']);
+  const moreWork = work.filter((r) => !tiledKeys.has(r.key));
+  // Pinned pieces lead the archive; the rest follow newest first.
+  const archive = [
+    ...ARCHIVE_PINNED.map((k) => moreWork.find((r) => r.key === k)).filter((r): r is Row => !!r),
+    ...moreWork.filter((r) => !ARCHIVE_PINNED.includes(r.key)),
+  ];
+  const projectTiles = (projects?.rows ?? []).filter((r) => r.href && !LEGACY_PROJECTS.has(r.key));
   const bench = [...(projects?.devRows ?? []), ...(projects?.rows ?? []).filter((r) => !r.href)];
   const cosmoPost = work.find((r) => r.key === 'cosmo-studio');
   const sites: Row[] = WEBSITES.map((s) => {
@@ -1955,58 +2133,74 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   });
   const pastSites = SITE_VERSIONS.filter((v) => v.url);
 
-  // Interleave so the dense grid packs without holes: big tiles first, 1x1
-  // projects filling around them, index tiles toward the end.
+  // Interleave so the dense grid packs without holes: big tiles first, the
+  // app stacks and small tiles filling around them. Past the curated tiles
+  // the long tail of work deals in a batch at a time as the bottom nears.
+  const appStacks: Row[][] = [];
+  for (let i = 0; i < projectTiles.length; i += APP_STACK) appStacks.push(projectTiles.slice(i, i + APP_STACK));
   const tiles: { key: string; size: TileSize; className?: string; node: ReactNode }[] = [];
-  const project = (i: number) => {
-    const row = projectTiles[i];
-    if (row) tiles.push({ key: row.key, size: '1x1', className: 'hp-tile-link', node: <ProjectTile row={row} /> });
+  const stack = (i: number) => {
+    const rows = appStacks[i];
+    if (rows) tiles.push({ key: `apps-${i}`, size: '2x2', className: 'hp-tile-stack', node: <AppStackTile rows={rows} /> });
   };
   const feature = (i: number) => {
     const f = featured[i];
-    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} /> });
+    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} dated={f.dated} /> });
   };
 
   feature(0);
   tiles.push({ key: 'about', size: '2x2', node: <AboutTile onOpenAbout={onOpenAbout} /> });
-  tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
+  stack(0);
   feature(1);
-  project(0); project(1);
   feature(2);
-  project(2);
+  if (pile.length) tiles.push({ key: 'hathway', size: '2x1', className: 'hp-tile-link', node: <HathwayTile rows={pile} total={hathway.length} onOpenAll={() => setSheet('hathway')} /> });
+  feature(3);
+  tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
   tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
-  project(3); project(4);
-  project(5);
   if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
   tiles.push({ key: 'websites', size: '2x1', className: 'hp-tile-link', node: <WebsitesTile rows={sites} onOpenAll={() => setSheet('websites')} /> });
-  tiles.push({ key: 'work', size: '2x1', node: <WorkIndexTile rows={moreWork} total={work.length} onOpenAll={() => setSheet('work')} /> });
-  for (let i = 6; i < projectTiles.length; i++) project(i);
-  for (let i = 3; i < featured.length; i++) feature(i);
-  tiles.push({ key: 'hello', size: '1x1', className: 'hp-tile-link', node: <HelloTile /> });
+  for (let i = 1; i < appStacks.length; i++) stack(i);
+  for (let i = 4; i < featured.length; i++) feature(i);
+  const dealtFrom = tiles.length;
+  let bigs = 0;
+  for (const row of archive.slice(0, dealt)) {
+    const big = ARCHIVE_BIG.has(row.key);
+    // Dense packing would stack every big tile on the left; alternate sides.
+    const side = big ? (bigs++ % 2 ? ' hp-tile-start' : ' hp-tile-end') : '';
+    tiles.push({ key: `work-${row.key}`, size: big ? '2x2' : '1x1', className: (row.image ? 'hp-tile-link hp-tile-image' : 'hp-tile-link') + side, node: <WorkTile row={row} big={big} /> });
+  }
+  const allDealt = dealt >= archive.length;
+  if (allDealt) tiles.push({ key: 'hello', size: '1x1', className: 'hp-tile-link', node: <HelloTile /> });
+
+  // Re-observed after every batch, so a sentinel still on screen deals again.
+  useEffect(() => {
+    const el = moreRef.current;
+    if (!el || allDealt) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setDealt((n) => n + WORK_BATCH); },
+      { root: el.closest('[data-bento-scroll]'), rootMargin: '0px 0px 600px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [dealt, allDealt]);
 
   return (
-    <div ref={scrollRef} style={{ height: '100%', overflowY: 'auto' }}>
+    <div ref={scrollRef} data-bento-scroll style={{ height: '100%', overflowY: 'auto' }}>
       <div className="hp-bento-page">
         <BentoIntro onRollTheme={onRollTheme} onOpenAbout={onOpenAbout} />
         <div className="hp-bento">
           {tiles.map((t, i) => (
-            <Tile key={t.key} size={t.size} index={i + 4} className={t.className}>{t.node}</Tile>
+            <Tile key={t.key} size={t.size} index={i < dealtFrom ? i + 4 : ((i - dealtFrom) % WORK_BATCH) * 0.4} className={t.className}>{t.node}</Tile>
           ))}
         </div>
-        <SiteFooter />
+        {!allDealt && <div ref={moreRef} aria-hidden style={{ height: 1 }} />}
+        {allDealt && <SiteFooter />}
       </div>
       <AnimatePresence>
         {sheet === 'photos' && (
           <BentoSheet key="photos" title={`photos · ${photos.length}`} onClose={() => setSheet(null)}>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
               {photos.map((row, i) => <GridCard key={row.key} row={row} index={i} isMobile={isMobile} />)}
-            </div>
-          </BentoSheet>
-        )}
-        {sheet === 'work' && (
-          <BentoSheet key="work" title={`work · ${work.length}`} onClose={() => setSheet(null)}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {work.map((row) => <WorkRow key={row.key} row={row} />)}
             </div>
           </BentoSheet>
         )}
@@ -2018,6 +2212,19 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
             <span style={{ display: 'block', fontSize: 14, color: 'var(--fg-dim)', margin: '36px 0 12px' }}>past portfolios</span>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
               {pastSites.map((v) => <PastSiteCard key={v.label} version={v} onOpen={() => onTimeTravel(v)} />)}
+            </div>
+          </BentoSheet>
+        )}
+        {sheet === 'hathway' && (
+          <BentoSheet key="hathway" title={`hathway · ${hathway.length}`} onClose={() => setSheet(null)}>
+            {hathwayPost && (
+              <p style={{ margin: '0 0 24px', maxWidth: '60ch', fontSize: 15, lineHeight: 1.6, color: 'var(--fg-dim)' }}>
+                {hathwayPost.desc}{' '}
+                <AppLink row={hathwayPost} style={{ color: 'var(--fg)' }}><span className="hp-name-link">the systems work →</span></AppLink>
+              </p>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
+              {hathway.map((h, i) => <GridCard key={h.row.key} row={h.row} index={i} isMobile={isMobile} />)}
             </div>
           </BentoSheet>
         )}

@@ -1,7 +1,7 @@
 ---
 export const prerender = true;
 import { getCollection, render } from 'astro:content';
-import Layout from '../layouts/Layout.astro';
+import PostLayout from '../layouts/PostLayout.astro';
 
 const entries = await getCollection('posts', (e) => e.data.tags.includes('resources') && !e.data.draft);
 entries.sort((a, b) => +b.data.date - +a.data.date);
@@ -10,57 +10,29 @@ const rendered = await Promise.all(
   entries.map(async (e) => ({ entry: e, ...(await render(e)) }))
 );
 ---
-<Layout title="Resources — Hudson Paine" description="Design and outdoor resource lists curated by Hudson Paine.">
-  <main class="resources-page hp-page hp-grid">
-    <a class="back hp-rail" href="/">← back</a>
-    <header><h1>Resources</h1></header>
-    {rendered.map(({ entry, Content }) => (
-      <section>
-        <h2><a href={`/posts/${entry.id}`}>{entry.data.title}</a></h2>
-        <div class="prose"><Content /></div>
-      </section>
-    ))}
-  </main>
-</Layout>
+<PostLayout
+  title="Resources"
+  description="Design and outdoor resource lists curated by Hudson Paine."
+  spec={[{ value: `${entries.length} lists`, mono: true }]}
+>
+  {rendered.map(({ entry, Content }) => (
+    <section>
+      <h2><a href={`/posts/${entry.id}`}>{entry.data.title}</a></h2>
+      <Content />
+    </section>
+  ))}
+</PostLayout>
 
 <style>
-  .resources-page { color: var(--fg); }
-  .back {
-    align-self: baseline;
-    color: var(--fg-dim);
-    font-size: 12px;
-    text-decoration: none;
-  }
-  .back:hover { color: var(--accent); }
-  header { align-self: baseline; margin: 0 0 var(--space-5); }
-  h1 {
-    font-size: 32px;
-    line-height: 1.2;
-    color: var(--accent);
-    letter-spacing: -0.005em;
-    font-weight: 500;
-    margin: 0;
-  }
   section {
-    margin: var(--space-7) 0;
+    margin: 0 0 var(--space-7);
     padding-top: var(--space-5);
     border-top: 1px solid var(--rule);
   }
-  section h2 {
-    font-size: 18px;
-    margin: 0 0 12px;
-    font-weight: 500;
-  }
+  section h2 { margin-top: 0; }
   section h2 a {
     color: var(--fg);
     text-decoration: none;
   }
   section h2 a:hover { color: var(--accent); }
-  .prose :global(p),
-  .prose :global(ul),
-  .prose :global(ol) {
-    font-size: 14px;
-    line-height: 1.7;
-    margin: 0 0 0.8em;
-  }
 </style>

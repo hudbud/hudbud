@@ -3,6 +3,7 @@ title: "vector dimension tool"
 date: "2026-08-21T12:00-07:00"
 tags: ["thoughts"]
 excerpt: "Drop in an SVG, click edges or points, get engineering-style dimension lines."
+icon: "/icons/vector-dimension-tool.svg"
 feature_image: "https://media.hudbud.net/posts/vector-dimension-tool/cover.webp"
 app: "/dimension"
 ---

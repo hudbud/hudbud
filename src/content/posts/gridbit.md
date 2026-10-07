@@ -3,6 +3,7 @@ title: "gridbit"
 date: "2026-08-29T12:00-07:00"
 tags: ["thoughts"]
 excerpt: "turns pixel art into a crochet or knitting chart."
+icon: "/icons/gridbit.svg"
 feature_image: "https://media.hudbud.net/posts/gridbit/cover.webp"
 app: "/gridbit"
 ---

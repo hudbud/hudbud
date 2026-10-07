@@ -23,11 +23,13 @@ const bodies = import.meta.glob<string>('../lightsource/*.html', { query: '?raw'
 const body = bodies[`../lightsource/${page}.html`];
 ---
 <Layout title={`${title} — Hudson Paine`} description="LightSource case study by Hudson Paine. Password protected." robots="noindex, nofollow">
-  <main class="ls hp-page hp-grid" data-dev={import.meta.env.DEV ? '' : undefined}>
-    <a class="ls-back hp-rail" href="/">← back</a>
-    <nav class="ls-nav" aria-label="Case studies">
-      {NAV.map((n) => <a href={n.href} aria-current={n.page === page ? 'page' : undefined}>{n.label}</a>)}
-    </nav>
+  <main class="ls hp-page hp-grid hp-framed" data-dev={import.meta.env.DEV ? '' : undefined}>
+    <div class="ls-top">
+      <a class="hp-glass-pill" href="/">← back</a>
+      <nav class="ls-nav" aria-label="Case studies">
+        {NAV.map((n) => <a href={n.href} aria-current={n.page === page ? 'page' : undefined}>{n.label}</a>)}
+      </nav>
+    </div>
     <Fragment set:html={body} />
     <footer class="ls-footer">
       <span>Hudson Paine. Product design at LightSource, 2025 to 2026. Screens captured from the live product.</span>

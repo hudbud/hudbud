@@ -1,7 +1,7 @@
 ---
 export const prerender = true;
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
+import PostLayout, { type SpecRow } from '../../layouts/PostLayout.astro';
 import { renderPostHtml } from '../../lib/posts';
 import { groupImagesIntoGrid, stripMetaParagraphs, addFigCaptions, isExcerptRedundant } from '../../lib/imageGrid';
 
@@ -31,245 +31,21 @@ const dateLabel = entry.data.dateLabel ?? entry.data.date.toLocaleDateString('en
 const isWork = entry.data.tags.includes('work') || entry.data.tags.includes('archive') || entry.data.tags.includes('projects');
 // Dates/years keep the mono spec voice; wordy rows (discipline, roles,
 // tools) read in the body font like every other label on the site.
-const specRows = isWork
+const specRows: SpecRow[] = isWork
   ? [
-      { label: 'year', value: entry.data.dateLabel ?? String(entry.data.date.getFullYear()), mono: true },
-      ...(entry.data.discipline || entry.data.category ? [{ label: 'discipline', value: entry.data.discipline ?? entry.data.category, accent: true }] : []),
-      ...(entry.data.roles ? [{ label: 'role', value: entry.data.roles }] : []),
-      ...(entry.data.tools ? [{ label: 'tools', value: entry.data.tools }] : []),
+      { value: entry.data.dateLabel ?? String(entry.data.date.getFullYear()), mono: true },
+      ...(entry.data.discipline || entry.data.category ? [{ value: (entry.data.discipline ?? entry.data.category)!, accent: true }] : []),
+      ...(entry.data.roles ? [{ value: entry.data.roles }] : []),
+      ...(entry.data.tools ? [{ value: entry.data.tools }] : []),
     ]
-  : [{ label: 'date', value: dateLabel, mono: true }];
+  : [{ value: dateLabel, mono: true }];
 ---
-<Layout
-  title={`${entry.data.title} — Hudson Paine`}
+<PostLayout
+  title={entry.data.title}
   description={entry.data.excerpt}
-  image={entry.data.feature_image}
+  spec={specRows}
+  lede={showLede ? entry.data.excerpt : undefined}
+  hero={entry.data.feature_image}
 >
-  <main class="post-page hp-page hp-grid hp-framed">
-    <nav class="post-nav hp-wide">
-      <a class="back hp-glass-pill" href="/">← back</a>
-      <button id="fullscreen-btn" class="fullscreen-btn hp-glass-pill" type="button">full screen ⤢</button>
-    </nav>
-    <header>
-      {/* Hyphenated words stay whole ("X-Cover", not "X- / Cover"). */}
-      <h1>{entry.data.title.split(' ').map((w, i) => [i ? ' ' : '', w.includes('-') ? <span class="nobr">{w}</span> : w])}</h1>
-      <div class="post-spec">
-        {specRows.map((r) => (
-          <div class:list={['spec-row', { 'post-spec-cell': r.mono, accent: r.accent }]}>{r.value}</div>
-        ))}
-      </div>
-      {showLede && <p class="lede">{entry.data.excerpt}</p>}
-    </header>
-    {entry.data.feature_image && (
-      <figure class="post-fig hero-fig hp-wide">
-        <img class="hero" src={entry.data.feature_image} alt="" decoding="async" />
-        <figcaption class="post-fig-caption">fig. 01 — {entry.data.title}</figcaption>
-      </figure>
-    )}
-    <article class="prose hp-flow" set:html={html} />
-  </main>
-</Layout>
-
-<script>
-  const images = Array.from(
-    document.querySelectorAll<HTMLImageElement>('.prose img')
-  );
-  const fullscreenBtn = document.getElementById('fullscreen-btn');
-
-  if (images.length) {
-    const srcs = images.map((img) => img.src);
-
-    const overlay = document.createElement('div');
-    overlay.className = 'lightbox';
-    overlay.innerHTML = `
-      <img class="lightbox-img" alt="" />
-      <button class="lightbox-prev" aria-label="previous">‹</button>
-      <button class="lightbox-next" aria-label="next">›</button>
-      <div class="lightbox-count"></div>
-    `;
-    document.body.appendChild(overlay);
-
-    const img = overlay.querySelector('.lightbox-img') as HTMLImageElement;
-    const count = overlay.querySelector('.lightbox-count') as HTMLDivElement;
-    const prevBtn = overlay.querySelector('.lightbox-prev') as HTMLButtonElement;
-    const nextBtn = overlay.querySelector('.lightbox-next') as HTMLButtonElement;
-
-    let index = 0;
-    let open = false;
-
-    const show = (i: number) => {
-      index = (i + srcs.length) % srcs.length;
-      img.src = srcs[index];
-      count.textContent = srcs.length > 1 ? `${index + 1} / ${srcs.length}` : '';
-    };
-
-    const openLightbox = (i: number) => {
-      open = true;
-      show(i);
-      overlay.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-    };
-
-    const closeLightbox = () => {
-      open = false;
-      overlay.classList.remove('is-open');
-      document.body.style.overflow = '';
-    };
-
-    images.forEach((el, i) => {
-      el.style.cursor = 'pointer';
-      el.addEventListener('click', () => openLightbox(i));
-    });
-
-    fullscreenBtn?.addEventListener('click', () => openLightbox(0));
-
-    overlay.addEventListener('click', closeLightbox);
-    prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
-    nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
-    img.addEventListener('click', (e) => e.stopPropagation());
-
-    window.addEventListener('keydown', (e) => {
-      if (!open) return;
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowRight') show(index + 1);
-      if (e.key === 'ArrowLeft') show(index - 1);
-    });
-  } else {
-    fullscreenBtn?.remove();
-  }
-
-  // Autoplaying <video> tags: browsers pause them once they scroll out of
-  // view and never resume automatically, so drive play/pause off actual
-  // visibility instead of relying on the autoplay attribute alone.
-  const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('.prose video'));
-  if (videos.length) {
-    const videoObserver = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        const video = entry.target as HTMLVideoElement;
-        if (entry.isIntersecting) video.play().catch(() => {});
-        else video.pause();
-      }
-    }, { threshold: 0.25 });
-    videos.forEach((v) => videoObserver.observe(v));
-  }
-</script>
-
-<style is:global>
-  .lightbox {
-    position: fixed;
-    inset: 0;
-    z-index: 300;
-    background: rgba(0, 0, 0, 0.92);
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-  .lightbox.is-open { display: flex; }
-  .lightbox-img {
-    max-width: 90vw;
-    max-height: 90vh;
-    object-fit: contain;
-    border-radius: 2px;
-  }
-  .lightbox-prev,
-  .lightbox-next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 28px;
-    color: #fff;
-    opacity: 0.7;
-    background: none;
-  }
-  .lightbox-prev:hover,
-  .lightbox-next:hover { opacity: 1; }
-  .lightbox-prev { left: 20px; }
-  .lightbox-next { right: 20px; }
-  .lightbox-count {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
-  }
-</style>
-
-<style>
-  .post-page { color: var(--fg); }
-  /* Chrome row spans the hero's width: back and full screen sit on its edges. */
-  .post-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 26px;
-  }
-  /* Text runs the same width as the photos. */
-  .post-page > header,
-  .prose > :global(*) { grid-column: wide; }
-  /* Phones tap a photo to open the lightbox; this corner belongs to ⌘K. */
-  @media (max-width: 767px) {
-    .fullscreen-btn { display: none; }
-  }
-  header { margin: var(--space-7) 0 var(--space-6); }
-  h1 {
-    font-size: 44px;
-    line-height: 1.02;
-    color: var(--fg);
-    letter-spacing: -0.03em;
-    font-weight: 700;
-    text-wrap: balance;
-    margin: 0;
-  }
-  .nobr { white-space: nowrap; }
-  .post-spec {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 20px;
-    margin: var(--space-4) 0 0;
-  }
-  .spec-row {
-    color: var(--fg-dim);
-    font-size: 14px;
-  }
-  .spec-row.post-spec-cell { font-size: 11px; }
-  .spec-row.accent { color: var(--accent); }
-  .lede {
-    font-size: 16px;
-    line-height: 1.65;
-    color: var(--fg);
-    margin: var(--space-5) 0 0;
-  }
-  .hero-fig { margin: 0 0 var(--space-6); }
-  .hero {
-    width: 100%;
-    height: auto;
-    border-radius: 2px;
-  }
-  .prose :global(p),
-  .prose :global(ul),
-  .prose :global(ol) {
-    font-size: 16px;
-    line-height: 1.7;
-    margin: 0 0 1em;
-  }
-  .prose :global(img) {
-    width: 100%;
-    height: auto;
-    border-radius: 2px;
-    margin: 12px 0;
-  }
-  .prose :global(.post-fig img) {
-    margin: 0;
-  }
-  .prose :global(.post-img-grid img) {
-    height: 100%;
-    margin: 0;
-  }
-  .prose :global(h2),
-  .prose :global(h3) {
-    color: var(--fg);
-    margin: 1.6em 0 0.6em;
-  }
-</style>
+  <Fragment set:html={html} />
+</PostLayout>
