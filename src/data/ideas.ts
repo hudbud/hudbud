@@ -15,6 +15,8 @@ export interface Idea {
   internal?: boolean;
   /** Cover for the bento tile. */
   image?: string;
+  /** App icon, shown in place of the cover on homepage tiles and rows. */
+  icon?: string;
   /** Which home section this lands in; defaults to projects. */
   section?: 'projects' | 'work';
   // Best-guess dates so ideas can sort into the chronological feed like
@@ -30,6 +32,7 @@ export const IDEAS: Idea[] = [
     status: 'new',
     internal: true,
     image: '/images/freezer-martini.webp',
+    icon: '/icons/freezer-martini.svg',
     date: '2026-07-20',
   },
   {

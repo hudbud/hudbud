@@ -65,6 +65,7 @@ function entryToMeta(entry: CollectionEntry<'posts'>): Post {
     tags: entry.data.tags,
     category: entry.data.category,
     feature_image: entry.data.feature_image,
+    icon: entry.data.icon,
     images: entryImages(entry),
     roles: entry.data.roles,
     tools: entry.data.tools,

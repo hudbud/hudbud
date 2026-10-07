@@ -18,6 +18,8 @@ export interface Post {
   tags: string[];
   category?: string;
   feature_image?: string;
+  /** App icon, shown in place of the cover on homepage tiles and rows. */
+  icon?: string;
   /** Every image in the post (feature + body), for the gallery view. */
   images?: string[];
   img?: string;

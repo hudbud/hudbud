@@ -1,56 +1,18 @@
 ---
 export const prerender = true;
-import Layout from '../layouts/Layout.astro';
-import ProjectFrame from '../layouts/ProjectFrame.astro';
+import PostLayout from '../layouts/PostLayout.astro';
 import { KEYBOARD_HTML } from '../data/keyboard';
----
-<Layout
-  title="A Better Mechanical Keyboard — Hudson Paine"
-  description="Senior project, 2019. A quieter, split mechanical keyboard."
->
-  <ProjectFrame>
-    <article class="writeup hp-grid">
-      <header>
-        <p class="meta">project · senior project, 2019</p>
-        <h1>A Better Mechanical Keyboard</h1>
-      </header>
-      <div class="hp-flow" set:html={KEYBOARD_HTML} />
-    </article>
-  </ProjectFrame>
-</Layout>
 
-<style>
-  /* The frame already draws the border; pad like the homepage inside it. */
-  .writeup {
-    padding: var(--page-top) var(--page-x) var(--page-bottom);
-    color: var(--fg);
-  }
-  .meta {
-    color: var(--fg-faint);
-    font-size: 11px;
-    margin: 0 0 8px;
-  }
-  h1 {
-    font-size: 32px;
-    line-height: 1.2;
-    color: var(--accent);
-    letter-spacing: -0.005em;
-    font-weight: 500;
-    margin: 0 0 28px;
-  }
-  .writeup :global(p),
-  .writeup :global(ul),
-  .writeup :global(ol) {
-    font-size: 15px;
-    line-height: 1.7;
-    margin: 0 0 1em;
-  }
-  .writeup :global(h2),
-  .writeup :global(h3) {
-    color: var(--fg);
-    margin: 1.6em 0 0.6em;
-  }
-  .writeup :global(a) {
-    color: var(--accent);
-  }
-</style>
+// The write-up opens on the hero shot; lift it into the hero slot.
+const HERO = '/images/keyboard/image20.jpg';
+const body = KEYBOARD_HTML.replace(`<figure class="kb-fig"><img src="${HERO}" alt="Better Mechanical Keyboard" /></figure>`, '');
+---
+<PostLayout
+  title="A Better Mechanical Keyboard"
+  pageTitle="A Better Mechanical Keyboard — Hudson Paine"
+  description="Senior project, 2019. A quieter, split mechanical keyboard."
+  spec={[{ value: '2019', mono: true }, { value: 'product design, hardware', accent: true }, { value: 'senior project' }]}
+  hero={HERO}
+>
+  <Fragment set:html={body} />
+</PostLayout>

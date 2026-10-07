@@ -1,6 +1,6 @@
 ---
 export const prerender = true;
-import Layout from '../layouts/Layout.astro';
+import PostLayout from '../layouts/PostLayout.astro';
 import { RESUME, SELECT_CLIENTS } from '../data/resume';
 
 interface Skill {
@@ -89,125 +89,77 @@ const ARCHIVE: ArchiveEntry[] = [
   },
 ];
 ---
-<Layout
-  title="About — Hudson Paine"
+<PostLayout
+  title="Forging the connection between innovation & aesthetic"
+  pageTitle="About — Hudson Paine"
   description="Product design expertise, creative direction, design systems, and leadership — about Hudson Paine's work."
+  spec={[{ value: 'San Francisco' }, { value: 'product design, creative direction', accent: true }]}
+  lede="I'm Hudson — a product designer and creative director. I've spent my career in deep tech and highly technical teams, in agencies, and running my own studio for fifteen years. I've been obsessed with technology and design since before I had words for either, and I still do this for the love of the game."
 >
-  <main class="about-page hp-page hp-grid">
-    <a class="back hp-rail" href="/">← back</a>
-
-    <header>
-      <h1>Forging the connection between innovation &amp; aesthetic</h1>
-      <p class="lede">
-        I'm Hudson — a product designer and creative director. I've spent my career in deep tech
-        and highly technical teams, in agencies, and running my own studio for fifteen years.
-        I've been obsessed with technology and design since before I had words for either,
-        and I still do this for the love of the game.
-      </p>
-    </header>
-
-    <section class="skills hp-subgrid">
-      {SKILLS.map((s) => (
-        <div class="skill hp-subgrid">
-          <h2 class="hp-rail">{s.title}</h2>
-          <p><strong>{s.lead}</strong> {s.body}</p>
-        </div>
-      ))}
-    </section>
-
-    <section class="forest">
-      <p>
-        Deep in the bark, the soil, the ants — then up above the canopy: the undulating hills,
-        the valleys, the creeks and meadows. I work at both altitudes, and I don't lose the plot
-        in between.
-      </p>
-    </section>
-
-    <section class="experience hp-subgrid">
-      <h2 class="hp-rail">Experience</h2>
-      <div class="resume">
-        {RESUME.map((r) => (
-          <div class="resume-row">
-            <span class="years">{r.years}</span>
-            <span class="role">{r.role}</span>
-            <span class="org">{r.org}</span>
-          </div>
-        ))}
+  <h2>What I do</h2>
+  <div class="skills">
+    {SKILLS.map((s) => (
+      <div class="skill">
+        <h3>{s.title}</h3>
+        <p><strong>{s.lead}</strong> {s.body}</p>
       </div>
-      <p class="clients">
-        <span class="label">select clients</span>
-        {SELECT_CLIENTS.join(' · ')}
-      </p>
-      <p class="more">
-        Full work history on <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener">LinkedIn ↗</a>,
-        or say hi at <a href="mailto:hudbud@gmail.com">hudbud@gmail.com</a>.
-      </p>
-    </section>
+    ))}
+  </div>
 
-    <details class="archive">
-      <summary>about pages of years past</summary>
-      {ARCHIVE.map((entry) => (
-        <div class="archive-entry">
-          <h3>{entry.year}</h3>
-          {entry.paragraphs.map((p) => <p>{p}</p>)}
-        </div>
-      ))}
-    </details>
-  </main>
-</Layout>
+  <p class="forest">
+    Deep in the bark, the soil, the ants — then up above the canopy: the undulating hills,
+    the valleys, the creeks and meadows. I work at both altitudes, and I don't lose the plot
+    in between.
+  </p>
+
+  <h2>Experience</h2>
+  <div class="resume">
+    {RESUME.map((r) => (
+      <div class="resume-row">
+        <span class="years">{r.years}</span>
+        <span class="role">{r.role}</span>
+        <span class="org">{r.org}</span>
+      </div>
+    ))}
+  </div>
+  <p class="clients">
+    <span class="label">select clients</span>
+    {SELECT_CLIENTS.join(' · ')}
+  </p>
+  <p>
+    Full work history on <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener">LinkedIn ↗</a>,
+    or say hi at <a href="mailto:hudbud@gmail.com">hudbud@gmail.com</a>.
+  </p>
+
+  <details class="archive">
+    <summary>about pages of years past</summary>
+    {ARCHIVE.map((entry) => (
+      <div class="archive-entry">
+        <h3>{entry.year}</h3>
+        {entry.paragraphs.map((p) => <p>{p}</p>)}
+      </div>
+    ))}
+  </details>
+</PostLayout>
 
 <style>
-  .about-page { color: var(--fg); }
-  /* Back sits in the rail beside the title's first line. */
-  .back {
-    align-self: baseline;
-    color: var(--fg-dim);
-    font-size: 12px;
-    text-decoration: none;
-  }
-  .back:hover { color: var(--accent); }
-
-  header { align-self: baseline; margin: 0 0 var(--space-3); }
-  h1 {
-    font-size: 32px;
-    line-height: 1.15;
-    color: var(--accent);
-    letter-spacing: -0.005em;
-    font-weight: 500;
-    margin: 0 0 var(--space-5);
-  }
-  .lede {
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--fg);
-    margin: 0 0 var(--space-3);
-  }
-
-  /* Skill titles label the rail, like the homepage's section labels. */
+  /* Body type, headings and widths come from PostLayout; these are the
+     page's own pieces: the skills grid, the resume table, the archive. */
   .skills {
-    margin: var(--space-7) 0 0;
-    row-gap: var(--space-5);
-  }
-  .skills::before {
-    content: '';
-    grid-column: measure;
-    border-top: 1px solid var(--rule);
-    margin-bottom: var(--space-2);
-  }
-  .skill h2 {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.65;
-    color: var(--accent);
-    letter-spacing: 0.02em;
-    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-6);
+    margin: 0 0 var(--space-6);
   }
   @media (max-width: 767px) {
-    .skill h2 { margin-bottom: var(--space-2); }
+    .skills { grid-template-columns: minmax(0, 1fr); }
+  }
+  .skill h3 {
+    font-size: 16px;
+    margin: 0 0 6px;
   }
   .skill p {
-    font-size: 13px;
-    line-height: 1.65;
+    font-size: 15px;
     color: var(--fg-dim);
     margin: 0;
   }
@@ -217,97 +169,66 @@ const ARCHIVE: ArchiveEntry[] = [
   }
 
   .forest {
-    margin: var(--space-7) 0 0;
     padding: var(--space-5) 0;
     border-top: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
-  }
-  .forest p {
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--fg);
     font-style: italic;
-    margin: 0;
   }
 
-  .experience { margin: var(--space-7) 0 0; }
-  .experience h2 {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 38px; /* one resume row */
-    color: var(--accent);
-    letter-spacing: 0.02em;
-    margin: 0;
-  }
-  @media (max-width: 767px) {
-    .experience h2 { line-height: inherit; }
-  }
   .resume-row {
     display: grid;
     grid-template-columns: 120px 1fr auto;
     gap: 16px;
-    padding: 9px 0;
-    font-size: 12px;
+    padding: 10px 0;
+    font-size: 14px;
     color: var(--fg-dim);
     align-items: baseline;
     border-bottom: 1px solid var(--rule);
   }
   .resume-row .years { font-variant-numeric: tabular-nums; }
-  .resume-row .role { color: var(--fg); font-size: 13px; }
+  .resume-row .role { color: var(--fg); font-size: 15px; }
   @media (max-width: 480px) {
     .resume-row { grid-template-columns: 90px 1fr; }
     .resume-row .org { grid-column: 2; }
   }
   .clients {
-    margin: 20px 0 0;
-    font-size: 12px;
-    line-height: 1.8;
+    margin-top: var(--space-5);
     color: var(--fg-dim);
   }
   .clients .label {
     display: block;
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.1em;
     color: var(--fg-faint);
     margin-bottom: 6px;
   }
-  .more {
-    margin: 20px 0 0;
-    font-size: 13px;
-    color: var(--fg-dim);
-  }
-  .more a {
+  a {
     color: var(--accent);
     text-decoration: none;
     border-bottom: 1px dashed var(--fg-faint);
-    padding-bottom: 1px;
   }
 
   .archive {
-    margin: var(--space-8) 0 0;
+    margin: var(--space-7) 0 0;
     border-top: 1px solid var(--rule);
     padding-top: var(--space-5);
   }
   .archive summary {
     cursor: pointer;
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 14px;
     color: var(--fg-dim);
     user-select: none;
   }
   .archive summary:hover { color: var(--accent); }
-  .archive-entry { margin: 24px 0 0; }
+  .archive-entry { margin: var(--space-5) 0 0; }
   .archive-entry h3 {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
     color: var(--fg-faint);
     letter-spacing: 0.1em;
     margin: 0 0 10px;
   }
   .archive-entry p {
-    font-size: 13px;
-    line-height: 1.7;
+    font-size: 15px;
     color: var(--fg-dim);
-    margin: 0 0 var(--space-3);
   }
 </style>

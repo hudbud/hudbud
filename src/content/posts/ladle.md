@@ -37,16 +37,108 @@ The loop won.
 <img src="https://media.hudbud.net/posts/ladle/appstore-preview.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 </div>
 
-## App
+## Onboarding
 
-Import, modify, save. Paste a link, ask for changes in plain language, keep the result in your book.
+A splash, a welcome, one-tap sign-in. Then a seven-step tour that teaches the one gesture that matters: share a recipe to Ladle from wherever you found it.
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/ladle/app-splash.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-welcome.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-logo.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-sign-in.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-1.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-2.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-3.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-4.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-5.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-6.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tour-7.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-signed-in.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+## Import
+
+Share a link or paste the clipboard. While it parses, the loop spins and narrates: parsing ingredients, assembling, mastering layout, almost there.
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/ladle/app-import.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-import-help-1.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-import-help-2.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-import-help-3.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/ladle/app-loading-1.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-loading-2.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-loading-3.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-loading-4.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+## Recipe
+
+Every recipe lands in the same clean layout, no life story. Tap modify and ask for what you want, or pick a chip: make it vegan, no dairy, more protein, less sodium. Scroll the first one.
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<div style="aspect-ratio:900/1957;overflow-y:auto;border-radius:2px;margin:12px 0;box-shadow:0 0 0 1px var(--rule)"><img src="https://media.hudbud.net/posts/ladle/app-recipe-full.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block;margin:0"></div>
+<img src="https://media.hudbud.net/posts/ladle/app-recipe-modify.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-recipe-thinking.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-recipe-result.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+Tags are yours. Name them, give them an emoji, filter by them later.
 
 <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0">
-<img src="https://media.hudbud.net/posts/ladle/screenshot-01.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/posts/ladle/screenshot-02.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/posts/ladle/screenshot-03.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/posts/ladle/screenshot-04.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/posts/ladle/screenshot-05.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tags.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tags-new.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tags-emoji.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tags-edit.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-tags-delete.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+## Library
+
+The book. Search it, filter it by your tags.
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<div style="aspect-ratio:900/1957;overflow-y:auto;border-radius:2px;margin:12px 0;box-shadow:0 0 0 1px var(--rule)"><img src="https://media.hudbud.net/posts/ladle/app-library-full.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block;margin:0"></div>
+<img src="https://media.hudbud.net/posts/ladle/app-library-search.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-library-filter.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-library-filtered.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+## Explore
+
+For when you don't know what you want yet.
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/ladle/app-explore.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-explore-results.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-explore-dismissed.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+Empty and broken states got the same care as the happy path.
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/ladle/app-library-empty.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-library-filter-empty.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-import-fail.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-sign-in-error.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+## System
+
+One orange, run from 50 to 950, a chunky display face over a quiet text face, and a set of line-drawn kitchen doodles that tile behind everything.
+
+<img src="https://media.hudbud.net/posts/ladle/app-system-color.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-system-type.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/app-system-components.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;align-items:center">
+<img src="https://media.hudbud.net/posts/ladle/app-illustration.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/ladle/kitchen-icons.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 </div>
 
 ## App Store
@@ -61,5 +153,3 @@ Import, modify, save. Paste a link, ask for changes in plain language, keep the 
 <img src="https://media.hudbud.net/posts/ladle/appstore-05.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 <img src="https://media.hudbud.net/posts/ladle/appstore-06.webp" alt="" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 </div>
-
-![](https://media.hudbud.net/posts/ladle/kitchen-icons.webp)
