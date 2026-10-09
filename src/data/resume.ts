@@ -5,11 +5,13 @@ export interface ResumeEntry {
 }
 
 export const RESUME: ResumeEntry[] = [
-  { years: '2025 —', role: 'Design Lead', org: 'Lightsource' },
+  { years: '2026 —', role: 'Head of Design', org: 'Lightsource' },
+  { years: '2025 — 2026', role: 'Founding Designer', org: 'Lightsource' },
   { years: '2022 — 2025', role: 'Senior Product Designer, Design Systems', org: 'Carvana' },
   { years: '2021 — 2022', role: 'Visual Designer', org: 'Hathway' },
   { years: '2020 — 2021', role: 'Lead Product Designer', org: 'Botstacks' },
   { years: '2020', role: 'Web & Multimedia Specialist', org: 'SureClinical' },
+  { years: '2019', role: 'Brand and Product Designer', org: 'Pantepic' },
   { years: '2018', role: 'Product Designer, AR', org: 'ODG' },
   { years: '2015 — 2023', role: 'Freelance Designer', org: 'Locoll Design Co.' },
   { years: 'B.S.', role: 'Liberal Arts & Engineering Studies', org: 'Cal Poly SLO' },

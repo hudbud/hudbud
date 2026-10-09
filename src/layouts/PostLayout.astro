@@ -20,7 +20,8 @@ interface Props {
   /** Social card; defaults to the hero. */
   image?: string;
   spec?: SpecRow[];
-  lede?: string;
+  /** One paragraph, or several. */
+  lede?: string | string[];
   hero?: string;
   heroCaption?: string;
 }
@@ -46,7 +47,7 @@ const { title, pageTitle, description, image, spec = [], lede, hero, heroCaption
           ))}
         </div>
       )}
-      {lede && <p class="lede">{lede}</p>}
+      {lede && [lede].flat().map((para) => <p class="lede">{para}</p>)}
     </header>
     {hero && (
       <figure class="post-fig hero-fig hp-wide">
@@ -234,6 +235,7 @@ const { title, pageTitle, description, image, spec = [], lede, hero, heroCaption
     color: var(--fg);
     margin: var(--space-5) 0 0;
   }
+  .lede + .lede { margin-top: 0.8em; }
   .hero-fig { margin: 0 0 var(--space-6); }
   .hero {
     width: 100%;

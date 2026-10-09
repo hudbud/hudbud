@@ -1804,7 +1804,7 @@ function SwapLine({ a, b }: { a: string; b: string }) {
 function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
   const paras = BENTO_ABOUT.split('\n');
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div onClick={onOpenAbout} style={{ display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer' }}>
       <div className="hp-tile-pad" style={{ flex: 1 }}>
         <span className="post-spec-cell" style={{ display: 'block', color: 'var(--fg-dim)', marginBottom: 14 }}>about</span>
         {paras.map((para, i) => (
@@ -1812,14 +1812,14 @@ function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
             {renderBioInlineLinks(para)}
           </p>
         ))}
-        <div style={{ display: 'flex', gap: 16, fontSize: 15, marginTop: 4 }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: 16, fontSize: 15, marginTop: 4 }}>
           <CopyEmailLink />
           <a href="https://www.cosmos.so/hudbud" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="cosmos">co</a>
           <a href="https://www.youtube.com/@hudbud22" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="youtube">yt</a>
           <a href="https://www.linkedin.com/in/hudsonpaine" target="_blank" rel="noopener" className="hp-bio-link hp-tip" data-tip="linkedin">li</a>
         </div>
       </div>
-      <button onClick={onOpenAbout} className="hp-tile-footer">
+      <button onClick={(e) => { e.stopPropagation(); onOpenAbout(); }} className="hp-tile-footer">
         <span>more about me</span>
         <span className="post-spec-cell hp-tile-arrow">→</span>
       </button>

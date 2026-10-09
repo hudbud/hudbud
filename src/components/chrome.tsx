@@ -58,7 +58,7 @@ export function applyThemeVars(themeName: string) {
   root.style.setProperty('--bg-inner', mt.bgInner);
   root.style.setProperty('--fg', mt.fg);
   root.style.setProperty('--fg-dim', mt.dim);
-  root.style.setProperty('--fg-faint', `color-mix(in srgb, ${mt.fg} 30%, ${mt.bg})`);
+  root.style.setProperty('--fg-faint', mt.faint ?? `color-mix(in srgb, ${mt.fg} 30%, ${mt.bg})`);
   root.style.setProperty('--rule', `color-mix(in srgb, ${mt.fg} 14%, ${mt.bg})`);
   root.style.setProperty('--tile', `color-mix(in srgb, ${mt.fg} 8%, ${mt.bg})`);
   if (mt.name === 'rainbow_trail') {
