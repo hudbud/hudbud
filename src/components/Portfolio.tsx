@@ -1207,7 +1207,11 @@ function BioLink({ label, modalId, onOpenModal }: { label: string; modalId: stri
 const HOVER_IMAGES: Record<string, string[]> = {
   cosmo: ['/images/cosmo-1.jpg', '/images/cosmo-2.jpg', '/images/cosmo-3.jpg'],
   hudson: ['https://media.hudbud.net/images/hudson-1.webp'],
+  meadow: ['https://media.hudbud.net/images/meadow-1.mp4'],
+  stanczyk: ['https://media.hudbud.net/images/stanczyk-1.webp'],
 };
+
+const isVideo = (src: string) => src.endsWith('.mp4');
 
 function CursorImagesHover({ label, images, onClick, className = 'hp-bio-link', style }: {
   label: React.ReactNode;
@@ -1271,16 +1275,14 @@ function CursorImagesHover({ label, images, onClick, className = 'hp-bio-link', 
               border: '1px solid var(--rule)', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
             }}
           >
-            {images.map((src) => (
-              <img
-                key={src}
-                src={src}
-                alt=""
-                style={threeUp
-                  ? { width: cellW, height: cellH, objectFit: 'cover', borderRadius: 3, display: 'block' }
-                  : { height: 224, width: 'auto', borderRadius: 3, display: 'block' }}
-              />
-            ))}
+            {images.map((src) => {
+              const style: React.CSSProperties = threeUp
+                ? { width: cellW, height: cellH, objectFit: 'cover', borderRadius: 3, display: 'block' }
+                : { height: 224, width: 'auto', borderRadius: 3, display: 'block' };
+              return isVideo(src)
+                ? <video key={src} src={src} poster={src.replace(/\.mp4$/, '-poster.webp')} autoPlay muted loop playsInline style={style} />
+                : <img key={src} src={src} alt="" style={style} />;
+            })}
           </motion.span>
         )}
       </AnimatePresence>
@@ -2251,16 +2253,29 @@ function Lightbox({ images, index, onClose, onChange }: { images: string[]; inde
       onClick={onClose}
       style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
-      <motion.img
-        key={index}
-        initial={{ opacity: 0, scale: 0.985 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={SPRING}
-        src={images[index]}
-        alt=""
-        onClick={(e) => { e.stopPropagation(); onChange((index + 1) % images.length); }}
-        style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', cursor: images.length > 1 ? 'pointer' : 'default', borderRadius: 2 }}
-      />
+      {isVideo(images[index]) ? (
+        <motion.video
+          key={index}
+          initial={{ opacity: 0, scale: 0.985 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={SPRING}
+          src={images[index]}
+          autoPlay muted loop playsInline
+          onClick={(e) => { e.stopPropagation(); onChange((index + 1) % images.length); }}
+          style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', cursor: images.length > 1 ? 'pointer' : 'default', borderRadius: 2 }}
+        />
+      ) : (
+        <motion.img
+          key={index}
+          initial={{ opacity: 0, scale: 0.985 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={SPRING}
+          src={images[index]}
+          alt=""
+          onClick={(e) => { e.stopPropagation(); onChange((index + 1) % images.length); }}
+          style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', cursor: images.length > 1 ? 'pointer' : 'default', borderRadius: 2 }}
+        />
+      )}
       {images.length > 1 && (
         <>
           <button
