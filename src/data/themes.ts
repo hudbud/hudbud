@@ -5,6 +5,8 @@ export interface MonkeytypeTheme {
   fg: string;
   dim: string;
   accent: string;
+  /** Tertiary text; defaults to fg mixed 30% into bg. */
+  faint?: string;
   videoBackground?: boolean;
 }
 
@@ -12,9 +14,10 @@ export const MT_THEMES: MonkeytypeTheme[] = [
   { name: "livestream", bg: "#000000", bgInner: "#0a0a0a", fg: "#ffffff", dim: "#888888", accent: "#ffffff", videoBackground: true },
   { name: "livestream_bw", bg: "#000000", bgInner: "#0a0a0a", fg: "#ffffff", dim: "#888888", accent: "#ffffff", videoBackground: true },
   // The site's own quiet pair: near-monochrome, accent = fg, so the color
-  // themes stay a surprise.
-  { name: "hudbud_light", bg: "#e8e8e6", bgInner: "#f7f7f5", fg: "#151515", dim: "#6e6e6c", accent: "#151515" },
-  { name: "hudbud_dark", bg: "#000000", bgInner: "#0d0d0d", fg: "#ececec", dim: "#8c8c8c", accent: "#ececec" },
+  // themes stay a surprise. Every text tier clears WCAG AA (4.5:1) on both
+  // bg and bgInner: dim sits near 7:1, faint just above 4.5:1.
+  { name: "hudbud_light", bg: "#e8e8e6", bgInner: "#f7f7f5", fg: "#151515", dim: "#555553", faint: "#666664", accent: "#151515" },
+  { name: "hudbud_dark", bg: "#000000", bgInner: "#0d0d0d", fg: "#ececec", dim: "#a3a3a3", faint: "#808080", accent: "#ececec" },
   { name: "8008", bg: "#333a45", bgInner: "#2e343d", fg: "#e9ecf0", dim: "#939eae", accent: "#f44c7f" },
   { name: "9009", bg: "#eeebe2", bgInner: "#d3cfc1", fg: "#080909", dim: "#99947f", accent: "#080909" },
   { name: "80s_after_dark", bg: "#1b1d36", bgInner: "#17182c", fg: "#e1e7ec", dim: "#99d6ea", accent: "#fca6d1" },

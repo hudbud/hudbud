@@ -48,9 +48,57 @@ const SKILLS: Skill[] = [
   {
     title: 'Branding & Spaces',
     lead: 'Brands are products too.',
-    body: 'Fifteen years of studio work — identities, sites, and spaces that live everywhere the product does.',
+    body: 'Lots of studio work — identities, sites, and spaces that live everywhere the product does.',
   },
 ];
+
+interface Photo {
+  src: string;
+  alt: string;
+  w: number;
+  h: number;
+}
+
+const MEDIA = 'https://media.hudbud.net/images';
+
+// Pairs sit side by side; flex-grow by aspect ratio keeps their heights
+// equal at any width. Me, then me again.
+const PAIRS: Photo[][] = [
+  [
+    { src: `${MEDIA}/about-flowers-solo.webp`, alt: 'Portrait in front of flowers', w: 1102, h: 1427 },
+    { src: `${MEDIA}/hudson-1.webp`, alt: 'Office selfie', w: 1200, h: 900 },
+  ],
+  [
+    { src: `${MEDIA}/about-sonic.webp`, alt: "Sonic the Hedgehog in Sans's blue hoodie, hands in pockets", w: 534, h: 534 },
+    { src: `${MEDIA}/stanczyk-1.webp`, alt: 'Jan Matejko, Stańczyk (1862)', w: 2400, h: 1785 },
+  ],
+];
+const PAIR_CAPTIONS = ['in person', 'self-portraits, roughly'];
+
+// Three masonry columns. The short one stretches (cropping a touch) so the
+// bottoms line up above the full-width closer. Phones flatten to two columns.
+const PHOTO_COLUMNS: (Photo & { wide?: boolean })[][] = [
+  [
+    { src: `${MEDIA}/about-cosmo-ride.webp`, alt: 'Riding with Cosmo in the front basket', w: 1200, h: 1600 },
+    { src: `${MEDIA}/about-climb-cliff.webp`, alt: 'Selfie on a sea cliff climb', w: 1200, h: 1600 },
+    { src: `${MEDIA}/about-cosmo-beach.webp`, alt: 'Biking by Ocean Beach with Cosmo in the basket', w: 1200, h: 1600 },
+  ],
+  [
+    { src: `${MEDIA}/about-fly-fishing.webp`, alt: 'Fly fishing a river', w: 1200, h: 1600 },
+    { src: `${MEDIA}/about-climb-granite.webp`, alt: 'Belay ledge high on a granite wall', w: 1600, h: 1200, wide: true },
+    { src: `${MEDIA}/about-cosmo-office.webp`, alt: 'Cosmo in the bike basket at the office', w: 1200, h: 1600 },
+  ],
+  [
+    { src: `${MEDIA}/about-cosmo-tote.webp`, alt: 'Cosmo riding in a tote bag', w: 1200, h: 1600 },
+    { src: `${MEDIA}/about-monster.webp`, alt: 'Selfie with a Monster', w: 1200, h: 1600 },
+    { src: `${MEDIA}/about-cosmo-crater-lake.webp`, alt: 'Holding Cosmo at Crater Lake', w: 1200, h: 1600 },
+  ],
+];
+const CLOSER: Photo = { src: `${MEDIA}/about-bench.webp`, alt: 'Black and white, together on a park bench', w: 1600, h: 1064 };
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const photosFrom = PAIRS.length * 2 + 1;
+const photosTo = photosFrom + PHOTO_COLUMNS.flat().length;
 
 interface ArchiveEntry {
   year: string;
@@ -93,24 +141,55 @@ const ARCHIVE: ArchiveEntry[] = [
   title="Forging the connection between innovation & aesthetic"
   pageTitle="About — Hudson Paine"
   description="Product design expertise, creative direction, design systems, and leadership — about Hudson Paine's work."
-  spec={[{ value: 'San Francisco' }, { value: 'product design, creative direction', accent: true }]}
-  lede="I'm Hudson — a product designer and creative director. I've spent my career in deep tech and highly technical teams, in agencies, and running my own studio for fifteen years. I've been obsessed with technology and design since before I had words for either, and I still do this for the love of the game."
+  spec={[{ value: 'San Francisco' }, { value: 'product design, brand, design leadership, hella AI-enabled 😎🤓😎🤓😎🤓', accent: true }]}
+  lede={[
+    "Howdy! I'm Hudson. I'm an obsessive designer and outdoorsman. Happy to talk endlessly about product design, brand, the evolving meaning of design systems, motion, UX, user research, UI, cRaFt, you name it. Let's talk about the impact of infinitesimal details across broad deliverables. The devil is truly in the details. Or perhaps nirvana is in the details.",
+    "Technobabble translation: i'm a spikey generalist who excels in leadership and design/creative direction.",
+    'I also like to fly fish, build bikes, and rock climb. Anything to get me outside.',
+    "I've spent my career in deep tech and highly technical teams, in agencies, and running my own studio. I've been obsessed with technology and design my whole life, and I truly do this for the love of the game. I love to make stuff. I love to obsess over details. I love delightful experiences. I love motion. I love FORM following FUNCTION. I love it all.",
+    'I love design.',
+  ]}
 >
-  <h2>What I do</h2>
-  <div class="skills">
-    {SKILLS.map((s) => (
-      <div class="skill">
-        <h3>{s.title}</h3>
-        <p><strong>{s.lead}</strong> {s.body}</p>
+  {PAIRS.map((pair, i) => (
+    <figure class="post-fig">
+      <div class="pair">
+        {pair.map((p) => (
+          <img src={p.src} alt={p.alt} width={p.w} height={p.h} style={`flex-grow: ${p.w / p.h}`} decoding="async" />
+        ))}
       </div>
+      <figcaption class="post-fig-caption">fig. {pad(i * 2 + 1)}–{pad(i * 2 + 2)} — {PAIR_CAPTIONS[i]}</figcaption>
+    </figure>
+  ))}
+
+  <h2>What I do</h2>
+  <ol class="skills">
+    {SKILLS.map((s) => (
+      <li class="skill">
+        <h3>{s.title}</h3>
+        <p><span class="skill-lead">{s.lead}</span>{s.body}</p>
+      </li>
     ))}
-  </div>
+  </ol>
 
   <p class="forest">
-    Deep in the bark, the soil, the ants — then up above the canopy: the undulating hills,
+    <span aria-hidden="true">🐟🌲🍄🐜🌿🪵 </span>Deep in the bark, the soil, the ants — then up above the canopy: the undulating hills,
     the valleys, the creeks and meadows. I work at both altitudes, and I don't lose the plot
-    in between.
+    in between.<span aria-hidden="true"> 🏞️🌾🦋💧⛰️</span>
   </p>
+
+  <figure class="post-fig">
+    <div class="photos">
+      {PHOTO_COLUMNS.map((col) => (
+        <div class="photo-col">
+          {col.map((p) => (
+            <img class:list={{ wide: p.wide }} src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" decoding="async" />
+          ))}
+        </div>
+      ))}
+    </div>
+    <img class="closer" src={CLOSER.src} alt={CLOSER.alt} width={CLOSER.w} height={CLOSER.h} loading="lazy" decoding="async" />
+    <figcaption class="post-fig-caption">fig. {pad(photosFrom)}–{pad(photosTo)} — out and about, usually with Cosmo</figcaption>
+  </figure>
 
   <h2>Experience</h2>
   <div class="resume">
@@ -144,28 +223,83 @@ const ARCHIVE: ArchiveEntry[] = [
 
 <style>
   /* Body type, headings and widths come from PostLayout; these are the
-     page's own pieces: the skills grid, the resume table, the archive. */
-  .skills {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-5) var(--space-6);
-    margin: 0 0 var(--space-6);
+     page's own pieces: the photo pairs, the skills index, the photos, the
+     resume table, the archive. */
+  .pair {
+    display: flex;
+    gap: 8px;
   }
-  @media (max-width: 767px) {
-    .skills { grid-template-columns: minmax(0, 1fr); }
+  .pair img {
+    flex-basis: 0;
+    min-width: 0;
+    height: auto;
+  }
+
+  /* An index, not a card grid: title, then the copy, on hairlines like the
+     resume below. */
+  .skills {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .skill {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: 0 16px;
+    align-items: baseline;
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--rule);
   }
   .skill h3 {
-    font-size: 16px;
-    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
   }
   .skill p {
     font-size: 15px;
+    line-height: 1.6;
     color: var(--fg-dim);
     margin: 0;
+    text-wrap: pretty;
   }
-  .skill strong {
+  .skill-lead {
+    display: block;
     color: var(--fg);
-    font-weight: 500;
+  }
+  @media (max-width: 767px) {
+    .skill { grid-template-columns: minmax(0, 1fr); }
+    .skill p { margin-top: 6px; }
+  }
+
+  .photos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .photo-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .photo-col img {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    object-fit: cover;
+  }
+  .closer {
+    display: block;
+    height: auto;
+    margin-top: 8px !important;
+  }
+  @media (max-width: 767px) {
+    .photos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-flow: dense;
+    }
+    .photo-col { display: contents; }
+    .photo-col img { aspect-ratio: 3 / 4; }
+    .photo-col img.wide { grid-column: span 2; aspect-ratio: 3 / 2; }
   }
 
   .forest {

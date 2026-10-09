@@ -23,7 +23,7 @@ const ogImageURL = new URL(image, Astro.site).toString();
 
 // Compact name -> color map for the inline anti-flash script below.
 const THEME_DATA = Object.fromEntries(
-  MT_THEMES.map((t) => [t.name, { bg: t.bg, bgInner: t.bgInner, fg: t.fg, dim: t.dim, accent: t.accent }])
+  MT_THEMES.map((t) => [t.name, { bg: t.bg, bgInner: t.bgInner, fg: t.fg, dim: t.dim, faint: t.faint, accent: t.accent }])
 );
 ---
 <!DOCTYPE html>
@@ -95,7 +95,7 @@ const THEME_DATA = Object.fromEntries(
           root.style.setProperty('--bg-inner', mt.bgInner);
           root.style.setProperty('--fg', mt.fg);
           root.style.setProperty('--fg-dim', mt.dim);
-          root.style.setProperty('--fg-faint', 'color-mix(in srgb, ' + mt.fg + ' 30%, ' + mt.bg + ')');
+          root.style.setProperty('--fg-faint', mt.faint || 'color-mix(in srgb, ' + mt.fg + ' 30%, ' + mt.bg + ')');
           root.style.setProperty('--rule', 'color-mix(in srgb, ' + mt.fg + ' 14%, ' + mt.bg + ')');
           root.style.setProperty('--tile', 'color-mix(in srgb, ' + mt.fg + ' 8%, ' + mt.bg + ')');
           if (theme === 'rainbow_trail') {
