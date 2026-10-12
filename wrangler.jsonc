@@ -9,6 +9,8 @@
 //      -> the codeword you type in the name field to post as "hudbud"
 //   4. npx wrangler secret put LIGHTSOURCE_PASSWORD
 //      -> the password for the /lightsource case study
+//   5. npx wrangler secret put ADMIN_PASSWORD and GITHUB_TOKEN
+//      -> /admin, posting photos from a phone (see worker/index.js)
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hudbud",
@@ -25,6 +27,13 @@
       "binding": "DB",
       "database_name": "hudbud-thoughts",
       "database_id": "c6aa9337-3def-49f2-ae33-26d2a45d28ed"
+    }
+  ],
+  // Post media, served publicly at media.hudbud.net. /admin uploads land here.
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "hudbud-media"
     }
   ]
 }
