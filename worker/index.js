@@ -1,7 +1,7 @@
 // Worker in front of the static Astro build: serves /api/thoughts (the
 // guestbook micro-feed) and /thoughts.xml (its RSS feed) from D1, gates
-// /lightsource behind a password, and hands everything else to the static
-// assets.
+// /lightsource behind a password, runs the /api/admin phone-posting API, and
+// hands everything else to the static assets.
 //
 // One-time setup:
 //   npx wrangler d1 create hudbud-thoughts        -> paste database_id into wrangler.jsonc
@@ -192,12 +192,166 @@ async function lightsource(request, env, url) {
   return new Response(response.body, { status: response.status, headers });
 }
 
+// ---------- /admin: post photos from a phone ----------
+// The /admin page shrinks photos in the browser, PUTs each one here to land in
+// R2, then asks for a publish: the Worker commits the markdown change to
+// GitHub and Workers Builds deploys it. Same casual cookie gate as
+// /lightsource; the GitHub token is fine-grained to this repo's contents.
+//
+//   npx wrangler secret put ADMIN_PASSWORD
+//   npx wrangler secret put GITHUB_TOKEN    -> fine-grained, hudbud/hudbud, Contents: read & write
+
+const ADMIN_COOKIE = 'admin_auth';
+const ADMIN_TTL_S = 90 * 24 * 60 * 60;
+const MEDIA_BASE = 'https://media.hudbud.net';
+const REPO = 'hudbud/hudbud';
+const BRANCH = 'main';
+const POST_TAGS = ['life', 'thoughts', 'resources', 'work', 'projects'];
+const MEDIA_TYPES = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png' };
+const MAX_MEDIA_BYTES = 25 * 1024 * 1024;
+
+async function adminToken(password) {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`admin:${password}`));
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function adminAuthed(request, password) {
+  if (!password) return false;
+  const cookie = request.headers.get('Cookie') ?? '';
+  return cookie.split(/;\s*/).includes(`${ADMIN_COOKIE}=${await adminToken(password)}`);
+}
+
+const validSlug = (s) => /^[a-z0-9][a-z0-9-]{0,80}$/.test(s ?? '');
+const slugify = (title) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+
+// GitHub's contents API speaks base64; posts are UTF-8 (em dashes, emoji).
+function toBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+const fromBase64 = (b64) => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g, '')), (c) => c.charCodeAt(0)));
+
+async function github(env, path, init = {}) {
+  return fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'hudbud-admin',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...init.headers,
+    },
+  });
+}
+
+/** PUT /api/admin/media?slug=&name= with the image bytes as the body. */
+async function adminMedia(request, env, url) {
+  const slug = url.searchParams.get('slug');
+  const name = url.searchParams.get('name') ?? '';
+  const ext = MEDIA_TYPES[request.headers.get('Content-Type')];
+  if (!validSlug(slug) || !/^[a-z0-9-]{1,80}$/.test(name) || !ext) return json({ error: 'bad upload' }, 400);
+  const body = await request.arrayBuffer();
+  if (!body.byteLength || body.byteLength > MAX_MEDIA_BYTES) return json({ error: 'file too big' }, 413);
+  const key = `posts/${slug}/${name}.${ext}`;
+  await env.MEDIA.put(key, body, {
+    httpMetadata: { contentType: request.headers.get('Content-Type'), cacheControl: 'public, max-age=31536000, immutable' },
+  });
+  return json({ url: `${MEDIA_BASE}/${key}` }, 201);
+}
+
+/** POST /api/admin/publish: append to a post, or create one. */
+async function adminPublish(request, env) {
+  const p = await request.json().catch(() => null);
+  if (!p) return json({ error: 'bad json' }, 400);
+  const images = (Array.isArray(p.images) ? p.images : []).filter((u) => typeof u === 'string' && u.startsWith(`${MEDIA_BASE}/posts/`));
+  const text = String(p.text ?? '').trim();
+  const block = [text, ...images.map((u) => `![](${u})`)].filter(Boolean).join('\n\n');
+  if (!block) return json({ error: 'nothing to add' }, 400);
+
+  if (p.mode === 'new') {
+    const title = String(p.title ?? '').trim().slice(0, 140);
+    const slug = slugify(title);
+    if (!title || !validSlug(slug)) return json({ error: 'needs a title' }, 400);
+    const tag = POST_TAGS.includes(p.tag) ? p.tag : 'life';
+    const path = `src/content/posts/${slug}.md`;
+    const existing = await github(env, `${path}?ref=${BRANCH}`);
+    if (existing.ok) return json({ error: `a post called "${slug}" already exists` }, 409);
+    const frontmatter = [
+      '---',
+      `title: ${JSON.stringify(title)}`,
+      `date: ${JSON.stringify(String(p.date || new Date().toISOString().slice(0, 10)))}`,
+      `tags: ["${tag}"]`,
+      images[0] ? `feature_image: "${images[0]}"` : null,
+      p.draft ? 'draft: true' : null,
+      '---',
+    ].filter(Boolean).join('\n');
+    const res = await github(env, path, {
+      method: 'PUT',
+      body: JSON.stringify({ message: `New post from my phone: ${title}`, content: toBase64(`${frontmatter}\n\n${block}\n`), branch: BRANCH }),
+    });
+    if (!res.ok) return json({ error: `github said ${res.status}` }, 502);
+    return json({ slug, path: `/posts/${slug}` }, 201);
+  }
+
+  const slug = p.slug;
+  if (!validSlug(slug)) return json({ error: 'pick a post' }, 400);
+  const path = `src/content/posts/${slug}.md`;
+  const current = await github(env, `${path}?ref=${BRANCH}`);
+  if (!current.ok) return json({ error: current.status === 404 ? 'post not found' : `github said ${current.status}` }, 502);
+  const { content, sha } = await current.json();
+  const next = `${fromBase64(content).trimEnd()}\n\n${block}\n`;
+  const count = images.length;
+  const res = await github(env, path, {
+    method: 'PUT',
+    body: JSON.stringify({
+      message: count ? `Add ${count} photo${count === 1 ? '' : 's'} to ${slug} from my phone` : `Add a note to ${slug} from my phone`,
+      content: toBase64(next),
+      sha,
+      branch: BRANCH,
+    }),
+  });
+  // 409: the file changed between read and write (a laptop push). Try again.
+  if (!res.ok) return json({ error: res.status === 409 ? 'post just changed, try again' : `github said ${res.status}` }, 502);
+  return json({ slug, path: `/posts/${slug}` });
+}
+
+async function admin(request, env, url) {
+  const route = url.pathname.slice('/api/admin/'.length);
+
+  if (route === 'login' && request.method === 'POST') {
+    const p = await request.json().catch(() => null);
+    if (!env.ADMIN_PASSWORD || p?.password !== env.ADMIN_PASSWORD) return json({ error: 'not quite' }, 401);
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Set-Cookie': `${ADMIN_COOKIE}=${await adminToken(env.ADMIN_PASSWORD)}; Path=/api/admin; Max-Age=${ADMIN_TTL_S}; HttpOnly; Secure; SameSite=Strict`,
+      },
+    });
+  }
+
+  if (!(await adminAuthed(request, env.ADMIN_PASSWORD))) return json({ error: 'locked' }, 401);
+  if (route === 'session') return json({ ok: true });
+  if (route === 'media' && request.method === 'PUT') return adminMedia(request, env, url);
+  if (route === 'publish' && request.method === 'POST') return adminPublish(request, env);
+  return json({ error: 'not found' }, 404);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
     if (url.pathname === '/lightsource' || url.pathname.startsWith('/lightsource/')) {
       return lightsource(request, env, url);
+    }
+
+    if (url.pathname.startsWith('/api/admin/')) {
+      try {
+        return await admin(request, env, url);
+      } catch {
+        return json({ error: 'something broke' }, 500);
+      }
     }
 
     if (url.pathname === '/api/thoughts') {

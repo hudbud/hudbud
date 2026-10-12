@@ -1,0 +1,367 @@
+---
+// Post photos from a phone: add them to an existing post or start a new one.
+// The browser shrinks each photo, the Worker (/api/admin, worker/index.js)
+// stores it in R2 and commits the markdown to GitHub, and the push deploys.
+export const prerender = true;
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+// Newest first; far-future dates are homepage pins, so they sink to the end.
+const now = Date.now();
+const recency = (d: Date) => (d.valueOf() > now ? -d.valueOf() : d.valueOf());
+const posts = (await getCollection('posts'))
+  .sort((a, b) => recency(b.data.date) - recency(a.data.date))
+  .map((p) => ({ slug: p.id, title: p.data.title, year: p.data.date.getFullYear(), draft: p.data.draft }));
+const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
+---
+<Layout title="admin — hudbud.net" robots="noindex, nofollow">
+  <main class="admin hp-page hp-grid">
+    <a class="back hp-rail" href="/">← back</a>
+    <h1>post from here</h1>
+
+    <form class="lock" hidden>
+      <label>
+        <span class="label">password</span>
+        <input type="password" name="password" autocomplete="current-password" required />
+      </label>
+      <button type="submit">unlock</button>
+      <p class="msg" role="alert"></p>
+    </form>
+
+    <form class="compose" hidden>
+      <div class="modes" role="radiogroup">
+        <label><input type="radio" name="mode" value="add" checked /> <span>add to a post</span></label>
+        <label><input type="radio" name="mode" value="new" /> <span>new post</span></label>
+      </div>
+
+      <label class="for-add">
+        <span class="label">post</span>
+        <select name="slug">
+          {posts.map((p) => <option value={p.slug}>{p.title} · {p.year}{p.draft ? ' · draft' : ''}</option>)}
+        </select>
+      </label>
+
+      <div class="for-new" hidden>
+        <label>
+          <span class="label">title</span>
+          <input type="text" name="title" autocomplete="off" />
+        </label>
+        <div class="row">
+          <label>
+            <span class="label">tag</span>
+            <select name="tag">{tags.map((t) => <option value={t}>{t}</option>)}</select>
+          </label>
+          <label>
+            <span class="label">date</span>
+            <input type="date" name="date" />
+          </label>
+        </div>
+        <label class="check"><input type="checkbox" name="draft" /> <span>save as draft</span></label>
+      </div>
+
+      <label>
+        <span class="label">words <em>optional</em></span>
+        <textarea name="text" rows="3"></textarea>
+      </label>
+
+      <label class="pick">
+        <input type="file" accept="image/*" multiple />
+        <span>choose photos</span>
+      </label>
+      <ul class="thumbs"></ul>
+
+      <button type="submit" class="publish">publish</button>
+      <p class="msg" role="status"></p>
+    </form>
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ slugs: posts.map((p) => p.slug) }}>
+  (function () {
+    var lock = document.querySelector('.admin .lock');
+    var compose = document.querySelector('.admin .compose');
+    var thumbs = compose.querySelector('.thumbs');
+    var picker = compose.querySelector('input[type=file]');
+    var publishBtn = compose.querySelector('.publish');
+    var msg = compose.querySelector('.msg');
+    var f = compose.elements;
+    var files = [];
+
+    f.date.value = new Date().toLocaleDateString('en-CA');
+
+    function say(el, text) { el.textContent = text; }
+    function slugify(t) { return t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80); }
+
+    fetch('/api/admin/session').then(function (r) {
+      (r.ok ? compose : lock).hidden = false;
+    });
+
+    lock.addEventListener('submit', function (e) {
+      e.preventDefault();
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: lock.elements.password.value }),
+      }).then(function (r) {
+        if (!r.ok) return say(lock.querySelector('.msg'), 'not quite. try again?');
+        lock.hidden = true;
+        compose.hidden = false;
+      });
+    });
+
+    compose.addEventListener('change', function (e) {
+      if (e.target.name !== 'mode') return;
+      var isNew = f.mode.value === 'new';
+      compose.querySelector('.for-add').hidden = isNew;
+      compose.querySelector('.for-new').hidden = !isNew;
+    });
+
+    function render() {
+      thumbs.innerHTML = '';
+      files.forEach(function (item, i) {
+        var li = document.createElement('li');
+        var img = document.createElement('img');
+        img.src = item.preview;
+        img.alt = '';
+        var x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.setAttribute('aria-label', 'remove photo');
+        x.onclick = function () { URL.revokeObjectURL(item.preview); files.splice(i, 1); render(); };
+        li.append(img, x);
+        thumbs.append(li);
+      });
+      say(picker.nextElementSibling, files.length ? 'add more photos' : 'choose photos');
+    }
+
+    picker.addEventListener('change', function () {
+      Array.prototype.forEach.call(picker.files, function (file) {
+        files.push({ file: file, preview: URL.createObjectURL(file) });
+      });
+      picker.value = '';
+      render();
+    });
+
+    function toBlob(canvas, type, quality) {
+      return new Promise(function (resolve) { canvas.toBlob(resolve, type, quality); });
+    }
+
+    // Same target as scripts/new-post.ts: 2400px wide, webp 82. Safari can't
+    // encode webp, so it falls back to jpeg.
+    async function shrink(file) {
+      var bmp = await createImageBitmap(file);
+      var scale = Math.min(1, 2400 / bmp.width);
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.round(bmp.width * scale);
+      canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      bmp.close();
+      var blob = await toBlob(canvas, 'image/webp', 0.82);
+      if (!blob || blob.type !== 'image/webp') blob = await toBlob(canvas, 'image/jpeg', 0.85);
+      canvas.width = canvas.height = 0;
+      return blob;
+    }
+
+    compose.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var isNew = f.mode.value === 'new';
+      var slug = isNew ? slugify(f.title.value) : f.slug.value;
+      var text = f.text.value.trim();
+      if (!slug) return say(msg, 'needs a title');
+      if (isNew && slugs.indexOf(slug) !== -1) return say(msg, 'there’s already a post called that');
+      if (!files.length && !text) return say(msg, 'add some photos or words first');
+
+      publishBtn.disabled = true;
+      try {
+        var stamp = Date.now().toString(36);
+        var urls = [];
+        for (var i = 0; i < files.length; i++) {
+          say(msg, 'uploading ' + (i + 1) + ' of ' + files.length + '…');
+          var blob = await shrink(files[i].file);
+          var r = await fetch('/api/admin/media?slug=' + slug + '&name=' + stamp + '-' + (i + 1), {
+            method: 'PUT',
+            headers: { 'Content-Type': blob.type },
+            body: blob,
+          });
+          if (!r.ok) throw new Error((await r.json().catch(function () { return {}; })).error || 'upload failed');
+          urls.push((await r.json()).url);
+        }
+
+        say(msg, 'publishing…');
+        var res = await fetch('/api/admin/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: isNew ? 'new' : 'add',
+            slug: slug,
+            title: f.title.value,
+            tag: f.tag.value,
+            date: f.date.value,
+            draft: f.draft.checked,
+            text: text,
+            images: urls,
+          }),
+        });
+        var out = await res.json().catch(function () { return {}; });
+        if (!res.ok) throw new Error(out.error || 'publish failed');
+
+        files.forEach(function (item) { URL.revokeObjectURL(item.preview); });
+        files = [];
+        render();
+        f.text.value = '';
+        var draft = isNew && f.draft.checked;
+        if (isNew) { slugs.push(slug); f.title.value = ''; }
+        msg.innerHTML = '';
+        msg.append(draft ? 'saved as a draft.' : 'done. live in a couple minutes at ');
+        if (!draft) {
+          var a = document.createElement('a');
+          a.href = out.path;
+          a.textContent = out.path;
+          msg.append(a);
+        }
+      } catch (err) {
+        say(msg, 'hmm: ' + err.message);
+      } finally {
+        publishBtn.disabled = false;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .admin { color: var(--fg); }
+  .back {
+    align-self: baseline;
+    color: var(--fg-dim);
+    font-size: 12px;
+  }
+  .back:hover { color: var(--accent); }
+  h1 {
+    font-size: 44px;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    margin: 0;
+  }
+  form {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+  .admin [hidden] { display: none; }
+  label { display: grid; gap: var(--space-2); }
+  .label {
+    font-size: 12px;
+    color: var(--fg-dim);
+  }
+  .label em { font-style: normal; opacity: 0.7; }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+  .for-new { display: grid; gap: var(--space-5); }
+  input[type='password'],
+  input[type='text'],
+  input[type='date'],
+  select,
+  textarea {
+    font: inherit;
+    font-size: 16px; /* under 16px and iOS zooms the page on focus */
+    color: var(--fg);
+    background: var(--tile);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 10px 12px;
+    outline: none;
+    width: 100%;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  textarea { resize: vertical; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+  .modes {
+    display: flex;
+    gap: var(--space-2);
+  }
+  .modes label, .check { display: flex; align-items: center; gap: var(--space-2); }
+  .modes input { position: absolute; opacity: 0; pointer-events: none; }
+  .modes span {
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-size: 14px;
+    color: var(--fg-dim);
+  }
+  .modes input:checked + span {
+    color: var(--fg);
+    border-color: var(--fg);
+  }
+  .modes input:focus-visible + span { border-color: var(--accent); }
+  .check { font-size: 14px; color: var(--fg-dim); }
+  .check input { accent-color: var(--accent); width: 18px; height: 18px; }
+
+  .pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .pick span {
+    display: block;
+    padding: 28px 16px;
+    border: 1px dashed var(--fg-dim);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 15px;
+    color: var(--fg);
+  }
+  .pick input:focus-visible + span { border-color: var(--accent); }
+
+  .thumbs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: var(--space-2);
+  }
+  .thumbs:empty { display: none; }
+  /* Thumbnails are built in JS, so they miss Astro's scoping attribute. */
+  .thumbs :global(li) { position: relative; aspect-ratio: 1; }
+  .thumbs :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3px;
+    display: block;
+  }
+  .thumbs :global(button) {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.6);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  button[type='submit'] {
+    justify-self: start;
+    padding: 10px 20px;
+    border: 1px solid var(--fg-dim);
+    border-radius: 999px;
+    color: var(--fg);
+    font-size: 15px;
+  }
+  button[type='submit']:hover { color: var(--accent); border-color: var(--accent); }
+  button[type='submit']:disabled { opacity: 0.5; }
+  button.publish { justify-self: stretch; }
+  .msg {
+    margin: 0;
+    font-size: 14px;
+    color: var(--fg-dim);
+    min-height: 1.4em;
+  }
+  .msg :global(a) { color: var(--accent); }
+</style>
