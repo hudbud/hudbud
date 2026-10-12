@@ -3,15 +3,10 @@
 // The browser shrinks each photo, the Worker (/api/admin, worker/index.js)
 // stores it in R2 and commits the markdown to GitHub, and the push deploys.
 export const prerender = true;
-import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import { loadAdminPosts } from '../lib/posts';
 
-// Newest first; far-future dates are homepage pins, so they sink to the end.
-const now = Date.now();
-const recency = (d: Date) => (d.valueOf() > now ? -d.valueOf() : d.valueOf());
-const posts = (await getCollection('posts'))
-  .sort((a, b) => recency(b.data.date) - recency(a.data.date))
-  .map((p) => ({ slug: p.id, title: p.data.title, year: p.data.date.getFullYear(), draft: p.data.draft }));
+const posts = await loadAdminPosts();
 const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
 ---
 <Layout title="admin — hudbud.net" robots="noindex, nofollow">
