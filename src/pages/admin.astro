@@ -3,15 +3,10 @@
 // The browser shrinks each photo, the Worker (/api/admin, worker/index.js)
 // stores it in R2 and commits the markdown to GitHub, and the push deploys.
 export const prerender = true;
-import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import { loadAdminPosts } from '../lib/posts';
 
-// Newest first; far-future dates are homepage pins, so they sink to the end.
-const now = Date.now();
-const recency = (d: Date) => (d.valueOf() > now ? -d.valueOf() : d.valueOf());
-const posts = (await getCollection('posts'))
-  .sort((a, b) => recency(b.data.date) - recency(a.data.date))
-  .map((p) => ({ slug: p.id, title: p.data.title, year: p.data.date.getFullYear(), draft: p.data.draft }));
+const posts = await loadAdminPosts();
 const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
 ---
 <Layout title="admin — hudbud.net" robots="noindex, nofollow">
@@ -65,7 +60,8 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
       </label>
 
       <label class="pick">
-        <input type="file" accept="image/*" multiple />
+        {/* Narrow on purpose: iOS converts RAW and HEIC to JPEG for anything not listed. */}
+        <input type="file" accept="image/jpeg,image/png,image/webp" multiple />
         <span>choose photos</span>
       </label>
       <ul class="thumbs"></ul>
@@ -123,6 +119,13 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
         var img = document.createElement('img');
         img.src = item.preview;
         img.alt = '';
+        img.onerror = async function () {
+          img.onerror = null;
+          var jpeg = embeddedJpeg(item.file, new Uint8Array(await item.file.arrayBuffer()));
+          if (!jpeg) return;
+          URL.revokeObjectURL(item.preview);
+          img.src = item.preview = URL.createObjectURL(jpeg);
+        };
         var x = document.createElement('button');
         x.type = 'button';
         x.textContent = '×';
@@ -146,15 +149,77 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
       return new Promise(function (resolve) { canvas.toBlob(resolve, type, quality); });
     }
 
+    // RAW+JPEG photos can arrive as the RAW file, which browsers can't
+    // decode. Every RAW format embeds a JPEG preview (Olympus: 3200px), so
+    // walk its markers to find the biggest one and use that instead.
+    function jpegEnd(b, start) {
+      var i = start + 2;
+      while (i + 3 < b.length) {
+        if (b[i] !== 0xff) return -1;
+        var marker = b[i + 1];
+        if (marker === 0xd9) return i + 2;
+        i += 2 + ((b[i + 2] << 8) | b[i + 3]);
+        if (marker !== 0xda) continue;
+        // Scan data runs to the next marker; FF00 and restart markers are part of it.
+        while (i + 1 < b.length && !(b[i] === 0xff && b[i + 1] !== 0 && (b[i + 1] < 0xd0 || b[i + 1] > 0xd7))) i++;
+      }
+      return -1;
+    }
+
+    function embeddedJpeg(file, b) {
+      var best = null;
+      for (var i = 0; i + 2 < b.length; i++) {
+        if (b[i] !== 0xff || b[i + 1] !== 0xd8 || b[i + 2] !== 0xff) continue;
+        var end = jpegEnd(b, i);
+        if (end > 0 && (!best || end - i > best.end - best.start)) best = { start: i, end: end };
+        if (end > 0) i = end - 1;
+      }
+      return best && file.slice(best.start, best.end, 'image/jpeg');
+    }
+
+    // The preview has no orientation of its own; it's in the RAW's TIFF header.
+    function tiffOrientation(b) {
+      if (!((b[0] === 0x49 && b[1] === 0x49) || (b[0] === 0x4d && b[1] === 0x4d))) return 1;
+      var dv = new DataView(b.buffer);
+      var le = b[0] === 0x49;
+      var ifd = dv.getUint32(4, le);
+      if (ifd + 2 > b.length) return 1;
+      for (var k = 0, n = dv.getUint16(ifd, le); k < n; k++) {
+        var e = ifd + 2 + k * 12;
+        if (e + 10 <= b.length && dv.getUint16(e, le) === 0x0112) return dv.getUint16(e + 8, le);
+      }
+      return 1;
+    }
+
+    async function decode(file) {
+      try {
+        return { bmp: await createImageBitmap(file), orientation: 1 };
+      } catch (err) {
+        var b = new Uint8Array(await file.arrayBuffer());
+        var jpeg = embeddedJpeg(file, b);
+        if (!jpeg) throw new Error('couldn’t read ' + file.name);
+        return { bmp: await createImageBitmap(jpeg), orientation: tiffOrientation(b) };
+      }
+    }
+
     // Same target as scripts/new-post.ts: 2400px wide, webp 82. Safari can't
     // encode webp, so it falls back to jpeg.
     async function shrink(file) {
-      var bmp = await createImageBitmap(file);
-      var scale = Math.min(1, 2400 / bmp.width);
+      var d = await decode(file);
+      var bmp = d.bmp;
+      var turned = d.orientation === 6 || d.orientation === 8;
+      var w = turned ? bmp.height : bmp.width;
+      var h = turned ? bmp.width : bmp.height;
+      var scale = Math.min(1, 2400 / w);
       var canvas = document.createElement('canvas');
-      canvas.width = Math.round(bmp.width * scale);
-      canvas.height = Math.round(bmp.height * scale);
-      canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      var ctx = canvas.getContext('2d');
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate({ 3: Math.PI, 6: Math.PI / 2, 8: -Math.PI / 2 }[d.orientation] || 0);
+      var dw = (turned ? canvas.height : canvas.width);
+      var dh = (turned ? canvas.width : canvas.height);
+      ctx.drawImage(bmp, -dw / 2, -dh / 2, dw, dh);
       bmp.close();
       var blob = await toBlob(canvas, 'image/webp', 0.82);
       if (!blob || blob.type !== 'image/webp') blob = await toBlob(canvas, 'image/jpeg', 0.85);

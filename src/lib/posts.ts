@@ -243,3 +243,21 @@ export async function loadSearchIndex(): Promise<SearchItem[]> {
     };
   });
 }
+
+export interface AdminPost {
+  slug: string;
+  title: string;
+  year: number;
+  draft: boolean;
+}
+
+/** Every post, drafts too, for the /admin picker and the iOS Shortcut.
+    Newest first; far-future dates are homepage pins, so they sink to the end. */
+export async function loadAdminPosts(): Promise<AdminPost[]> {
+  const now = Date.now();
+  const recency = (d: Date) => (d.valueOf() > now ? -d.valueOf() : d.valueOf());
+  const entries = await getCollection('posts');
+  return entries
+    .sort((a, b) => recency(b.data.date) - recency(a.data.date))
+    .map((p) => ({ slug: p.id, title: p.data.title, year: p.data.date.getFullYear(), draft: p.data.draft }));
+}

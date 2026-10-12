@@ -215,8 +215,11 @@ async function adminToken(password) {
   return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/** The /admin page signs in with a cookie; the iOS Shortcut sends the
+    password as a bearer header instead. */
 async function adminAuthed(request, password) {
   if (!password) return false;
+  if (request.headers.get('Authorization') === `Bearer ${password}`) return true;
   const cookie = request.headers.get('Cookie') ?? '';
   return cookie.split(/;\s*/).includes(`${ADMIN_COOKIE}=${await adminToken(password)}`);
 }
@@ -246,17 +249,27 @@ async function github(env, path, init = {}) {
   });
 }
 
+function sniffImage(b) {
+  if (b[0] === 0xff && b[1] === 0xd8) return 'image/jpeg';
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return 'image/png';
+  if (String.fromCharCode(...b.subarray(0, 4)) === 'RIFF' && String.fromCharCode(...b.subarray(8, 12)) === 'WEBP') return 'image/webp';
+  return null;
+}
+
 /** PUT /api/admin/media?slug=&name= with the image bytes as the body. */
 async function adminMedia(request, env, url) {
   const slug = url.searchParams.get('slug');
   const name = url.searchParams.get('name') ?? '';
-  const ext = MEDIA_TYPES[request.headers.get('Content-Type')];
-  if (!validSlug(slug) || !/^[a-z0-9-]{1,80}$/.test(name) || !ext) return json({ error: 'bad upload' }, 400);
+  if (!validSlug(slug) || !/^[a-z0-9-]{1,80}$/.test(name)) return json({ error: 'bad upload' }, 400);
   const body = await request.arrayBuffer();
   if (!body.byteLength || body.byteLength > MAX_MEDIA_BYTES) return json({ error: 'file too big' }, 413);
+  // Shortcuts doesn't always label its uploads, so trust the bytes over the header.
+  const type = sniffImage(new Uint8Array(body.slice(0, 12))) ?? request.headers.get('Content-Type');
+  const ext = MEDIA_TYPES[type];
+  if (!ext) return json({ error: 'photos only (jpeg, png, webp)' }, 415);
   const key = `posts/${slug}/${name}.${ext}`;
   await env.MEDIA.put(key, body, {
-    httpMetadata: { contentType: request.headers.get('Content-Type'), cacheControl: 'public, max-age=31536000, immutable' },
+    httpMetadata: { contentType: type, cacheControl: 'public, max-age=31536000, immutable' },
   });
   return json({ url: `${MEDIA_BASE}/${key}` }, 201);
 }
@@ -265,7 +278,9 @@ async function adminMedia(request, env, url) {
 async function adminPublish(request, env) {
   const p = await request.json().catch(() => null);
   if (!p) return json({ error: 'bad json' }, 400);
-  const images = (Array.isArray(p.images) ? p.images : []).filter((u) => typeof u === 'string' && u.startsWith(`${MEDIA_BASE}/posts/`));
+  // An array from the page; newline-joined text from the Shortcut.
+  const list = Array.isArray(p.images) ? p.images : String(p.images ?? '').split(/\s+/);
+  const images = list.filter((u) => typeof u === 'string' && u.startsWith(`${MEDIA_BASE}/posts/`));
   const text = String(p.text ?? '').trim();
   const block = [text, ...images.map((u) => `![](${u})`)].filter(Boolean).join('\n\n');
   if (!block) return json({ error: 'nothing to add' }, 400);
