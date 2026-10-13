@@ -7,13 +7,14 @@ import * as THREE from 'three';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
-import { BookOpenText, CameraRotate, Feather, HandGrabbing, SpeakerHigh, SpeakerSlash } from '@phosphor-icons/react';
+import { BookOpenText, CameraRotate, Feather, HandGrabbing, SpeakerHigh, SpeakerSlash, Trophy, TShirt } from '@phosphor-icons/react';
 import { GLASS } from './chrome';
 import {
   BANK_Y, trailZ, riverZ, riverSlope, riverHalf, edgeZ, bankZ, lane, laneZ, bedY, reachSpeed, reachChop, waterName,
   WALL_X, LOGFALL_X, FISH_PALETTES, BIKE_WHEEL_R, BIKE_CRANK, BIKE_HIP,
   buildTerrain, buildFish, buildAvatar, buildFly, buildBike, buildBug, buildUnderRock, box, lump,
-  type FishMesh, type Avatar, type Bike, type SpeciesId, type FlyId, type BugId, type NymphId,
+  DEFAULT_LOOK, SKINS, HAIRS, SHIRTS, WADERS, HAT_COLORS, HATS, FACES, SHADES,
+  type FishMesh, type Avatar, type Bike, type SpeciesId, type FlyId, type BugId, type NymphId, type Look,
 } from './flyFishingScene';
 import { createSound, type Sound } from './flyFishingSound';
 
@@ -27,7 +28,19 @@ interface Catch {
   slug: string;
   title: string;
 }
-interface Card { c: Catch | null; species: SpeciesId; inches: number; fly: FlyId; newPost: boolean; newSpecies: boolean; best: boolean }
+interface Card {
+  c: Catch | null; species: SpeciesId; inches: number; fly: FlyId; newPost: boolean; newSpecies: boolean; best: boolean;
+  /** It would make the board but we don't have a name yet. */
+  ask?: boolean;
+  /** Where it landed on the board, once posted. */
+  rank?: string;
+}
+/** The shared high scores, one row per angler. */
+interface Boards {
+  fish: { name: string; species: SpeciesId; fly: FlyId; inches: number }[];
+  sessions: { name: string; count: number; inches: number }[];
+}
+type Pane = 'log' | 'scores' | 'box' | 'angler' | null;
 interface Log { posts: Record<string, string>; species: Partial<Record<SpeciesId, { n: number; best: number }>>; total: number }
 
 type FishState = 'enter' | 'hold' | 'chase' | 'rise' | 'spook' | 'hooked' | 'leap' | 'held' | 'release';
@@ -105,6 +118,9 @@ const IMAGE_EXT = /\.(webp|png|jpe?g|gif|avif)$/i;
 const POLAR = 0.84;
 const YAW = 0.3;
 const LOG_KEY = 'hp-fish-log';
+const LOOK_KEY = 'hp-fish-look';
+const NAME_KEY = 'hp-fish-name';
+const BOARD_SIZE = 10;
 /** The site's glass, denser: at 70% the bright meadow bleeds through and washes out the text. */
 const PANE: CSSProperties = { ...GLASS, background: 'color-mix(in srgb, var(--bg) 90%, transparent)' };
 /** Fly line, then a tapered leader, then fine tippet down to the fly. */
@@ -222,6 +238,31 @@ function loadLog(): Log {
   } catch {}
   return { posts: {}, species: {}, total: 0 };
 }
+
+/** The saved kit, with anything stale or unknown put back to his own. */
+function loadLook(): Look {
+  try {
+    const l = JSON.parse(localStorage.getItem(LOOK_KEY) ?? '');
+    const pick = <T,>(v: T, ok: readonly T[], d: T) => (ok.includes(v) ? v : d);
+    const color = (v: string, ok: { color: string }[], d: string) => pick(v, ok.map((o) => o.color), d);
+    const d = DEFAULT_LOOK;
+    return {
+      skin: pick(l.skin, SKINS.map((o) => o.id), d.skin),
+      hair: pick(l.hair, HAIRS.map((o) => o.id), d.hair),
+      face: pick(l.face, FACES, d.face),
+      hat: pick(l.hat, HATS, d.hat),
+      hatColor: color(l.hatColor, HAT_COLORS, d.hatColor),
+      shades: pick(l.shades, SHADES, d.shades),
+      shirt: color(l.shirt, SHIRTS, d.shirt),
+      waders: color(l.waders, WADERS, d.waders),
+    };
+  } catch {
+    return DEFAULT_LOOK;
+  }
+}
+
+/** Would this make a board of the top ten? */
+const makes = <T,>(list: T[], beats: (last: T) => boolean) => list.length < BOARD_SIZE || beats(list[list.length - 1]);
 
 /** Clamp z into the water at x, `pad` in from the banks. */
 const wet = (x: number, z: number, pad: number) => clamp(z, edgeZ(-1, x) + pad, edgeZ(1, x) - pad);
@@ -719,29 +760,115 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   const logRef = useRef<Log>(loadLog());
   const openRef = useRef(false);
   const logOpenRef = useRef(false);
+  const dressRef = useRef<(look: Look) => void>(() => {});
+  const boardsRef = useRef<Boards | null>(null);
+  const nameRef = useRef('');
+  /** This visit: a fresh id per page load, and the running tally. */
+  const sessionRef = useRef({ id: '', count: 0, inches: 0 });
 
   const [hint, setHint] = useState<string>(HINT.cast);
   const [count, setCount] = useState(0);
   const [fighting, setFighting] = useState(false);
   const [card, setCard] = useState<Card | null>(null);
   const [log, setLog] = useState<Log>(logRef.current);
-  const [logOpen, setLogOpen] = useState(false);
+  const [pane, setPane] = useState<Pane>(null);
   const [poolSize, setPoolSize] = useState(0);
   const [flyId, setFlyId] = useState<FlyId>('adams');
-  const [boxOpen, setBoxOpen] = useState(false);
   const [under, setUnder] = useState<{ bugs: NymphId[]; say: string } | null>(null);
   const [clock, setClock] = useState('');
   const [onWater, setOnWater] = useState<BugId | null>(null);
   const [muted, setMuted] = useState(false);
+  const [look, setLook] = useState<Look>(DEFAULT_LOOK);
+  const [boards, setBoards] = useState<Boards | null | 'offline'>(null);
+  const [board, setBoard] = useState<'fish' | 'sessions'>('fish');
+  const [name, setName] = useState('');
+  /** The name the server settled on, for spotting your own rows. */
+  const [you, setYou] = useState('');
   const cardRef = useRef<HTMLElement>(null);
   openRef.current = !!card;
-  logOpenRef.current = logOpen || boxOpen || !!under;
+  logOpenRef.current = !!pane || !!under;
   /** One panel at a time down in the corner. */
-  const panel = (which: 'log' | 'box' | 'rock' | null) => {
-    setLogOpen(which === 'log');
-    setBoxOpen(which === 'box');
-    if (which !== 'rock') setUnder(null);
+  const panel = (which: Pane) => {
+    setPane(which);
+    setUnder(null);
   };
+  const toggle = (which: Exclude<Pane, null>) => panel(pane === which ? null : which);
+
+  useEffect(() => {
+    const l = loadLook();
+    setLook(l);
+    dressRef.current(l);
+    const saved = localStorage.getItem(NAME_KEY) ?? '';
+    nameRef.current = saved;
+    setName(saved || (localStorage.getItem('hp-thoughts-name') ?? '').slice(0, 12));
+    setYou(saved);
+    sessionRef.current.id = crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    fetchBoards();
+  }, []);
+
+  function fetchBoards() {
+    fetch('/api/fish/scores')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((b: Boards) => {
+        boardsRef.current = b;
+        setBoards(b);
+      })
+      .catch(() => {
+        if (!boardsRef.current) setBoards('offline');
+      });
+  }
+
+  /** Post whatever this catch and this visit earned. Resolves to the card's badge. */
+  async function postScore(p: { species: SpeciesId; fly: FlyId; inches: number }, as: string) {
+    const b = boardsRef.current;
+    if (!b || !as) return undefined;
+    const s = sessionRef.current;
+    const fish = makes(b.fish, (r) => p.inches > r.inches);
+    const session = makes(b.sessions, (r) => s.count > r.count || (s.count === r.count && s.inches > r.inches));
+    if (!fish && !session) return undefined;
+    try {
+      const r = await fetch('/api/fish/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: as,
+          sessionId: s.id,
+          fish: fish ? { species: p.species, fly: p.fly, inches: p.inches } : undefined,
+          session: session ? { count: s.count, inches: s.inches } : undefined,
+        }),
+      });
+      if (!r.ok) return undefined;
+      const next: Boards & { name: string } = await r.json();
+      boardsRef.current = next;
+      setBoards(next);
+      setYou(next.name);
+      const mine = (row: { name: string }) => row.name.toLowerCase() === next.name.toLowerCase();
+      const fi = next.fish.findIndex((row) => mine(row) && row.inches === p.inches);
+      const si = next.sessions.findIndex((row) => mine(row) && row.count === s.count);
+      if (fi >= 0) return `#${fi + 1} biggest fish`;
+      if (si >= 0) return `#${si + 1} best visit`;
+    } catch {}
+    return undefined;
+  }
+
+  function saveName(raw: string) {
+    const n = raw.trim().slice(0, 12);
+    nameRef.current = n;
+    setName(n);
+    try {
+      if (n) localStorage.setItem(NAME_KEY, n);
+      else localStorage.removeItem(NAME_KEY);
+    } catch {}
+    return n;
+  }
+
+  function dress(next: Look) {
+    setLook(next);
+    dressRef.current(next);
+    try {
+      localStorage.setItem(LOOK_KEY, JSON.stringify(next));
+    } catch {}
+  }
 
   useEffect(() => {
     const titles = new Map(posts.map((p) => [p.slug, p.title]));
@@ -785,7 +912,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     const el = renderer.domElement;
     Object.assign(el.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', touchAction: 'none', cursor: 'crosshair' });
     el.setAttribute('role', 'img');
-    el.setAttribute('aria-label', 'A voxel trout stream. Tap the water to cast and your bank to walk; swipe to mend, hold for slack; tap when a fish rises, hold to reel. Keys: space, arrows, M and N to mend, S for slack, F for the fly box, 1 to 7 to tie on, R to turn a rock, V to switch sides.');
+    el.setAttribute('aria-label', 'A voxel trout stream. Tap the water to cast and your bank to walk; swipe to mend, hold for slack; tap when a fish rises, hold to reel. Keys: space, arrows, M and N to mend, S for slack, F for the fly box, 1 to 7 to tie on, R to turn a rock, V to switch sides, H for high scores, C to change your angler.');
     host.appendChild(el);
 
     const scene = new THREE.Scene();
@@ -801,8 +928,14 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     const terrain = buildTerrain(POLAR);
     scene.add(terrain.group);
 
-    const av: Avatar = buildAvatar();
+    const av: Avatar = buildAvatar(loadLook());
     scene.add(av.root);
+    // A little hop when he changes his kit.
+    let hop = 0;
+    dressRef.current = (l) => {
+      av.dress(l);
+      hop = 0.001;
+    };
     let fly = buildFly();
     scene.add(fly);
     const sound = createSound();
@@ -1199,14 +1332,18 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     let viewK = 0;
     let camX = 0;
     let camYaw = YAW;
+    // Tall screens look further up the stream, so it runs down the phone.
+    let baseYaw = YAW;
+    let tall = 0;
     let treesHidden = false;
     const target = new THREE.Vector3();
     const sunOff = new THREE.Vector3();
     const sunDir = new THREE.Vector3(-6, 14, 7);
     const up = new THREE.Vector3(0, 1, 0);
+    const probe = new THREE.Vector3();
     const frame = () => {
       const k = viewK * viewK * (3 - 2 * viewK);
-      camYaw = YAW + (Math.PI - 2 * YAW) * k;
+      camYaw = baseYaw + (Math.PI - 2 * baseYaw) * k;
       const az = bankZ(camX);
       const across = (trailZ(camX) - az) * Math.cos(POLAR);
       // Facing us, his cap near the top and the trail below; from behind,
@@ -1216,25 +1353,32 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       const blockB = 0.9 + across + 1.5;
       const yB = -fh / 2 + Math.max(0.9, (fh - blockB) / 2 + 0.9);
       const s = -(yA + (yB - yA) * k) / Math.cos(POLAR);
-      target.set(camX - s * Math.sin(camYaw), 0, az - s * Math.cos(camYaw));
+      // Looking up the stream, slide upstream too so there's water to cast to.
+      target.set(camX - s * Math.sin(camYaw) - 2 * tall, 0, az - s * Math.cos(camYaw));
       camera.position.set(Math.sin(camYaw) * Math.sin(POLAR), Math.cos(POLAR), Math.cos(camYaw) * Math.sin(POLAR)).multiplyScalar(30).add(target);
       camera.lookAt(target);
       camera.updateMatrixWorld();
-      sun.position.copy(target).add(sunOff.copy(sunDir).applyAxisAngle(up, camYaw - YAW));
+      sun.position.copy(target).add(sunOff.copy(sunDir).applyAxisAngle(up, camYaw - baseYaw));
       sun.target.position.copy(target);
       // From behind him, the trees on his bank would stand in front of the water.
       if (k > 0.5 !== treesHidden) {
         treesHidden = k > 0.5;
         terrain.screen.visible = !treesHidden;
       }
-      // Playable stretch of river: whatever is on screen at mid-stream.
+      // Playable stretch of river: as much of the thread as is on screen.
       if (viewK === 0 || viewK === 1) {
-        const midY = new THREE.Vector3(camX, 0, riverZ(camX)).project(camera).y;
-        const l = toPlane(-0.94, midY, 0);
-        const r = toPlane(0.94, midY, 0);
-        if (l && r) {
-          world.xMin = Math.min(l.x, r.x) + 0.3;
-          world.xMax = Math.max(l.x, r.x) - 0.3;
+        let lo = Infinity;
+        let hi = -Infinity;
+        for (let x = camX - 24; x <= camX + 24; x += 0.25) {
+          const p = probe.set(x, 0, riverZ(x)).project(camera);
+          if (Math.abs(p.x) < 0.94 && Math.abs(p.y) < 0.86) {
+            lo = Math.min(lo, x);
+            hi = Math.max(hi, x);
+          }
+        }
+        if (hi > lo) {
+          world.xMin = lo + 0.3;
+          world.xMax = hi - 0.3;
         }
       }
     };
@@ -1243,7 +1387,11 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       const aspect = rect.width / Math.max(1, rect.height);
       renderer.setSize(rect.width, rect.height, false);
       for (const r of rig) r.mat.resolution.set(rect.width, rect.height);
-      fh = Math.max(9.2, 6.8 / aspect);
+      tall = clamp((0.9 - aspect) / 0.4, 0, 1);
+      baseYaw = YAW + 0.5 * tall;
+      // Phones keep a stream's width across; a tablet on end shouldn't zoom in
+      // past ~90px a block, nor a phone on its side out past ~55.
+      fh = Math.max(clamp(rect.height / 55, 6.4, 9.2), 6.8 / aspect, aspect < 1 ? rect.height / 90 : 0);
       fw = fh * aspect;
       Object.assign(camera, { left: -fw / 2, right: fw / 2, top: fh / 2, bottom: -fh / 2 });
       camera.updateProjectionMatrix();
@@ -1264,6 +1412,8 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       if (h === lastHint) return;
       lastHint = h;
       setHint(h);
+      // A tap in the hand when a fish takes, where phones allow it.
+      if (h === HINT.strike) navigator.vibrate?.(35);
     };
     const upArrow = () => (Math.cos(camYaw) > 0 ? '←' : '→');
     const driftHint = () => {
@@ -1283,6 +1433,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
         pendingRef.current = null;
         if (!p) return;
         sound.landed();
+        navigator.vibrate?.([20, 60, 20]);
         const prev = logRef.current;
         const s = prev.species[p.species];
         const next: Log = {
@@ -1291,6 +1442,16 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
           species: { ...prev.species, [p.species]: { n: (s?.n ?? 0) + 1, best: Math.max(s?.best ?? 0, p.inches) } },
         };
         const c: Card = { ...p, newPost: !!p.c && !prev.posts[p.c.slug], newSpecies: !s, best: !!s && p.inches > s.best };
+        const visit = sessionRef.current;
+        visit.count += 1;
+        visit.inches += p.inches;
+        // Make the board: post under the saved name, or ask for one on the card.
+        const b = boardsRef.current;
+        if (b && !nameRef.current) {
+          c.ask = makes(b.fish, (r) => p.inches > r.inches) || makes(b.sessions, (r) => visit.count > r.count || (visit.count === r.count && visit.inches > r.inches));
+        } else if (b) {
+          postScore(p, nameRef.current).then((rank) => rank && setCard((cur) => (cur && cur.inches === p.inches && cur.species === p.species ? { ...cur, rank } : cur)));
+        }
         logRef.current = next;
         try {
           localStorage.setItem(LOG_KEY, JSON.stringify(next));
@@ -1450,8 +1611,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       for (let i = 0; i < 1 + Math.floor(Math.random() * 2); i++) bugs.push(kinds[Math.floor(Math.random() * kinds.length)]);
       setTimeout(() => {
         if (crouch > 0) {
-          setLogOpen(false);
-          setBoxOpen(false);
+          setPane(null);
           setUnder({ bugs, say: UNDER[id].say });
         }
       }, 650);
@@ -1471,8 +1631,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       sound.unlock();
       if (openRef.current) return;
       if (logOpenRef.current) {
-        setLogOpen(false);
-        setBoxOpen(false);
+        setPane(null);
         setUnder(null);
         crouch = 0;
         return;
@@ -1524,13 +1683,9 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       } else if ((k === 'm' || k === 'n') && !e.repeat) mend(k === 'm' ? -1 : 1);
       else if (k === 's' && world.line.state === 'drifting') world.line.feeding = true;
       else if (k === 'v' && !e.repeat) flipRef.current();
-      else if (k === 'l' && !e.repeat) {
-        setLogOpen((o) => !o);
-        setBoxOpen(false);
-        setUnder(null);
-      } else if (k === 'f' && !e.repeat) {
-        setBoxOpen((o) => !o);
-        setLogOpen(false);
+      else if ((k === 'l' || k === 'h' || k === 'f' || k === 'c') && !e.repeat) {
+        const which = ({ l: 'log', h: 'scores', f: 'box', c: 'angler' } as const)[k];
+        setPane((o) => (o === which ? null : which));
         setUnder(null);
       } else if (k === 'r' && !e.repeat) rockRef.current();
     };
@@ -1726,6 +1881,11 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       av.body.rotation.x = L.state === 'fighting' ? 0.12 : 0;
       av.body.position.y = Math.abs(Math.sin(world.walking ? stride : t * 2)) * (world.walking ? 0.04 : 0.015) + (isHolding ? Math.abs(Math.sin(t * 6)) * 0.04 : 0);
       av.body.scale.y = 1 - Math.sin((world.castKick / 0.25) * Math.PI) * 0.06;
+      if (hop > 0) {
+        hop += dt;
+        av.body.position.y += Math.sin(Math.min(1, hop / 0.32) * Math.PI) * 0.14;
+        if (hop > 0.32) hop = 0;
+      }
       // Turning a stone: down on his heels, the stone up and over in his hand.
       if (crouch > 0) {
         crouch += dt;
@@ -1911,7 +2071,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   }
 
   useEffect(() => {
-    if (!card && !logOpen && !boxOpen && !under) return;
+    if (!card && !pane && !under) return;
     if (card) cardRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
@@ -1923,7 +2083,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [card, logOpen, boxOpen, under]);
+  }, [card, pane, under]);
 
   const pill: CSSProperties = {
     ...PANE,
@@ -1975,10 +2135,10 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       )}
 
       <div className="hp-fish-bar" style={{ position: 'absolute', left: 16, bottom: 16, zIndex: 15, display: 'flex', gap: 8 }}>
-        <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label="logbook" title="logbook (L)" aria-expanded={logOpen} onClick={() => panel(logOpen ? null : 'log')}>
+        <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label="logbook" title="logbook (L)" aria-expanded={pane === 'log'} onClick={() => toggle('log')}>
           <BookOpenText size={18} weight="bold" />
         </button>
-        <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label={`fly box, ${tied.name} tied on`} title="fly box (F)" aria-expanded={boxOpen} onClick={() => panel(boxOpen ? null : 'box')}>
+        <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label={`fly box, ${tied.name} tied on`} title="fly box (F)" aria-expanded={pane === 'box'} onClick={() => toggle('box')}>
           <span style={{ position: 'relative', display: 'flex' }}>
             <Feather size={18} weight="bold" />
             <span aria-hidden style={{ position: 'absolute', right: -5, bottom: -4, width: 8, height: 8, borderRadius: 4, background: tied.swatch, boxShadow: '0 0 0 1.5px var(--bg)' }} />
@@ -1986,6 +2146,25 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
         </button>
         <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label="turn a rock" title="turn a rock (R)" aria-expanded={!!under} onClick={() => (under ? closeRock() : rockRef.current())}>
           <HandGrabbing size={18} weight="bold" />
+        </button>
+      </div>
+      {/* Scores, kit, view and sound: on in the row on wide screens, up under search on phones. */}
+      <div className="hp-fish-view" style={{ position: 'absolute', left: 178, bottom: 16, zIndex: 15, display: 'flex', gap: 8 }}>
+        <button
+          style={round}
+          onMouseDown={(e) => e.preventDefault()}
+          aria-label="high scores"
+          title="high scores (H)"
+          aria-expanded={pane === 'scores'}
+          onClick={() => {
+            if (pane !== 'scores') fetchBoards();
+            toggle('scores');
+          }}
+        >
+          <Trophy size={18} weight="bold" />
+        </button>
+        <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label="angler" title="angler (C)" aria-expanded={pane === 'angler'} onClick={() => toggle('angler')}>
+          <TShirt size={18} weight="bold" />
         </button>
         <button style={round} onMouseDown={(e) => e.preventDefault()} aria-label="switch sides" title="switch sides (V)" onClick={() => flipRef.current()}>
           <CameraRotate size={18} weight="bold" />
@@ -2008,7 +2187,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
         </button>
       </div>
 
-      {boxOpen && (
+      {pane === 'box' && (
         <section aria-label="Fly box" className="hp-fish-pane" style={corner}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--fg)', fontSize: 13 }}>
             <span>fly box</span>
@@ -2018,6 +2197,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
             {FLIES.map((f, i) => (
               <button
                 key={f.id}
+                className="hp-fish-fly"
                 onClick={() => tieRef.current(f.id)}
                 aria-pressed={f.id === flyId}
                 style={{
@@ -2030,7 +2210,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
                 <span aria-hidden style={{ width: 10, height: 10, borderRadius: 5, background: f.swatch, boxShadow: '0 0 0 1px var(--rule)' }} />
                 <span>{f.name} <span style={{ color: 'var(--fg-dim)' }}>#{f.size}</span></span>
                 <span style={{ color: 'var(--fg-dim)' }}>{f.id === flyId ? 'tied on' : ''}</span>
-                <span aria-hidden style={{ color: 'var(--fg-dim)', fontSize: 11 }}>{i + 1}</span>
+                <span aria-hidden className="hp-fish-keys" style={{ color: 'var(--fg-dim)', fontSize: 11 }}>{i + 1}</span>
               </button>
             ))}
           </div>
@@ -2042,7 +2222,80 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
 
       {under && <UnderRockView bugs={under.bugs} say={under.say} onClose={closeRock} />}
 
-      {logOpen && (
+      {pane === 'scores' && (
+        <section aria-label="High scores" className="hp-fish-pane" style={corner}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', color: 'var(--fg)', fontSize: 13 }}>
+            <span>high scores</span>
+            <div role="tablist" aria-label="Board" style={{ display: 'flex', gap: 2, margin: '-4px -6px -4px 0' }}>
+              {(['fish', 'sessions'] as const).map((b) => (
+                <button
+                  key={b}
+                  role="tab"
+                  aria-selected={board === b}
+                  onClick={() => setBoard(b)}
+                  style={{
+                    padding: '4px 8px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+                    background: board === b ? 'var(--tile)' : 'none', color: board === b ? 'var(--fg)' : 'var(--fg-dim)',
+                  }}
+                >
+                  {b === 'fish' ? 'biggest fish' : 'best visit'}
+                </button>
+              ))}
+            </div>
+          </div>
+          {boards === null ? (
+            <div>reading the board…</div>
+          ) : boards === 'offline' ? (
+            <div>The board's gone quiet. Try again in a bit.</div>
+          ) : (
+            <ol role="tabpanel" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {(board === 'fish' ? boards.fish : boards.sessions).length === 0 && <li>Nobody yet. First fish takes it.</li>}
+              {(board === 'fish' ? boards.fish : boards.sessions).map((row, i) => {
+                const mine = !!you && row.name.toLowerCase() === you.toLowerCase();
+                return (
+                  <li key={row.name} style={{ display: 'grid', gridTemplateColumns: '18px 1fr auto', columnGap: 8, alignItems: 'baseline' }}>
+                    <span style={{ color: 'var(--fg-faint)' }}>{i + 1}</span>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ color: mine ? 'var(--accent)' : 'var(--fg)' }}>{row.name}</span>
+                      <span style={{ display: 'block', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {'species' in row ? `${SPECIES[row.species]?.name ?? row.species} on a #${flyOf(row.fly)?.size} ${flyOf(row.fly)?.name}` : `${row.inches}″ all told`}
+                      </span>
+                    </span>
+                    <span style={{ color: 'var(--fg)' }}>{'species' in row ? `${row.inches}″` : `${row.count} fish`}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setYou(saveName(name));
+              (document.activeElement as HTMLElement | null)?.blur();
+            }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, borderTop: '1px solid var(--rule)', paddingTop: 12 }}
+          >
+            <label htmlFor="hp-fish-name" style={{ whiteSpace: 'nowrap' }}>fishing as</label>
+            <input
+              id="hp-fish-name"
+              value={name}
+              maxLength={12}
+              placeholder="your name"
+              autoComplete="nickname"
+              onChange={(e) => setName(e.target.value)}
+              onBlur={() => setYou(saveName(name))}
+              style={{ flex: 1, minWidth: 0, background: 'var(--tile)', color: 'var(--fg)', border: 0, borderRadius: 6, padding: '6px 8px', fontSize: 12 }}
+            />
+          </form>
+          <div style={{ lineHeight: 1.55, marginTop: -4 }}>
+            Shared with everyone who fishes here. Land one that makes the top ten and it goes up under your name.
+          </div>
+        </section>
+      )}
+
+      {pane === 'angler' && <AnglerPane look={look} onChange={dress} style={corner} />}
+
+      {pane === 'log' && (
         <section aria-label="Logbook" className="hp-fish-pane" style={corner}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--fg)', fontSize: 13 }}>
             <span>logbook</span>
@@ -2079,7 +2332,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
             Cast above a fish and let the fly come down to it. Trout take a dead drift; when the line bellies and drags,
             swipe across to mend it upstream, or hold to feed slack. When bugs are coming off, tie on something that
             looks like them. Big fish are fussy, and they'll break you off if you reel while they run.
-            <div style={{ marginTop: 8, color: 'var(--fg)' }}>space cast · ←→ walk · M/N mend · S slack · F flies · 1–7 tie on · R turn a rock · V switch sides</div>
+            <div className="hp-fish-keys" style={{ marginTop: 8, color: 'var(--fg)' }}>space cast · ←→ walk · M/N mend · S slack · F flies · 1–7 tie on · R turn a rock · V switch sides · H scores · C angler</div>
           </div>
         </section>
       )}
@@ -2122,12 +2375,40 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
             ) : (
               <div style={{ padding: '40px 56px', color: 'var(--fg-dim)', fontSize: 14 }}>An old boot. Try another cast.</div>
             )}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, padding: '10px 6px 0', fontSize: 13, color: 'var(--fg)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '2px 10px', padding: '10px 6px 0', fontSize: 13, color: 'var(--fg)' }}>
               <span>{card.inches}″ {SPECIES[card.species].name} <span style={{ color: 'var(--fg-dim)' }}>on a #{flyOf(card.fly).size} {flyOf(card.fly).name}</span></span>
-              {[card.newSpecies && 'new species', card.best && 'personal best', card.newPost && 'new post'].filter(Boolean).map((b) => (
+              {[card.rank, card.newSpecies && 'new species', card.best && 'personal best', card.newPost && 'new post'].filter(Boolean).map((b) => (
                 <span key={b as string} style={{ color: 'var(--accent)', fontSize: 12 }}>{b}</span>
               ))}
             </div>
+            {card.ask && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const as = saveName(name);
+                  if (!as) return;
+                  setYou(as);
+                  setCard((cur) => cur && { ...cur, ask: false });
+                  postScore(card, as).then((rank) => rank && setCard((cur) => (cur === null ? cur : { ...cur, rank })));
+                }}
+                className="hp-fish-ask"
+                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 10px', padding: '8px 6px 2px', fontSize: 13, color: 'var(--fg)' }}
+              >
+                <label htmlFor="hp-fish-card-name" style={{ whiteSpace: 'nowrap' }}>That one makes the board.</label>
+                <input
+                  id="hp-fish-card-name"
+                  value={name}
+                  maxLength={12}
+                  placeholder="your name"
+                  autoComplete="nickname"
+                  onChange={(e) => setName(e.target.value)}
+                  style={{ flex: 1, minWidth: 0, width: 120, background: 'var(--tile)', color: 'var(--fg)', border: 0, borderRadius: 6, padding: '6px 8px', fontSize: 13 }}
+                />
+                <button type="submit" disabled={!name.trim()} style={{ background: 'none', color: 'var(--accent)', fontSize: 13, padding: 0, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  put it up
+                </button>
+              </form>
+            )}
             <figcaption style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '4px 6px 4px', fontSize: 13 }}>
               {card.c && (
                 <span style={{ minWidth: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--fg-dim)' }}>
@@ -2211,6 +2492,144 @@ function UnderRockView({ bugs, say, onClose }: { bugs: NymphId[]; say: string; o
           put it back
         </button>
       </div>
+    </section>
+  );
+}
+
+/** The wardrobe: him on a patch of grass, turning, and the kit below. */
+function AnglerPane({ look, onChange, style }: { look: Look; onChange: (l: Look) => void; style: CSSProperties }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const dressRef = useRef<(l: Look) => void>(() => {});
+  useEffect(() => {
+    const host = hostRef.current!;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    renderer.setClearColor('#97cb53');
+    const el = renderer.domElement;
+    Object.assign(el.style, { display: 'block', width: '100%', height: '100%' });
+    host.appendChild(el);
+    const scene = new THREE.Scene();
+    scene.add(new THREE.HemisphereLight('#ffffff', '#9cc96b', 1.6));
+    const sun = new THREE.DirectionalLight('#fff4e0', 2.2);
+    sun.position.set(-2, 4, -3);
+    scene.add(sun);
+    const av = buildAvatar(look);
+    av.rod.visible = false;
+    av.leftArm.rotation.x = av.rightArm.rotation.x = 0.15;
+    scene.add(av.root, box(1.5, 0.12, 1.5, '#86bd4a', 0, -0.06, 0, false));
+    const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 50);
+    camera.position.set(0, 1.9, -5.4);
+    camera.lookAt(0, 1.05, 0);
+    let hop = 0;
+    dressRef.current = (l) => {
+      av.dress(l);
+      hop = 0.001;
+    };
+    const size = () => {
+      const r = host.getBoundingClientRect();
+      renderer.setSize(r.width, r.height, false);
+      camera.aspect = r.width / Math.max(1, r.height);
+      camera.updateProjectionMatrix();
+    };
+    size();
+    let raf = 0;
+    let last = performance.now();
+    const t0 = last;
+    const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      const dt = clamp((now - last) / 1000, 0, 0.05);
+      last = now;
+      const t = (now - t0) / 1000;
+      av.root.rotation.y = Math.sin(t * 0.7) * 0.7;
+      av.body.position.y = Math.abs(Math.sin(t * 2)) * 0.015;
+      if (hop > 0) {
+        hop += dt;
+        av.body.position.y += Math.sin(Math.min(1, hop / 0.32) * Math.PI) * 0.12;
+        if (hop > 0.32) hop = 0;
+      }
+      renderer.render(scene, camera);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      renderer.dispose();
+      el.remove();
+    };
+  }, []);
+
+  const set = (patch: Partial<Look>) => {
+    const next = { ...look, ...patch };
+    onChange(next);
+    dressRef.current(next);
+  };
+  const row: CSSProperties = { display: 'grid', gridTemplateColumns: '52px 1fr', alignItems: 'center', columnGap: 8 };
+  const swatches = (key: 'skin' | 'hair' | 'hatColor' | 'shirt' | 'waders', list: { id: string; name: string; color: string }[], label: string) => (
+    <div style={row} role="radiogroup" aria-label={label}>
+      <span>{label}</span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {list.map((o) => {
+          const value = key === 'skin' || key === 'hair' ? o.id : o.color;
+          const on = look[key] === value;
+          return (
+            <button
+              key={o.id}
+              role="radio"
+              aria-checked={on}
+              aria-label={o.name}
+              title={o.name}
+              onClick={() => set({ [key]: value })}
+              style={{
+                width: 22, height: 22, borderRadius: 11, padding: 0, cursor: 'pointer', background: o.color,
+                boxShadow: on ? '0 0 0 2px var(--bg), 0 0 0 3.5px var(--fg)' : 'inset 0 0 0 1px rgba(0,0,0,.15)',
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+  const choices = <K extends 'face' | 'hat' | 'shades'>(key: K, list: readonly Look[K][], label: string, names: Record<Look[K], string>) => (
+    <div style={row} role="radiogroup" aria-label={label}>
+      <span>{label}</span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, margin: '0 -6px' }}>
+        {list.map((v) => (
+          <button
+            key={v}
+            role="radio"
+            aria-checked={look[key] === v}
+            onClick={() => set({ [key]: v } as Partial<Look>)}
+            style={{
+              padding: '4px 6px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+              background: look[key] === v ? 'var(--tile)' : 'none', color: look[key] === v ? 'var(--fg)' : 'var(--fg-dim)',
+            }}
+          >
+            {names[v]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+  const isDefault = (Object.keys(DEFAULT_LOOK) as (keyof Look)[]).every((k) => look[k] === DEFAULT_LOOK[k]);
+
+  return (
+    <section aria-label="Angler" className="hp-fish-pane" style={style}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--fg)', fontSize: 13 }}>
+        <span>angler</span>
+        {!isDefault && (
+          <button onClick={() => set(DEFAULT_LOOK)} style={{ background: 'none', color: 'var(--fg-dim)', fontSize: 12, padding: 0, cursor: 'pointer' }}>
+            back to hudson
+          </button>
+        )}
+      </div>
+      <div ref={hostRef} role="img" aria-label="Your angler" style={{ aspectRatio: '1.7', borderRadius: 8, overflow: 'hidden', background: '#97cb53', flexShrink: 0 }} />
+      {swatches('skin', SKINS, 'skin')}
+      {swatches('hair', HAIRS, 'hair')}
+      {choices('face', FACES, 'face', { stache: 'stache', beard: 'beard', stubble: 'stubble', clean: 'clean' })}
+      {choices('hat', HATS, 'hat', { cap: 'cap', bucket: 'bucket', beanie: 'beanie', none: 'none' })}
+      {look.hat !== 'none' && swatches('hatColor', HAT_COLORS, '')}
+      {choices('shades', SHADES, 'shades', { mirror: 'mirrored', tint: 'tinted', none: 'none' })}
+      {swatches('shirt', SHIRTS, 'shirt')}
+      {swatches('waders', WADERS, 'waders')}
     </section>
   );
 }

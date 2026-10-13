@@ -811,6 +811,59 @@ export function buildFish(len: number, palette = FISH_PALETTES.rainbow): FishMes
   return { root, tail };
 }
 
+export type HatId = 'cap' | 'bucket' | 'beanie' | 'none';
+export type FaceId = 'stache' | 'beard' | 'stubble' | 'clean';
+export type ShadesId = 'mirror' | 'tint' | 'none';
+/** What the angler is wearing. Skin and hair are ids; the clothes are colors. */
+export interface Look { skin: string; hair: string; face: FaceId; hat: HatId; hatColor: string; shades: ShadesId; shirt: string; waders: string }
+
+type Swatch = { id: string; name: string; color: string };
+export const SKINS: (Swatch & { dark: string; stubble: string })[] = [
+  { id: 'fair', name: 'fair', color: '#f1c4a3', dark: '#e6aa86', stubble: '#d9a27a' },
+  { id: 'light', name: 'light', color: '#e0ac85', dark: '#cf9370', stubble: '#c48f6a' },
+  { id: 'tan', name: 'tan', color: '#c68b5e', dark: '#b07548', stubble: '#a26c45' },
+  { id: 'brown', name: 'brown', color: '#8d5a3b', dark: '#784a2f', stubble: '#6c4630' },
+  { id: 'deep', name: 'deep', color: '#5e3b26', dark: '#4d2f1e', stubble: '#46301f' },
+];
+export const HAIRS: (Swatch & { stache: string })[] = [
+  { id: 'ginger', name: 'ginger', color: '#9b6a43', stache: '#b5702f' },
+  { id: 'brown', name: 'brown', color: '#5a3d28', stache: '#6b4630' },
+  { id: 'black', name: 'black', color: '#2b2522', stache: '#332b27' },
+  { id: 'blond', name: 'blond', color: '#c9a55a', stache: '#d1aa55' },
+  { id: 'gray', name: 'gray', color: '#a7a29a', stache: '#bdb8b0' },
+];
+export const SHIRTS: Swatch[] = [
+  { id: 'orange', name: 'orange', color: '#ffab2e' },
+  { id: 'sky', name: 'sky blue', color: '#5aa7e8' },
+  { id: 'red', name: 'red', color: '#e2524a' },
+  { id: 'bone', name: 'bone', color: '#efe8d8' },
+  { id: 'sage', name: 'sage', color: '#8fae6a' },
+  { id: 'plum', name: 'plum', color: '#8a5aa8' },
+  { id: 'charcoal', name: 'charcoal', color: '#3d4148' },
+];
+export const WADERS: Swatch[] = [
+  { id: 'slate', name: 'slate', color: '#5c6770' },
+  { id: 'olive', name: 'olive', color: '#6b6a3c' },
+  { id: 'moss', name: 'moss', color: '#4d5a46' },
+  { id: 'navy', name: 'navy', color: '#3c4250' },
+  { id: 'tan', name: 'tan', color: '#8a7860' },
+  { id: 'black', name: 'black', color: '#2e2f33' },
+];
+export const HAT_COLORS: Swatch[] = [
+  { id: 'gray', name: 'gray', color: '#7d8088' },
+  { id: 'red', name: 'red', color: '#d84a40' },
+  { id: 'green', name: 'forest', color: '#2f6f4f' },
+  { id: 'yellow', name: 'yellow', color: '#e8c547' },
+  { id: 'navy', name: 'navy', color: '#3c4b6e' },
+  { id: 'bone', name: 'bone', color: '#e8e2d2' },
+  { id: 'orange', name: 'blaze', color: '#ff7a1a' },
+];
+export const HATS: HatId[] = ['cap', 'bucket', 'beanie', 'none'];
+export const FACES: FaceId[] = ['stache', 'beard', 'stubble', 'clean'];
+export const SHADES: ShadesId[] = ['mirror', 'tint', 'none'];
+/** Hudson's own kit. */
+export const DEFAULT_LOOK: Look = { skin: 'fair', hair: 'ginger', face: 'stache', hat: 'cap', hatColor: '#7d8088', shades: 'mirror', shirt: '#ffab2e', waders: '#5c6770' };
+
 export interface Avatar {
   root: THREE.Group;
   body: THREE.Group;
@@ -821,13 +874,16 @@ export interface Avatar {
   rodTip: THREE.Object3D;
   hands: THREE.Object3D;
   legs: THREE.Group[];
+  /** Recolor and re-kit him in place, so the rig the game holds stays put. */
+  dress: (look: Look) => void;
 }
 
 /** Hudson, as seen on a September river: gray cap, mirrored shades, ginger
     mustache, orange sun shirt, gray vest, waders, and a net on his back.
-    Faces -z with feet at the origin; the game turns him to face the camera. */
-export function buildAvatar(): Avatar {
-  const K = {
+    Faces -z with feet at the origin; the game turns him to face the camera.
+    Parts named in the palette get recolored by dress(). */
+export function buildAvatar(look: Look = DEFAULT_LOOK): Avatar {
+  const K: Record<string, string> = {
     skin: '#f1c4a3',
     skinDark: '#e6aa86',
     stubble: '#d9a27a',
@@ -836,6 +892,7 @@ export function buildAvatar(): Avatar {
     cap: '#7d8088',
     capDark: '#666970',
     shades: '#22d3b6',
+    glint: '#ffffff',
     frame: '#2a2a2a',
     gaiter: '#a9bccf',
     shirt: '#ffab2e',
@@ -845,6 +902,18 @@ export function buildAvatar(): Avatar {
     boots: '#3b3f45',
     net: '#d9b45a',
   };
+  /** A box painted with palette part `part`. */
+  const b = (w: number, h: number, d: number, part: string, x = 0, y = 0, z = 0, shadow = true) => {
+    const m = box(w, h, d, K[part], x, y, z, shadow);
+    m.userData.part = part;
+    return m;
+  };
+  const group = (parent: THREE.Object3D, ...kids: THREE.Object3D[]) => {
+    const g = new THREE.Group();
+    g.add(...kids);
+    parent.add(g);
+    return g;
+  };
   const root = new THREE.Group();
   const body = new THREE.Group();
   root.add(body);
@@ -853,20 +922,20 @@ export function buildAvatar(): Avatar {
   const legs = [-1, 1].map((sx) => {
     const g = new THREE.Group();
     g.position.set(sx * 0.11, 0.37, 0);
-    g.add(box(0.17, 0.34, 0.2, K.waders, 0, -0.17, 0));
-    g.add(box(0.19, 0.08, 0.25, K.boots, 0, -0.33, -0.02));
+    g.add(b(0.17, 0.34, 0.2, 'waders', 0, -0.17, 0));
+    g.add(b(0.19, 0.08, 0.25, 'boots', 0, -0.33, -0.02));
     body.add(g);
     return g;
   });
   // Torso, wader bib, vest.
-  body.add(box(0.46, 0.42, 0.28, K.shirt, 0, 0.58, 0));
-  body.add(box(0.4, 0.12, 0.3, K.waders, 0, 0.42, 0));
-  body.add(box(0.44, 0.3, 0.05, K.vest, 0, 0.6, -0.15));
-  body.add(box(0.44, 0.34, 0.05, K.vest, 0, 0.6, 0.15));
-  body.add(box(0.13, 0.1, 0.03, K.vestDark, -0.11, 0.56, -0.18));
-  body.add(box(0.13, 0.1, 0.03, K.vestDark, 0.11, 0.56, -0.18));
+  body.add(b(0.46, 0.42, 0.28, 'shirt', 0, 0.58, 0));
+  body.add(b(0.4, 0.12, 0.3, 'waders', 0, 0.42, 0));
+  body.add(b(0.44, 0.3, 0.05, 'vest', 0, 0.6, -0.15));
+  body.add(b(0.44, 0.34, 0.05, 'vest', 0, 0.6, 0.15));
+  body.add(b(0.13, 0.1, 0.03, 'vestDark', -0.11, 0.56, -0.18));
+  body.add(b(0.13, 0.1, 0.03, 'vestDark', 0.11, 0.56, -0.18));
   // Neck gaiter.
-  body.add(box(0.3, 0.08, 0.26, K.gaiter, 0, 0.82, 0));
+  body.add(b(0.3, 0.08, 0.26, 'gaiter', 0, 0.82, 0));
 
   // Head.
   const head = new THREE.Group();
@@ -874,30 +943,38 @@ export function buildAvatar(): Avatar {
   // Chin up a touch so the shades and mustache show under the brim.
   head.rotation.x = 0.3;
   body.add(head);
-  head.add(box(0.38, 0.36, 0.36, K.skin, 0, 0, 0));
-  head.add(box(0.385, 0.13, 0.12, K.stubble, 0, -0.12, -0.13));
-  head.add(box(0.2, 0.05, 0.04, K.stache, 0, -0.06, -0.195));
-  head.add(box(0.06, 0.07, 0.05, K.skinDark, 0, 0.0, -0.2));
-  head.add(box(0.36, 0.1, 0.02, K.frame, 0, 0.06, -0.188));
-  head.add(box(0.14, 0.075, 0.03, K.shades, -0.085, 0.06, -0.195, false));
-  head.add(box(0.14, 0.075, 0.03, K.shades, 0.085, 0.06, -0.195, false));
-  head.add(box(0.04, 0.025, 0.035, '#ffffff', -0.115, 0.08, -0.2, false));
-  head.add(box(0.02, 0.03, 0.2, K.frame, -0.19, 0.07, -0.08, false));
-  head.add(box(0.02, 0.03, 0.2, K.frame, 0.19, 0.07, -0.08, false));
-  head.add(box(0.05, 0.1, 0.08, K.skinDark, -0.2, 0, 0.0));
-  head.add(box(0.05, 0.1, 0.08, K.skinDark, 0.2, 0, 0.0));
-  head.add(box(0.39, 0.14, 0.06, K.hair, 0, 0.07, 0.17));
-  // Cap.
-  head.add(box(0.41, 0.13, 0.41, K.cap, 0, 0.23, 0.01));
-  head.add(box(0.39, 0.035, 0.2, K.capDark, 0, 0.17, -0.27));
-  head.add(box(0.06, 0.03, 0.06, K.capDark, 0, 0.31, 0.01, false));
+  head.add(b(0.38, 0.36, 0.36, 'skin', 0, 0, 0));
+  const stubble = group(head, b(0.385, 0.13, 0.12, 'stubble', 0, -0.12, -0.13));
+  const beard = group(head, b(0.39, 0.17, 0.13, 'stache', 0, -0.13, -0.135), b(0.39, 0.12, 0.2, 'stache', 0, -0.12, -0.06));
+  const stache = group(head, b(0.2, 0.05, 0.04, 'stache', 0, -0.06, -0.195));
+  head.add(b(0.06, 0.07, 0.05, 'skinDark', 0, 0.0, -0.2));
+  const shades = group(
+    head,
+    b(0.36, 0.1, 0.02, 'frame', 0, 0.06, -0.188),
+    b(0.14, 0.075, 0.03, 'shades', -0.085, 0.06, -0.195, false),
+    b(0.14, 0.075, 0.03, 'shades', 0.085, 0.06, -0.195, false),
+    b(0.02, 0.03, 0.2, 'frame', -0.19, 0.07, -0.08, false),
+    b(0.02, 0.03, 0.2, 'frame', 0.19, 0.07, -0.08, false),
+  );
+  const glint = group(head, b(0.04, 0.025, 0.035, 'glint', -0.115, 0.08, -0.2, false));
+  const eyes = group(head, b(0.05, 0.05, 0.02, 'frame', -0.085, 0.06, -0.185, false), b(0.05, 0.05, 0.02, 'frame', 0.085, 0.06, -0.185, false));
+  head.add(b(0.05, 0.1, 0.08, 'skinDark', -0.2, 0, 0.0));
+  head.add(b(0.05, 0.1, 0.08, 'skinDark', 0.2, 0, 0.0));
+  head.add(b(0.39, 0.14, 0.06, 'hair', 0, 0.07, 0.17));
+  // Hats, and the hair that shows without one.
+  const hats: Record<HatId, THREE.Group> = {
+    cap: group(head, b(0.41, 0.13, 0.41, 'cap', 0, 0.23, 0.01), b(0.39, 0.035, 0.2, 'capDark', 0, 0.17, -0.27), b(0.06, 0.03, 0.06, 'capDark', 0, 0.31, 0.01, false)),
+    bucket: group(head, b(0.4, 0.15, 0.4, 'cap', 0, 0.25, 0.01), b(0.42, 0.04, 0.42, 'capDark', 0, 0.2, 0.01), b(0.6, 0.03, 0.6, 'cap', 0, 0.165, 0.01)),
+    beanie: group(head, b(0.41, 0.17, 0.41, 'cap', 0, 0.23, 0.01), b(0.42, 0.07, 0.42, 'capDark', 0, 0.16, 0.01), b(0.1, 0.08, 0.1, 'capDark', 0, 0.35, 0.01)),
+    none: group(head, b(0.4, 0.08, 0.39, 'hair', 0, 0.21, 0.01), b(0.39, 0.06, 0.07, 'hair', 0, 0.16, -0.16), b(0.04, 0.12, 0.3, 'hair', -0.195, 0.13, 0.03), b(0.04, 0.12, 0.3, 'hair', 0.195, 0.13, 0.03)),
+  };
 
   // Arms pivot at the shoulder.
   const arm = (sx: number) => {
     const g = new THREE.Group();
     g.position.set(sx * 0.29, 0.75, 0);
-    g.add(box(0.13, 0.34, 0.14, K.shirt, 0, -0.15, 0));
-    g.add(box(0.12, 0.1, 0.12, K.skin, 0, -0.35, 0));
+    g.add(b(0.13, 0.34, 0.14, 'shirt', 0, -0.15, 0));
+    g.add(b(0.12, 0.1, 0.12, 'skin', 0, -0.35, 0));
     body.add(g);
     return g;
   };
@@ -911,7 +988,7 @@ export function buildAvatar(): Avatar {
   const net = new THREE.Group();
   net.position.set(0.06, 0.62, 0.22);
   net.rotation.z = -0.35;
-  net.add(box(0.05, 0.36, 0.05, K.net, 0, -0.18, 0));
+  net.add(b(0.05, 0.36, 0.05, 'net', 0, -0.18, 0));
   const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.028, 4, 10), mat(K.net));
   hoop.position.y = 0.15;
   hoop.castShadow = true;
@@ -943,9 +1020,33 @@ export function buildAvatar(): Avatar {
   root.traverse((o) => {
     if ((o as THREE.Mesh).isMesh) o.castShadow = true;
   });
+
+  const dress = (l: Look) => {
+    const skin = SKINS.find((s) => s.id === l.skin) ?? SKINS[0];
+    const hair = HAIRS.find((h) => h.id === l.hair) ?? HAIRS[0];
+    Object.assign(K, {
+      skin: skin.color, skinDark: skin.dark, stubble: skin.stubble,
+      hair: hair.color, stache: hair.stache,
+      cap: l.hatColor, capDark: shade(l.hatColor, 0.8),
+      shades: l.shades === 'tint' ? '#4a3a2c' : '#22d3b6',
+      shirt: l.shirt, waders: l.waders,
+    });
+    root.traverse((o) => {
+      const part = o.userData.part as string | undefined;
+      if (part) (o as THREE.Mesh).material = mat(K[part]);
+    });
+    for (const id of HATS) hats[id].visible = id === l.hat;
+    stubble.visible = l.face === 'stache' || l.face === 'stubble';
+    stache.visible = l.face === 'stache' || l.face === 'beard';
+    beard.visible = l.face === 'beard';
+    shades.visible = l.shades !== 'none';
+    glint.visible = l.shades === 'mirror';
+    eyes.visible = l.shades === 'none';
+  };
+  dress(look);
   // Chunky, so he reads from across the river.
   root.scale.setScalar(1.45);
-  return { root, body, rightArm, leftArm, rod, rodUpper, rodTip, hands, legs };
+  return { root, body, rightArm, leftArm, rod, rodUpper, rodTip, hands, legs, dress };
 }
 
 export interface Bike {
@@ -954,12 +1055,12 @@ export interface Bike {
   legs: THREE.Group[];
 }
 
-const SHIRTS = ['#b83a3a', '#2f4f6f', '#e9e4d6', '#5b7c4a', '#d6923a', '#6c5b9b', '#3b3b3b', '#7fa7c9'];
+const RIDER_SHIRTS = ['#b83a3a', '#2f4f6f', '#e9e4d6', '#5b7c4a', '#d6923a', '#6c5b9b', '#3b3b3b', '#7fa7c9'];
 const PANTS = ['#3f5b85', '#2d3a4f', '#b9a67e', '#5a5f4a', '#33302d'];
 const CAPS = ['#2f4f6f', '#b83a3a', '#e9e4d6', '#3b3b3b', '#5b7c4a', '#d6923a'];
 const HAIR = ['#3b2a1e', '#6b4a2e', '#c99a5b', '#1e1e1e', '#8a8a8a'];
 const FRAMES = ['#d94f3d', '#2a6f97', '#f2a541', '#3c8d5a', '#e9e4d6', '#262626', '#8e6fd6'];
-const SKINS = ['#f1c4a3', '#e8b796', '#c98e64', '#8d5a3b'];
+const RIDER_SKINS = ['#f1c4a3', '#e8b796', '#c98e64', '#8d5a3b'];
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 const shade = (hex: string, k: number) => '#' + new THREE.Color(hex).multiplyScalar(k).getHexString();
 
@@ -979,9 +1080,9 @@ function strut(parent: THREE.Object3D, x1: number, y1: number, x2: number, y2: n
     wheels on the ground at the origin. Each call rolls a new rider. */
 export function buildBike(): Bike {
   const frame = pick(FRAMES);
-  const shirt = pick(SHIRTS);
+  const shirt = pick(RIDER_SHIRTS);
   const pants = pick(PANTS);
-  const skin = pick(SKINS);
+  const skin = pick(RIDER_SKINS);
   const shorts = Math.random() < 0.5;
   const root = new THREE.Group();
   const bike = new THREE.Group();
