@@ -1,0 +1,30 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import ProjectFrame from '../layouts/ProjectFrame.astro';
+import FlyFishing from '../components/FlyFishing.tsx';
+import AppearanceChrome from '../components/AppearanceChrome.tsx';
+import { loadFeedMeta } from '../lib/posts';
+
+const posts = (await loadFeedMeta()).map((p) => ({ slug: p.slug!, title: p.title }));
+---
+<Layout title="gone fishing — hudbud.net" description="A little trout stream. Cast a fly, land a fish, and see which post it came from.">
+  <ProjectFrame fill>
+    <FlyFishing client:only="react" posts={posts} />
+  </ProjectFrame>
+  <AppearanceChrome client:load />
+</Layout>
+
+<style is:global>
+  /* Same denser glass as the game's own pills, so ⌘K reads over the meadow. */
+  body:has(.hp-fish) .hp-cmdk-trigger {
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    color: var(--fg);
+  }
+  /* On a phone the site's own buttons share the bottom edge, so the game's
+     row and its panels sit one row up. */
+  @media (max-width: 640px) {
+    .hp-fish-bar { bottom: 72px !important; }
+    .hp-fish-pane { bottom: 128px !important; max-height: calc(100% - 160px) !important; }
+  }
+</style>
