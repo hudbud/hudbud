@@ -13,7 +13,7 @@ import {
   BANK_Y, trailZ, riverZ, riverSlope, riverHalf, edgeZ, bankZ, lane, laneZ, bedY, reachSpeed, reachChop, waterName,
   WALL_X, LOGFALL_X, FISH_PALETTES, BIKE_WHEEL_R, BIKE_CRANK, BIKE_HIP,
   buildTerrain, buildFish, buildAvatar, buildFly, buildBike, buildBug, buildUnderRock, box, lump,
-  DEFAULT_LOOK, SKINS, HAIRS, SHIRTS, WADERS, HAT_COLORS, HATS, FACES, SHADES,
+  DEFAULT_LOOK, SKINS, HAIRS, SHIRTS, WADERS, HAT_COLORS, HATS, FACES, SHADES, DOGS, NECKS, TUBE_COLORS,
   type FishMesh, type Avatar, type Bike, type SpeciesId, type FlyId, type BugId, type NymphId, type Look,
 } from './flyFishingScene';
 import { createSound, type Sound } from './flyFishingSound';
@@ -255,6 +255,9 @@ function loadLook(): Look {
       shades: pick(l.shades, SHADES, d.shades),
       shirt: color(l.shirt, SHIRTS, d.shirt),
       waders: color(l.waders, WADERS, d.waders),
+      neck: pick(l.neck, NECKS, d.neck),
+      tube: color(l.tube, TUBE_COLORS, d.tube),
+      dog: pick(l.dog, DOGS, d.dog),
     };
   } catch {
     return DEFAULT_LOOK;
@@ -929,7 +932,9 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     scene.add(terrain.group);
 
     const av: Avatar = buildAvatar(loadLook());
-    scene.add(av.root);
+    scene.add(av.root, av.dog.root);
+    // Cosmo keeps to his left, a step back from the water.
+    const pup = { x: 0, run: false, stride: 0, sit: 1, yaw: 0, here: false };
     // A little hop when he changes his kit.
     let hop = 0;
     dressRef.current = (l) => {
@@ -1917,6 +1922,32 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       av.root.updateMatrixWorld(true);
       av.rodTip.getWorldPosition(world.tip);
 
+      // Cosmo trots after him, then sits and watches the fly. A fish on gets him up.
+      const dog = av.dog;
+      if (dog.root.visible) {
+        const goal = clamp(world.avatarX + 0.85, WALK_MIN, LOGFALL_X - 0.8);
+        if (!pup.here) Object.assign(pup, { x: goal, run: false, sit: 1, here: true });
+        const dx = goal - pup.x;
+        if (Math.abs(dx) > 0.4) pup.run = true;
+        else if (Math.abs(dx) < 0.05) pup.run = false;
+        if (pup.run) {
+          pup.x += Math.sign(dx) * Math.min(Math.abs(dx), 3.2 * dt);
+          pup.stride += dt * 18;
+        }
+        const keen = L.state === 'fighting' || L.state === 'taken' || isHolding;
+        pup.sit = approach(pup.sit, pup.run || keen ? 0 : 1, 5, dt);
+        pup.yaw = approach(pup.yaw, pup.run ? Math.sign(dx) * Math.PI / 2 : 0, 8, dt);
+        const dz = bankZ(pup.x) - 0.3;
+        const at = world.hooked ?? (L.state === 'idle' ? null : L);
+        const look = at ? clamp(Math.atan2(at.x - pup.x, at.z - dz) - pup.yaw, -0.9, 0.9) : Math.sin(t * 0.4) * 0.3;
+        dog.head.rotation.y = approach(dog.head.rotation.y, pup.run ? 0 : look, 5, dt);
+        dog.tongue.visible = pup.run || keen;
+        dog.pose(pup.sit, pup.run ? Math.sin(pup.stride) : 0, Math.sin(t * (keen ? 24 : 9)) * (keen ? 0.6 : 0.3));
+        const hopUp = keen && !isHolding ? Math.max(0, Math.sin(t * 7)) * 0.05 : 0;
+        dog.root.position.set(pup.x, BANK_Y + (pup.run ? Math.abs(Math.sin(pup.stride)) * 0.04 : 0) + hopUp, dz);
+        dog.root.rotation.y = Math.PI + pup.yaw;
+      } else pup.here = false;
+
       // Fly and line.
       const tip = world.tip;
       fly.visible = L.state !== 'taken' && L.state !== 'fighting';
@@ -2516,7 +2547,8 @@ function AnglerPane({ look, onChange, style }: { look: Look; onChange: (l: Look)
     const av = buildAvatar(look);
     av.rod.visible = false;
     av.leftArm.rotation.x = av.rightArm.rotation.x = 0.15;
-    scene.add(av.root, box(1.5, 0.12, 1.5, '#86bd4a', 0, -0.06, 0, false));
+    av.dog.root.position.set(-0.72, 0, -0.15);
+    scene.add(av.root, av.dog.root, box(2, 0.12, 1.5, '#86bd4a', 0, -0.06, 0, false));
     const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 50);
     camera.position.set(0, 1.9, -5.4);
     camera.lookAt(0, 1.05, 0);
@@ -2542,6 +2574,8 @@ function AnglerPane({ look, onChange, style }: { look: Look; onChange: (l: Look)
       const t = (now - t0) / 1000;
       av.root.rotation.y = Math.sin(t * 0.7) * 0.7;
       av.body.position.y = Math.abs(Math.sin(t * 2)) * 0.015;
+      av.dog.head.rotation.y = Math.sin(t * 0.5) * 0.4;
+      av.dog.pose(1, 0, Math.sin(t * 9) * 0.3);
       if (hop > 0) {
         hop += dt;
         av.body.position.y += Math.sin(Math.min(1, hop / 0.32) * Math.PI) * 0.12;
@@ -2563,7 +2597,7 @@ function AnglerPane({ look, onChange, style }: { look: Look; onChange: (l: Look)
     dressRef.current(next);
   };
   const row: CSSProperties = { display: 'grid', gridTemplateColumns: '52px 1fr', alignItems: 'center', columnGap: 8 };
-  const swatches = (key: 'skin' | 'hair' | 'hatColor' | 'shirt' | 'waders', list: { id: string; name: string; color: string }[], label: string) => (
+  const swatches = (key: 'skin' | 'hair' | 'hatColor' | 'shirt' | 'waders' | 'tube', list: { id: string; name: string; color: string }[], label: string) => (
     <div style={row} role="radiogroup" aria-label={label}>
       <span>{label}</span>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -2588,7 +2622,7 @@ function AnglerPane({ look, onChange, style }: { look: Look; onChange: (l: Look)
       </div>
     </div>
   );
-  const choices = <K extends 'face' | 'hat' | 'shades'>(key: K, list: readonly Look[K][], label: string, names: Record<Look[K], string>) => (
+  const choices = <K extends 'face' | 'hat' | 'shades' | 'neck' | 'dog'>(key: K, list: readonly Look[K][], label: string, names: Record<Look[K], string>) => (
     <div style={row} role="radiogroup" aria-label={label}>
       <span>{label}</span>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, margin: '0 -6px' }}>
@@ -2629,7 +2663,10 @@ function AnglerPane({ look, onChange, style }: { look: Look; onChange: (l: Look)
       {look.hat !== 'none' && swatches('hatColor', HAT_COLORS, '')}
       {choices('shades', SHADES, 'shades', { mirror: 'mirrored', tint: 'tinted', none: 'none' })}
       {swatches('shirt', SHIRTS, 'shirt')}
+      {choices('neck', NECKS, 'neck', { none: 'bare', hood: 'hood up', tube: 'tube', chin: 'to chin', face: 'to nose' })}
+      {(look.neck === 'tube' || look.neck === 'chin' || look.neck === 'face') && swatches('tube', TUBE_COLORS, '')}
       {swatches('waders', WADERS, 'waders')}
+      {choices('dog', DOGS, 'dog', { cosmo: 'cosmo', none: 'none' })}
     </section>
   );
 }
