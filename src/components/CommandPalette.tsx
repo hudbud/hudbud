@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlass, Briefcase, Cube, Camera, ChatCircleText, BookOpen, House, User, Copy, Check,
-  DownloadSimple, Palette, LinkSimple, Planet, IdentificationCard,
+  DownloadSimple, Palette, LinkSimple, Planet, IdentificationCard, FishSimple,
 } from '@phosphor-icons/react';
 import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 import { applyThemeVars } from './chrome';
@@ -55,6 +55,7 @@ const STATIC: Entry[] = [
   { id: 'p-about', group: 'pages', title: 'About', chip: 'page', icon: <IdentificationCard size={ICON_SIZE} />, href: '/about', text: 'about me bio' },
   { id: 'p-thoughts', group: 'pages', title: 'Thoughts', sub: 'Short notes and half-formed ideas', chip: 'page', icon: <ChatCircleText size={ICON_SIZE} />, href: '/?thoughts=open', text: 'thoughts notes blog writing' },
   { id: 'p-space', group: 'pages', title: 'Space', sub: 'Every post as a node graph', chip: 'page', icon: <Planet size={ICON_SIZE} />, href: '/graph', text: 'space graph map nodes' },
+  { id: 'p-fish', group: 'pages', title: 'Gone fishing', sub: 'Cast a fly, land a post', chip: 'page', icon: <FishSimple size={ICON_SIZE} />, href: '/fish', text: 'fish fishing fly stream game trout' },
   { id: 'l-linkedin', group: 'links', title: 'LinkedIn', chip: 'link', icon: <LinkSimple size={ICON_SIZE} />, href: 'https://www.linkedin.com/in/hudsonpaine', external: true, text: 'linkedin' },
   { id: 'l-github', group: 'links', title: 'GitHub', sub: 'This site is open source', chip: 'link', icon: <LinkSimple size={ICON_SIZE} />, href: 'https://github.com/hudbud/hudbud', external: true, text: 'github code source repo' },
   { id: 'l-youtube', group: 'links', title: 'YouTube', chip: 'link', icon: <LinkSimple size={ICON_SIZE} />, href: 'https://www.youtube.com/@hudbud22', external: true, text: 'youtube video' },

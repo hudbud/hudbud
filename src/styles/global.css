@@ -859,6 +859,26 @@ a:hover > .hp-tile-title,
   50% { opacity: 0.35; }
 }
 
+/* Fishing tile: the words at rest; hover wipes the stream up from the
+   bottom edge and the words go white over the scrim. Touch screens have no
+   hover, so they show the still from the start. */
+.hp-fish-tile .hp-tile-cover {
+  clip-path: inset(100% 0 0 0);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), clip-path 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hp-fish-tile .hp-tile-scrim { opacity: 0; transition: opacity 0.3s ease; }
+.hp-fish-tile:is(:hover, :focus-visible) .hp-tile-cover { clip-path: inset(0); }
+.hp-fish-tile:is(:hover, :focus-visible) .hp-tile-scrim { opacity: 1; }
+.hp-fish-tile:is(:hover, :focus-visible) :is(.hp-tile-title, .hp-tile-arrow) { color: #fff; }
+.hp-fish-tile:is(:hover, :focus-visible) .hp-tile-arrow { transform: translate(2px, -2px); }
+.hp-fish-tile:is(:hover, :focus-visible) .hp-tile-title { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4); }
+@media (hover: none) {
+  .hp-fish-tile .hp-tile-cover { clip-path: none; }
+  .hp-fish-tile .hp-tile-scrim { opacity: 1; }
+  .hp-fish-tile :is(.hp-tile-title, .hp-tile-arrow) { color: #fff; }
+  .hp-fish-tile .hp-tile-title { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4); }
+}
+
 /* Flat FABs: beats the box-shadow bloom-menu animates inline. */
 .hp-glass-bloom { box-shadow: none !important; }
 
