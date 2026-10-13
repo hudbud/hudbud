@@ -1917,31 +1917,26 @@ function StreamTile({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-// The fly-fishing game as a door: just the words at rest; hover or focus
-// wipes a clip of the stream up through the tile. Reduced motion keeps the
-// still, and touch screens show it from the start.
+// The fly-fishing game as a door: the stream loops in black and white, and
+// hover or focus brings the color up. It only plays while on screen, and
+// reduced motion keeps the still.
 const FISH_CLIP = '/fish/go-fishing.mp4';
 
 function FishTile() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const reduce = useReducedMotion();
-  const play = () => {
+  useEffect(() => {
     const v = videoRef.current;
     if (!v || reduce) return;
-    v.currentTime = 0;
-    v.play().catch(() => {});
-  };
-  const stop = () => videoRef.current?.pause();
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) v.play().catch(() => {});
+      else v.pause();
+    });
+    io.observe(v);
+    return () => io.disconnect();
+  }, [reduce]);
   return (
-    <a
-      href="/fish"
-      className="hp-fish-tile hp-tile-pad"
-      onMouseEnter={play}
-      onMouseLeave={stop}
-      onFocus={play}
-      onBlur={stop}
-      style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-    >
+    <a href="/fish" className="hp-fish-tile hp-tile-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <video ref={videoRef} muted playsInline loop preload="none" poster={FISH_CLIP.replace(/\.mp4$/, '-poster.webp')} className="hp-tile-cover" aria-hidden>
         <source src={FISH_CLIP} type="video/mp4" />
       </video>
@@ -2191,14 +2186,14 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   stack(0);
   feature(1);
   feature(2);
+  // The stream and the fishing tile pair up beside the wide feature.
+  tiles.push({ key: 'fish', size: '1x1', className: 'hp-tile-link', node: <FishTile /> });
+  tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
   if (pile.length) tiles.push({ key: 'hathway', size: '2x1', className: 'hp-tile-link', node: <HathwayTile rows={pile} total={hathway.length} onOpenAll={() => setSheet('hathway')} /> });
   feature(3);
   tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
-  tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
   if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
   tiles.push({ key: 'websites', size: '2x1', className: 'hp-tile-link', node: <WebsitesTile rows={sites} onOpenAll={() => setSheet('websites')} /> });
-  // Drops into the slot under the stream, beside the bench.
-  tiles.push({ key: 'fish', size: '1x1', className: 'hp-tile-link', node: <FishTile /> });
   for (let i = 1; i < appStacks.length; i++) stack(i);
   for (let i = 4; i < featured.length; i++) feature(i);
   const dealtFrom = tiles.length;

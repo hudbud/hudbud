@@ -814,8 +814,11 @@ export function buildFish(len: number, palette = FISH_PALETTES.rainbow): FishMes
 export type HatId = 'cap' | 'bucket' | 'beanie' | 'none';
 export type FaceId = 'stache' | 'beard' | 'stubble' | 'clean';
 export type ShadesId = 'mirror' | 'tint' | 'none';
-/** What the angler is wearing. Skin and hair are ids; the clothes are colors. */
-export interface Look { skin: string; hair: string; face: FaceId; hat: HatId; hatColor: string; shades: ShadesId; shirt: string; waders: string }
+export type DogId = 'cosmo' | 'none';
+/** A sun hood up, or a face tube at the neck, pulled to the chin, or to the nose. */
+export type NeckId = 'none' | 'hood' | 'tube' | 'chin' | 'face';
+/** What the angler is wearing, and who came along. Skin and hair are ids; the clothes are colors. */
+export interface Look { skin: string; hair: string; face: FaceId; hat: HatId; hatColor: string; shades: ShadesId; shirt: string; waders: string; neck: NeckId; tube: string; dog: DogId }
 
 type Swatch = { id: string; name: string; color: string };
 export const SKINS: (Swatch & { dark: string; stubble: string })[] = [
@@ -849,6 +852,15 @@ export const WADERS: Swatch[] = [
   { id: 'tan', name: 'tan', color: '#8a7860' },
   { id: 'black', name: 'black', color: '#2e2f33' },
 ];
+export const TUBE_COLORS: Swatch[] = [
+  { id: 'glacier', name: 'glacier', color: '#a9bccf' },
+  { id: 'sand', name: 'sand', color: '#d8c7a3' },
+  { id: 'sage', name: 'sage', color: '#93a77e' },
+  { id: 'teal', name: 'teal', color: '#2f9c95' },
+  { id: 'coral', name: 'coral', color: '#ea7a5f' },
+  { id: 'white', name: 'white', color: '#f2f0ea' },
+  { id: 'charcoal', name: 'charcoal', color: '#3d4148' },
+];
 export const HAT_COLORS: Swatch[] = [
   { id: 'gray', name: 'gray', color: '#7d8088' },
   { id: 'red', name: 'red', color: '#d84a40' },
@@ -861,8 +873,10 @@ export const HAT_COLORS: Swatch[] = [
 export const HATS: HatId[] = ['cap', 'bucket', 'beanie', 'none'];
 export const FACES: FaceId[] = ['stache', 'beard', 'stubble', 'clean'];
 export const SHADES: ShadesId[] = ['mirror', 'tint', 'none'];
-/** Hudson's own kit. */
-export const DEFAULT_LOOK: Look = { skin: 'fair', hair: 'ginger', face: 'stache', hat: 'cap', hatColor: '#7d8088', shades: 'mirror', shirt: '#ffab2e', waders: '#5c6770' };
+export const NECKS: NeckId[] = ['none', 'hood', 'tube', 'chin', 'face'];
+export const DOGS: DogId[] = ['cosmo', 'none'];
+/** Hudson's own kit, and Cosmo. */
+export const DEFAULT_LOOK: Look = { skin: 'fair', hair: 'ginger', face: 'stache', hat: 'cap', hatColor: '#7d8088', shades: 'mirror', shirt: '#ffab2e', waders: '#5c6770', neck: 'none', tube: '#a9bccf', dog: 'cosmo' };
 
 export interface Avatar {
   root: THREE.Group;
@@ -874,12 +888,15 @@ export interface Avatar {
   rodTip: THREE.Object3D;
   hands: THREE.Object3D;
   legs: THREE.Group[];
+  /** Cosmo. Not parented to him so he can tag along at his own pace: add
+      dog.root to the scene yourself. dress() shows or hides him. */
+  dog: Dog;
   /** Recolor and re-kit him in place, so the rig the game holds stays put. */
   dress: (look: Look) => void;
 }
 
 /** Hudson, as seen on a September river: gray cap, mirrored shades, ginger
-    mustache, orange sun shirt, gray vest, waders, and a net on his back.
+    mustache, orange sun shirt, chest waders, and a net on his back.
     Faces -z with feet at the origin; the game turns him to face the camera.
     Parts named in the palette get recolored by dress(). */
 export function buildAvatar(look: Look = DEFAULT_LOOK): Avatar {
@@ -894,11 +911,10 @@ export function buildAvatar(look: Look = DEFAULT_LOOK): Avatar {
     shades: '#22d3b6',
     glint: '#ffffff',
     frame: '#2a2a2a',
-    gaiter: '#a9bccf',
     shirt: '#ffab2e',
-    vest: '#8d9299',
-    vestDark: '#73787f',
+    tube: '#a9bccf',
     waders: '#5c6770',
+    wadersDark: '#4a535a',
     boots: '#3b3f45',
     net: '#d9b45a',
   };
@@ -927,15 +943,17 @@ export function buildAvatar(look: Look = DEFAULT_LOOK): Avatar {
     body.add(g);
     return g;
   });
-  // Torso, wader bib, vest.
+  // Torso, and the chest-high wader bib with its pockets.
   body.add(b(0.46, 0.42, 0.28, 'shirt', 0, 0.58, 0));
   body.add(b(0.4, 0.12, 0.3, 'waders', 0, 0.42, 0));
-  body.add(b(0.44, 0.3, 0.05, 'vest', 0, 0.6, -0.15));
-  body.add(b(0.44, 0.34, 0.05, 'vest', 0, 0.6, 0.15));
-  body.add(b(0.13, 0.1, 0.03, 'vestDark', -0.11, 0.56, -0.18));
-  body.add(b(0.13, 0.1, 0.03, 'vestDark', 0.11, 0.56, -0.18));
-  // Neck gaiter.
-  body.add(b(0.3, 0.08, 0.26, 'gaiter', 0, 0.82, 0));
+  body.add(b(0.44, 0.3, 0.05, 'waders', 0, 0.6, -0.15));
+  body.add(b(0.44, 0.34, 0.05, 'waders', 0, 0.6, 0.15));
+  body.add(b(0.13, 0.1, 0.03, 'wadersDark', -0.11, 0.56, -0.18));
+  body.add(b(0.13, 0.1, 0.03, 'wadersDark', 0.11, 0.56, -0.18));
+  // Neck, and the hood or face tube that might cover it.
+  body.add(b(0.22, 0.1, 0.2, 'skin', 0, 0.82, 0));
+  const tubeNeck = group(body, b(0.3, 0.12, 0.28, 'tube', 0, 0.83, 0));
+  const hoodNeck = group(body, b(0.36, 0.1, 0.32, 'shirt', 0, 0.82, 0.01));
 
   // Head.
   const head = new THREE.Group();
@@ -961,6 +979,17 @@ export function buildAvatar(look: Look = DEFAULT_LOOK): Avatar {
   head.add(b(0.05, 0.1, 0.08, 'skinDark', -0.2, 0, 0.0));
   head.add(b(0.05, 0.1, 0.08, 'skinDark', 0.2, 0, 0.0));
   head.add(b(0.39, 0.14, 0.06, 'hair', 0, 0.07, 0.17));
+  // The tube pulled up over his chin, or up to the shades; the hood framing his face.
+  const tubeChin = group(head, b(0.4, 0.12, 0.4, 'tube', 0, -0.13, 0));
+  const tubeFace = group(head, b(0.4, 0.195, 0.44, 'tube', 0, -0.0925, -0.015));
+  const hoodTop = b(0.46, 0.05, 0.44, 'shirt', 0, 0.32, 0.02);
+  const hood = group(
+    head,
+    b(0.04, 0.48, 0.4, 'shirt', -0.215, 0.07, 0.03),
+    b(0.04, 0.48, 0.4, 'shirt', 0.215, 0.07, 0.03),
+    b(0.46, 0.5, 0.05, 'shirt', 0, 0.07, 0.215),
+    hoodTop,
+  );
   // Hats, and the hair that shows without one.
   const hats: Record<HatId, THREE.Group> = {
     cap: group(head, b(0.41, 0.13, 0.41, 'cap', 0, 0.23, 0.01), b(0.39, 0.035, 0.2, 'capDark', 0, 0.17, -0.27), b(0.06, 0.03, 0.06, 'capDark', 0, 0.31, 0.01, false)),
@@ -1029,24 +1058,137 @@ export function buildAvatar(look: Look = DEFAULT_LOOK): Avatar {
       hair: hair.color, stache: hair.stache,
       cap: l.hatColor, capDark: shade(l.hatColor, 0.8),
       shades: l.shades === 'tint' ? '#4a3a2c' : '#22d3b6',
-      shirt: l.shirt, waders: l.waders,
+      shirt: l.shirt, tube: l.tube, waders: l.waders, wadersDark: shade(l.waders, 0.8),
     });
     root.traverse((o) => {
       const part = o.userData.part as string | undefined;
       if (part) (o as THREE.Mesh).material = mat(K[part]);
     });
     for (const id of HATS) hats[id].visible = id === l.hat;
-    stubble.visible = l.face === 'stache' || l.face === 'stubble';
-    stache.visible = l.face === 'stache' || l.face === 'beard';
-    beard.visible = l.face === 'beard';
+    const chin = l.neck === 'chin' || l.neck === 'face';
+    stubble.visible = !chin && (l.face === 'stache' || l.face === 'stubble');
+    stache.visible = l.neck !== 'face' && (l.face === 'stache' || l.face === 'beard');
+    beard.visible = !chin && l.face === 'beard';
+    tubeNeck.visible = l.neck === 'tube' || chin;
+    tubeChin.visible = l.neck === 'chin';
+    tubeFace.visible = l.neck === 'face';
+    hood.visible = hoodNeck.visible = l.neck === 'hood';
+    // Over a cap, under anything taller.
+    hoodTop.visible = l.hat === 'cap' || l.hat === 'none';
     shades.visible = l.shades !== 'none';
     glint.visible = l.shades === 'mirror';
     eyes.visible = l.shades === 'none';
+    dog.root.visible = l.dog !== 'none';
   };
+  const dog = buildDog();
   dress(look);
   // Chunky, so he reads from across the river.
   root.scale.setScalar(1.45);
-  return { root, body, rightArm, leftArm, rod, rodUpper, rodTip, hands, legs, dress };
+  return { root, body, rightArm, leftArm, rod, rodUpper, rodTip, hands, legs, dog, dress };
+}
+
+export interface Dog {
+  root: THREE.Group;
+  head: THREE.Group;
+  tongue: THREE.Object3D;
+  /** `sit` 0 standing to 1 on his haunches; `swing` -1..1 through a trot
+      stride; `wag` the tail's swing in radians. */
+  pose: (sit: number, swing: number, wag: number) => void;
+}
+
+/** Cosmo: a scruffy little black-and-tan terrier. Black mask with a stripe
+    down his nose, tan brows and cheeks, a grizzled beard, and ears that won't
+    decide whether to stand up. Faces -z, feet at the origin. */
+export function buildDog(): Dog {
+  const coat = '#26211e';
+  const tan = '#b07a46';
+  const root = new THREE.Group();
+  // Everything hangs off his back hips, so sitting is one tilt.
+  const hips = new THREE.Group();
+  hips.position.set(0, 0.17, 0.12);
+  root.add(hips);
+  hips.add(
+    box(0.22, 0.17, 0.36, coat, 0, 0.07, -0.13),
+    box(0.17, 0.1, 0.06, tan, 0, 0.03, -0.3),
+    box(0.08, 0.06, 0.01, '#c99a68', 0, 0.03, -0.334, false),
+    // Black collar, with his brass tag.
+    box(0.16, 0.035, 0.12, '#151515', 0, 0.14, -0.33),
+    box(0.03, 0.035, 0.01, '#c9a24a', 0.035, 0.105, -0.395, false),
+  );
+  // Scruff along his back.
+  for (const [x, z, s] of [[-0.06, -0.24, 0.06], [0.05, -0.16, 0.05], [-0.03, -0.05, 0.055], [0.06, 0.02, 0.045]]) {
+    hips.add(box(s, 0.04, s, '#3a322c', x, 0.165, z, false));
+  }
+  const leg = (x: number, z: number, upper: string) => {
+    const g = new THREE.Group();
+    g.position.set(x, 0, z);
+    g.add(box(0.07, 0.12, 0.07, upper, 0, -0.06, 0), box(0.07, 0.06, 0.08, tan, 0, -0.14, -0.005));
+    hips.add(g);
+    return g;
+  };
+  const front = [leg(-0.07, -0.26, tan), leg(0.07, -0.26, tan)];
+  const rear = [leg(-0.075, 0, coat), leg(0.075, 0, coat)];
+  const tail = new THREE.Group();
+  tail.position.set(0, 0.13, 0.04);
+  tail.rotation.x = -0.5;
+  tail.add(box(0.05, 0.14, 0.05, coat, 0, 0.06, 0));
+  hips.add(tail);
+
+  const head = new THREE.Group();
+  head.position.set(0, 0.2, -0.38);
+  hips.add(head);
+  head.add(
+    box(0.2, 0.17, 0.17, coat, 0, 0.02, 0),
+    // Silver grizzle on his crown.
+    box(0.05, 0.03, 0.05, '#77716a', -0.05, 0.115, -0.02, false),
+    box(0.045, 0.03, 0.045, '#6a645e', 0.045, 0.115, 0.03, false),
+    box(0.04, 0.03, 0.04, '#77716a', 0.01, 0.12, -0.055, false),
+    // Tan brow dots and cheeks on the black mask.
+    box(0.045, 0.03, 0.02, tan, -0.05, 0.057, -0.088),
+    box(0.045, 0.03, 0.02, tan, 0.05, 0.057, -0.088),
+    box(0.05, 0.06, 0.02, tan, -0.07, -0.025, -0.088),
+    box(0.05, 0.06, 0.02, tan, 0.07, -0.025, -0.088),
+    box(0.04, 0.04, 0.02, '#3b2213', -0.05, 0.017, -0.093, false),
+    box(0.04, 0.04, 0.02, '#3b2213', 0.05, 0.017, -0.093, false),
+    box(0.012, 0.012, 0.01, '#ffffff', -0.06, 0.027, -0.104, false),
+    box(0.012, 0.012, 0.01, '#ffffff', 0.04, 0.027, -0.104, false),
+    // Tan muzzle with the black stripe down the bridge, and a grizzled beard.
+    box(0.11, 0.08, 0.08, tan, 0, -0.04, -0.12),
+    box(0.03, 0.015, 0.075, coat, 0, 0.003, -0.115, false),
+    box(0.055, 0.03, 0.03, '#141110', 0, -0.01, -0.168, false),
+    box(0.13, 0.05, 0.075, '#c8bca8', 0, -0.085, -0.118),
+    box(0.03, 0.06, 0.06, '#a9a092', -0.07, -0.06, -0.12, false),
+    box(0.03, 0.06, 0.06, '#a9a092', 0.07, -0.06, -0.12, false),
+  );
+  // Ears up, with the tips flopped forward.
+  for (const sx of [-1, 1]) {
+    const ear = new THREE.Group();
+    ear.position.set(sx * 0.075, 0.1, 0);
+    ear.rotation.z = -sx * 0.3;
+    ear.add(box(0.06, 0.09, 0.035, coat, 0, 0.04, 0), box(0.06, 0.035, 0.05, coat, 0, 0.085, -0.03), box(0.035, 0.055, 0.01, '#8a5a35', 0, 0.035, -0.019, false));
+    head.add(ear);
+  }
+  const tongue = box(0.04, 0.015, 0.05, '#e8828a', 0, -0.07, -0.16, false);
+  head.add(tongue);
+
+  root.traverse((o) => {
+    if ((o as THREE.Mesh).isMesh) o.castShadow = true;
+  });
+  const pose = (sit: number, swing: number, wag: number) => {
+    const s = swing * 0.6 * (1 - sit);
+    hips.position.y = 0.17 - 0.1 * sit;
+    hips.rotation.x = 0.6 * sit;
+    front.forEach((g, i) => {
+      g.rotation.x = -0.6 * sit + (i ? s : -s);
+      g.scale.y = 1 + 0.28 * sit;
+    });
+    rear.forEach((g, i) => (g.rotation.x = 0.97 * sit + (i ? -s : s)));
+    head.rotation.x = -0.45 * sit;
+    tail.rotation.z = wag;
+  };
+  pose(1, 0, 0);
+  root.scale.setScalar(1.25);
+  return { root, head, tongue, pose };
 }
 
 export interface Bike {
