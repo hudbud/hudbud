@@ -2,6 +2,7 @@
 // Post photos from a phone: add them to an existing post or start a new one.
 // The browser shrinks each photo, the Worker (/api/admin, worker/index.js)
 // stores it in R2 and commits the markdown to GitHub, and the push deploys.
+// A phone that sleeps mid-upload picks up where it left off.
 export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import { loadAdminPosts } from '../lib/posts';
@@ -67,6 +68,7 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
       <ul class="thumbs"></ul>
 
       <button type="submit" class="publish">publish</button>
+      <button type="button" class="discard" hidden>start over</button>
       <p class="msg" role="status"></p>
     </form>
   </main>
@@ -79,6 +81,7 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
     var thumbs = compose.querySelector('.thumbs');
     var picker = compose.querySelector('input[type=file]');
     var publishBtn = compose.querySelector('.publish');
+    var discardBtn = compose.querySelector('.discard');
     var msg = compose.querySelector('.msg');
     var f = compose.elements;
     var files = [];
@@ -88,8 +91,9 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
     function say(el, text) { el.textContent = text; }
     function slugify(t) { return t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80); }
 
-    fetch('/api/admin/session').then(function (r) {
+    var authed = fetch('/api/admin/session').then(function (r) {
       (r.ok ? compose : lock).hidden = false;
+      return r.ok;
     });
 
     lock.addEventListener('submit', function (e) {
@@ -102,14 +106,17 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
         if (!r.ok) return say(lock.querySelector('.msg'), 'not quite. try again?');
         lock.hidden = true;
         compose.hidden = false;
+        run();
       });
     });
 
-    compose.addEventListener('change', function (e) {
-      if (e.target.name !== 'mode') return;
+    function showMode() {
       var isNew = f.mode.value === 'new';
       compose.querySelector('.for-add').hidden = isNew;
       compose.querySelector('.for-new').hidden = !isNew;
+    }
+    compose.addEventListener('change', function (e) {
+      if (e.target.name === 'mode') showMode();
     });
 
     function render() {
@@ -131,6 +138,8 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
         x.textContent = '×';
         x.setAttribute('aria-label', 'remove photo');
         x.onclick = function () { URL.revokeObjectURL(item.preview); files.splice(i, 1); render(); };
+        x.hidden = !!job;
+        if (job) li.dataset.state = job.photos[i].url ? 'up' : '';
         li.append(img, x);
         thumbs.append(li);
       });
@@ -227,55 +236,173 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
       return blob;
     }
 
-    compose.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var isNew = f.mode.value === 'new';
-      var slug = isNew ? slugify(f.title.value) : f.slug.value;
-      var text = f.text.value.trim();
-      if (!slug) return say(msg, 'needs a title');
-      if (isNew && slugs.indexOf(slug) !== -1) return say(msg, 'there’s already a post called that');
-      if (!files.length && !text) return say(msg, 'add some photos or words first');
+    // Uploads keep their place in IndexedDB: the shrunk photos, which ones made
+    // it to R2, and the form. Names are fixed when the job starts, so a retry
+    // overwrites rather than duplicates, and publish skips work it already did.
+    var job = null;
+    var running = false;
+    var stalled = false;
+    var inflight = null;
+    var revived = false;
+    var hiddenAt = 0;
+    var wake = null;
 
-      publishBtn.disabled = true;
+    var db = new Promise(function (resolve, reject) {
+      var req = indexedDB.open('hp-admin', 1);
+      req.onupgradeneeded = function () { req.result.createObjectStore('kv'); };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error); };
+    });
+    function store(mode, fn) {
+      return db.then(function (d) {
+        return new Promise(function (resolve, reject) {
+          var tx = d.transaction('kv', mode);
+          var req = fn(tx.objectStore('kv'));
+          tx.oncomplete = function () { resolve(req && req.result); };
+          tx.onerror = tx.onabort = function () { reject(tx.error); };
+        });
+      });
+    }
+    function get(key) { return store('readonly', function (s) { return s.get(key); }).catch(function () {}); }
+    // A failed save only costs the resume, never the upload itself.
+    function keep(key, value) { return store('readwrite', function (s) { s.put(value, key); }).catch(function () {}); }
+    function forget() { return store('readwrite', function (s) { s.clear(); }).catch(function () {}); }
+
+    function sleep(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+
+    // Keep the screen on while photos go up; iOS drops the lock whenever the
+    // page hides, so it's taken again on the way back.
+    function holdAwake() {
+      if (!navigator.wakeLock || wake || document.hidden) return;
+      wake = navigator.wakeLock.request('screen').then(function (w) {
+        if (!running) w.release();
+        w.addEventListener('release', function () { wake = null; });
+        return w;
+      }).catch(function () { wake = null; });
+    }
+    function letSleep() {
+      if (wake) wake.then(function (w) { if (w) w.release(); });
+      wake = null;
+    }
+
+    function ready() {
+      say(msg, navigator.onLine ? 'paused. picks up when you’re back.' : 'offline. picks up when the signal does.');
+      return new Promise(function (resolve) {
+        function check() {
+          if (document.hidden || !navigator.onLine) return;
+          document.removeEventListener('visibilitychange', check);
+          removeEventListener('online', check);
+          resolve();
+        }
+        document.addEventListener('visibilitychange', check);
+        addEventListener('online', check);
+        check();
+      });
+    }
+
+    // fetch, but patient: dropped connections and 5xx retry with backoff, and a
+    // sleeping phone waits to be woken instead of burning its tries.
+    async function send(url, init, label) {
+      var tries = 0;
+      while (true) {
+        say(msg, label);
+        var ctl = new AbortController();
+        var timer = setTimeout(function () { ctl.abort(); }, 60000);
+        inflight = ctl;
+        revived = false;
+        try {
+          var r = await fetch(url, Object.assign({ signal: ctl.signal }, init));
+          var body = await r.text();
+          var out = {};
+          try { out = JSON.parse(body); } catch (err) {}
+          if (r.ok) return out;
+          if (r.status === 401) throw Object.assign(new Error('signed out'), { locked: true });
+          if (r.status < 500 && r.status !== 408 && r.status !== 429) throw new Error(out.error || 'that didn’t take');
+        } catch (err) {
+          if (err.name !== 'TypeError' && err.name !== 'AbortError') throw err;
+        } finally {
+          clearTimeout(timer);
+          inflight = null;
+        }
+        if (revived) { revived = false; tries = 0; continue; }
+        if (document.hidden || !navigator.onLine) { await ready(); tries = 0; continue; }
+        if (++tries > 5) throw Object.assign(new Error('stuck'), { stalled: true });
+        label = 'signal dropped. trying again…';
+        await sleep(1000 * Math.min(Math.pow(2, tries), 16));
+      }
+    }
+
+    function fields(on) {
+      Array.prototype.forEach.call(compose.elements, function (el) {
+        if (el !== publishBtn && el !== discardBtn) el.disabled = on;
+      });
+      picker.parentElement.classList.toggle('off', on);
+    }
+
+    function status() {
+      publishBtn.disabled = running;
+      publishBtn.textContent = job && !running ? 'resume upload' : 'publish';
+      discardBtn.hidden = !job || running;
+    }
+
+    function mark(i, state) {
+      var li = thumbs.children[i];
+      if (li) li.dataset.state = state;
+    }
+
+    async function run() {
+      if (running || !job) return;
+      running = true;
+      stalled = false;
+      status();
+      holdAwake();
       try {
-        var stamp = Date.now().toString(36);
-        var urls = [];
-        for (var i = 0; i < files.length; i++) {
-          say(msg, 'uploading ' + (i + 1) + ' of ' + files.length + '…');
-          var blob = await shrink(files[i].file);
-          var r = await fetch('/api/admin/media?slug=' + slug + '&name=' + stamp + '-' + (i + 1), {
+        var n = job.photos.length;
+        for (var i = 0; i < n; i++) {
+          var p = job.photos[i];
+          if (p.url) continue;
+          if (!files[i] || !files[i].file) throw new Error('lost photo ' + (i + 1) + '. start over?');
+          mark(i, 'sending');
+          var label = 'uploading ' + (i + 1) + ' of ' + n + '…';
+          say(msg, label);
+          if (!p.shrunk) {
+            var blob = await shrink(files[i].file);
+            files[i].file = blob;
+            p.shrunk = true;
+            await keep('photo-' + i, blob);
+            await keep('job', job);
+          }
+          var up = await send('/api/admin/media?slug=' + job.slug + '&name=' + job.stamp + '-' + (i + 1), {
             method: 'PUT',
-            headers: { 'Content-Type': blob.type },
-            body: blob,
-          });
-          if (!r.ok) throw new Error((await r.json().catch(function () { return {}; })).error || 'upload failed');
-          urls.push((await r.json()).url);
+            headers: { 'Content-Type': files[i].file.type },
+            body: files[i].file,
+          }, label);
+          if (!up.url) throw new Error('upload failed');
+          p.url = up.url;
+          mark(i, 'up');
+          await keep('job', job);
         }
 
-        say(msg, 'publishing…');
-        var res = await fetch('/api/admin/publish', {
+        var out = await send('/api/admin/publish', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            mode: isNew ? 'new' : 'add',
-            slug: slug,
-            title: f.title.value,
-            tag: f.tag.value,
-            date: f.date.value,
-            draft: f.draft.checked,
-            text: text,
-            images: urls,
+            mode: job.mode,
+            slug: job.slug,
+            title: job.title,
+            tag: job.tag,
+            date: job.date,
+            draft: job.draft,
+            text: job.text,
+            images: job.photos.map(function (p) { return p.url; }),
           }),
-        });
-        var out = await res.json().catch(function () { return {}; });
-        if (!res.ok) throw new Error(out.error || 'publish failed');
+        }, 'publishing…');
 
-        files.forEach(function (item) { URL.revokeObjectURL(item.preview); });
-        files = [];
-        render();
+        var isNew = job.mode === 'new';
+        var draft = isNew && job.draft;
+        if (isNew) { slugs.push(job.slug); f.title.value = ''; }
         f.text.value = '';
-        var draft = isNew && f.draft.checked;
-        if (isNew) { slugs.push(slug); f.title.value = ''; }
+        await clear();
         msg.innerHTML = '';
         msg.append(draft ? 'saved as a draft.' : 'done. live in a couple minutes at ');
         if (!draft) {
@@ -285,10 +412,100 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
           msg.append(a);
         }
       } catch (err) {
-        say(msg, 'hmm: ' + err.message);
+        thumbs.querySelectorAll('[data-state=sending]').forEach(function (li) { li.dataset.state = ''; });
+        if (err.locked) {
+          compose.hidden = true;
+          lock.hidden = false;
+          say(lock.querySelector('.msg'), 'signed out. unlock to finish; the photos are saved.');
+        } else if (err.stalled) {
+          stalled = true;
+          say(msg, 'can’t get through. it’ll keep trying, or tap resume.');
+        } else {
+          say(msg, 'hmm: ' + err.message);
+        }
       } finally {
-        publishBtn.disabled = false;
+        running = false;
+        letSleep();
+        status();
       }
+    }
+
+    async function clear() {
+      job = null;
+      files.forEach(function (item) { if (item.preview.startsWith('blob:')) URL.revokeObjectURL(item.preview); });
+      files = [];
+      await forget();
+      fields(false);
+      render();
+      status();
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { hiddenAt = Date.now(); return; }
+      if (running) holdAwake();
+      // A request that started before the phone slept is usually dead; restart it.
+      if (inflight && Date.now() - hiddenAt > 2000) { revived = true; inflight.abort(); }
+      if (stalled) run();
+    });
+    addEventListener('online', function () { if (stalled) run(); });
+
+    discardBtn.addEventListener('click', function () {
+      clear();
+      say(msg, '');
+    });
+
+    compose.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (job) return run();
+      var isNew = f.mode.value === 'new';
+      var slug = isNew ? slugify(f.title.value) : f.slug.value;
+      var text = f.text.value.trim();
+      if (!slug) return say(msg, 'needs a title');
+      if (isNew && slugs.indexOf(slug) !== -1) return say(msg, 'there’s already a post called that');
+      if (!files.length && !text) return say(msg, 'add some photos or words first');
+
+      job = {
+        mode: isNew ? 'new' : 'add',
+        slug: slug,
+        title: f.title.value,
+        tag: f.tag.value,
+        date: f.date.value,
+        draft: f.draft.checked,
+        text: text,
+        stamp: Date.now().toString(36),
+        photos: files.map(function () { return { url: null, shrunk: false }; }),
+      };
+      fields(true);
+      render();
+      status();
+      await Promise.all(files.map(function (item, i) { return keep('photo-' + i, item.file); }));
+      await keep('job', job);
+      run();
+    });
+
+    // Back after the tab was dropped: put the form and photos back and carry on.
+    Promise.all([authed, get('job')]).then(async function (got) {
+      var saved = got[1];
+      if (!saved || job) return;
+      var blobs = await Promise.all(saved.photos.map(function (p, i) { return get('photo-' + i); }));
+      job = saved;
+      files = saved.photos.map(function (p, i) {
+        return { file: blobs[i], preview: blobs[i] ? URL.createObjectURL(blobs[i]) : p.url || '' };
+      });
+      f.mode.value = job.mode;
+      showMode();
+      if (job.mode === 'add') f.slug.value = job.slug;
+      f.title.value = job.title;
+      f.tag.value = job.tag;
+      f.date.value = job.date;
+      f.draft.checked = job.draft;
+      f.text.value = job.text;
+      fields(true);
+      render();
+      status();
+      var done = job.photos.filter(function (p) { return p.url; }).length;
+      say(msg, 'picking up where it left off: ' + done + ' of ' + job.photos.length + ' up.');
+      if (got[0]) run();
     });
   })();
 </script>
@@ -411,6 +628,26 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
     line-height: 1;
   }
 
+  .thumbs :global(li[data-state] img) { opacity: 0.4; transition: opacity 0.3s; }
+  .thumbs :global(li[data-state='sending'] img) { animation: pulse 1.2s ease-in-out infinite alternate; }
+  .thumbs :global(li[data-state='up'] img) { opacity: 1; }
+  .thumbs :global(li[data-state='up'])::after {
+    content: '✓';
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.6);
+    color: #fff;
+    font-size: 13px;
+    line-height: 22px;
+    text-align: center;
+  }
+  @keyframes pulse { to { opacity: 0.85; } }
+  .pick.off span { opacity: 0.4; }
+
   button[type='submit'] {
     justify-self: start;
     padding: 10px 20px;
@@ -422,6 +659,15 @@ const tags = ['life', 'thoughts', 'resources', 'work', 'projects'];
   button[type='submit']:hover { color: var(--accent); border-color: var(--accent); }
   button[type='submit']:disabled { opacity: 0.5; }
   button.publish { justify-self: stretch; }
+  .discard {
+    justify-self: center;
+    margin-top: calc(-1 * var(--space-3));
+    font-size: 13px;
+    color: var(--fg-dim);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .discard:hover { color: var(--accent); }
   .msg {
     margin: 0;
     font-size: 14px;

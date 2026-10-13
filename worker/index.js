@@ -363,7 +363,12 @@ async function adminPublish(request, env) {
     const tag = POST_TAGS.includes(p.tag) ? p.tag : 'life';
     const path = `src/content/posts/${slug}.md`;
     const existing = await github(env, `${path}?ref=${BRANCH}`);
-    if (existing.ok) return json({ error: `a post called "${slug}" already exists` }, 409);
+    if (existing.ok) {
+      // A phone that lost the first reply sends it again; its photos are already there.
+      const { content } = await existing.json();
+      if (images[0] && fromBase64(content).includes(images[0])) return json({ slug, path: `/posts/${slug}` }, 201);
+      return json({ error: `a post called "${slug}" already exists` }, 409);
+    }
     const frontmatter = [
       '---',
       `title: ${JSON.stringify(title)}`,
@@ -387,7 +392,10 @@ async function adminPublish(request, env) {
   const current = await github(env, `${path}?ref=${BRANCH}`);
   if (!current.ok) return json({ error: current.status === 404 ? 'post not found' : `github said ${current.status}` }, 502);
   const { content, sha } = await current.json();
-  const next = `${fromBase64(content).trimEnd()}\n\n${block}\n`;
+  const before = fromBase64(content);
+  // Photo names are unique per upload, so finding one means this is a retry.
+  if (images[0] && before.includes(images[0])) return json({ slug, path: `/posts/${slug}` });
+  const next = `${before.trimEnd()}\n\n${block}\n`;
   const count = images.length;
   const res = await github(env, path, {
     method: 'PUT',
