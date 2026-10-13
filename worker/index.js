@@ -1,5 +1,6 @@
 // Worker in front of the static Astro build: serves /api/thoughts (the
-// guestbook micro-feed) and /thoughts.xml (its RSS feed) from D1, gates
+// guestbook micro-feed), /thoughts.xml (its RSS feed), and the /fish high
+// scores (/api/fish/scores) from D1, gates
 // /lightsource behind a password, runs the /api/admin phone-posting API, and
 // hands everything else to the static assets.
 //
@@ -126,6 +127,76 @@ ${items}
   return new Response(xml, {
     headers: { 'Content-Type': 'application/rss+xml; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
   });
+}
+
+// ---------- /fish: high scores ----------
+// Two boards, each one row per angler: the biggest fish, and the most fish in
+// one visit. The game only posts when a catch would make the board. Checks
+// keep it honest-ish; it's a toy.
+
+const FISH_MAX = { brook: 12, rainbow: 19, cutthroat: 18, brown: 24, golden: 17 };
+const FISH_FLIES = ['adams', 'bwo', 'pmd', 'caddis', 'stimi', 'hopper', 'gnat'];
+const FISH_NAME = 12;
+const FISH_BOARD = 10;
+const FISH_RATE = 40; // catches per IP per 10 minutes; landing one takes a while
+
+async function getFishBoards(env) {
+  const fish = await env.DB.prepare(
+    `SELECT name, species, fly, inches FROM (
+       SELECT *, ROW_NUMBER() OVER (PARTITION BY lower(name) ORDER BY inches DESC, created_at ASC) AS rn FROM fish_catches
+     ) WHERE rn = 1 ORDER BY inches DESC, created_at ASC LIMIT ?`
+  ).bind(FISH_BOARD).all();
+  const sessions = await env.DB.prepare(
+    `SELECT name, count, inches FROM (
+       SELECT *, ROW_NUMBER() OVER (PARTITION BY lower(name) ORDER BY count DESC, inches DESC, updated_at ASC) AS rn FROM fish_sessions
+     ) WHERE rn = 1 ORDER BY count DESC, inches DESC, updated_at ASC LIMIT ?`
+  ).bind(FISH_BOARD).all();
+  return { fish: fish.results, sessions: sessions.results };
+}
+
+async function postFishScore(request, env) {
+  const p = await request.json().catch(() => null);
+  if (!p) return json({ error: 'bad json' }, 400);
+  const sessionId = String(p.sessionId ?? '');
+  if (!/^[a-z0-9-]{8,40}$/.test(sessionId)) return json({ error: 'bad session' }, 400);
+  const { name: full } = resolveName(p.name, env.HUDBUD_SECRET);
+  const name = full.slice(0, FISH_NAME);
+
+  const f = p.fish;
+  const fish = f && FISH_MAX[f.species] && FISH_FLIES.includes(f.fly) && Number.isInteger(f.inches) && f.inches > 0 && f.inches <= FISH_MAX[f.species]
+    ? f
+    : null;
+  const s = p.session;
+  const session = s && Number.isInteger(s.count) && Number.isInteger(s.inches) && s.count > 0 && s.count <= 500 && s.inches <= s.count * FISH_MAX.brown
+    ? s
+    : null;
+  if (!fish && !session) return json({ error: 'nothing to post' }, 400);
+
+  const hash = await ipHash(request, env.HUDBUD_SECRET);
+  const now = Date.now();
+  const since = now - RATE_WINDOW_MS;
+  const recent = await env.DB.prepare(
+    `SELECT (SELECT COUNT(*) FROM fish_catches WHERE ip_hash = ?1 AND created_at > ?2) AS fish,
+            (SELECT COUNT(*) FROM fish_sessions WHERE ip_hash = ?1 AND created_at > ?2) AS sessions`
+  ).bind(hash, since).first();
+  if ((recent?.fish ?? 0) >= FISH_RATE || (recent?.sessions ?? 0) >= 10) {
+    return json({ error: 'the river needs a rest' }, 429);
+  }
+
+  if (fish) {
+    await env.DB.prepare(
+      'INSERT INTO fish_catches (name, species, fly, inches, session_id, created_at, ip_hash) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).bind(name, fish.species, fish.fly, fish.inches, sessionId, now, hash).run();
+  }
+  if (session) {
+    // A visit's tally only goes up, and only from wherever it started.
+    await env.DB.prepare(
+      `INSERT INTO fish_sessions (id, name, count, inches, created_at, updated_at, ip_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?5, ?6)
+       ON CONFLICT(id) DO UPDATE SET name = excluded.name, count = excluded.count, inches = excluded.inches, updated_at = excluded.updated_at
+       WHERE excluded.count >= fish_sessions.count AND fish_sessions.ip_hash = excluded.ip_hash`
+    ).bind(sessionId, name, session.count, session.inches, now, hash).run();
+  }
+  return json({ name, ...(await getFishBoards(env)) }, 201);
 }
 
 // ---------- /lightsource: password-gated case study ----------
@@ -292,7 +363,12 @@ async function adminPublish(request, env) {
     const tag = POST_TAGS.includes(p.tag) ? p.tag : 'life';
     const path = `src/content/posts/${slug}.md`;
     const existing = await github(env, `${path}?ref=${BRANCH}`);
-    if (existing.ok) return json({ error: `a post called "${slug}" already exists` }, 409);
+    if (existing.ok) {
+      // A phone that lost the first reply sends it again; its photos are already there.
+      const { content } = await existing.json();
+      if (images[0] && fromBase64(content).includes(images[0])) return json({ slug, path: `/posts/${slug}` }, 201);
+      return json({ error: `a post called "${slug}" already exists` }, 409);
+    }
     const frontmatter = [
       '---',
       `title: ${JSON.stringify(title)}`,
@@ -316,7 +392,10 @@ async function adminPublish(request, env) {
   const current = await github(env, `${path}?ref=${BRANCH}`);
   if (!current.ok) return json({ error: current.status === 404 ? 'post not found' : `github said ${current.status}` }, 502);
   const { content, sha } = await current.json();
-  const next = `${fromBase64(content).trimEnd()}\n\n${block}\n`;
+  const before = fromBase64(content);
+  // Photo names are unique per upload, so finding one means this is a retry.
+  if (images[0] && before.includes(images[0])) return json({ slug, path: `/posts/${slug}` });
+  const next = `${before.trimEnd()}\n\n${block}\n`;
   const count = images.length;
   const res = await github(env, path, {
     method: 'PUT',
@@ -375,6 +454,17 @@ export default {
         if (request.method === 'GET') return await getThoughts(env, url);
         if (request.method === 'POST') return await postThought(request, env);
       } catch (e) {
+        return json({ error: 'something broke' }, 500);
+      }
+      return json({ error: 'method not allowed' }, 405);
+    }
+
+    if (url.pathname === '/api/fish/scores') {
+      if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
+      try {
+        if (request.method === 'GET') return json(await getFishBoards(env));
+        if (request.method === 'POST') return await postFishScore(request, env);
+      } catch {
         return json({ error: 'something broke' }, 500);
       }
       return json({ error: 'method not allowed' }, 405);

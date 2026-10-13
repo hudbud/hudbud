@@ -21,10 +21,15 @@ const posts = (await loadFeedMeta()).map((p) => ({ slug: p.slug!, title: p.title
     background: color-mix(in srgb, var(--bg) 90%, transparent);
     color: var(--fg);
   }
-  /* On a phone the site's own buttons share the bottom edge, so the game's
-     row and its panels sit one row up. */
+  /* On a phone the play tools share the bottom row with the site's buttons,
+     and view and sound tuck up under search. */
   @media (max-width: 640px) {
-    .hp-fish-bar { bottom: 72px !important; }
-    .hp-fish-pane { bottom: 128px !important; max-height: calc(100% - 160px) !important; }
+    .hp-fish-view { left: auto !important; right: 16px; bottom: auto !important; top: 48px; flex-direction: column; }
+    .hp-fish-ask label { flex-basis: 100%; }
+  }
+  /* No keyboard on touch, so no key hints. */
+  @media (hover: none) {
+    .hp-fish-keys { display: none !important; }
+    .hp-fish-fly { padding-block: 10px !important; }
   }
 </style>

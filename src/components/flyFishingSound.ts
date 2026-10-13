@@ -266,6 +266,9 @@ export function createSound(): Sound {
       if (!ctx) {
         const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
         if (!AC) return;
+        // Safari: an ambient session mixes with music and honors the silent switch.
+        const session = (navigator as unknown as { audioSession?: { type: string } }).audioSession;
+        if (session) session.type = 'ambient';
         try {
           ctx = new AC();
           G = build(ctx);
