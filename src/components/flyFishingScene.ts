@@ -1128,10 +1128,16 @@ export function buildDog(): Dog {
   };
   const front = [leg(-0.07, -0.26, tan), leg(0.07, -0.26, tan)];
   const rear = [leg(-0.075, 0, coat), leg(0.075, 0, coat)];
+  // A long tail carried high, curving up at the end, with a scruffy tip.
   const tail = new THREE.Group();
   tail.position.set(0, 0.13, 0.04);
-  tail.rotation.x = -0.5;
-  tail.add(box(0.05, 0.14, 0.05, coat, 0, 0.06, 0));
+  tail.rotation.x = 0.75;
+  tail.add(box(0.06, 0.2, 0.06, coat, 0, 0.09, 0));
+  const tailTip = new THREE.Group();
+  tailTip.position.y = 0.18;
+  tailTip.rotation.x = -0.45;
+  tailTip.add(box(0.05, 0.16, 0.05, coat, 0, 0.07, 0), box(0.06, 0.05, 0.06, '#3a322c', 0, 0.15, 0.005, false));
+  tail.add(tailTip);
   hips.add(tail);
 
   const head = new THREE.Group();
@@ -1185,6 +1191,8 @@ export function buildDog(): Dog {
     rear.forEach((g, i) => (g.rotation.x = 0.97 * sit + (i ? -s : s)));
     head.rotation.x = -0.45 * sit;
     tail.rotation.z = wag;
+    // The tip whips a little further than the base.
+    tailTip.rotation.z = wag * 0.7;
   };
   pose(1, 0, 0);
   root.scale.setScalar(1.25);

@@ -43,7 +43,7 @@ interface Boards {
 type Pane = 'log' | 'scores' | 'box' | 'angler' | null;
 interface Log { posts: Record<string, string>; species: Partial<Record<SpeciesId, { n: number; best: number }>>; total: number }
 
-type FishState = 'enter' | 'hold' | 'chase' | 'rise' | 'spook' | 'hooked' | 'leap' | 'held' | 'release';
+type FishState = 'enter' | 'hold' | 'chase' | 'rise' | 'spook' | 'hooked' | 'leap' | 'held' | 'release' | 'fall';
 /** Somewhere a trout holds. `big` lies (boulders, the log, the pool) are where the big ones go. */
 interface Lie { x: number; z: number; big: boolean; fish: Fish | null }
 interface Fish {
@@ -105,6 +105,9 @@ interface World {
 const CAST_TIME = 0.6;
 const STRIKE_WINDOW = 0.85;
 const FISH_COUNT = 13;
+/** Cheats can stock the river, up to here. */
+const MAX_FISH = 49;
+const KONAMI = 'arrowup arrowup arrowdown arrowdown arrowleft arrowright arrowleft arrowright';
 const SPEED = 0.75;
 /** He can walk between the granite wall and the log fall, a little short of each. */
 const WALK_MIN = WALL_X + 0.8;
@@ -709,6 +712,7 @@ function step(w: World, dt: number, fx: Fx, cb: Callbacks, avatarHands: THREE.Ve
       case 'leap':
       case 'held':
       case 'release':
+      case 'fall':
         break;
     }
 
@@ -743,14 +747,26 @@ function step(w: World, dt: number, fx: Fx, cb: Callbacks, avatarHands: THREE.Ve
         fx.snd.splash(0.5);
         spook(f, rand(-Math.PI, 0), 10);
       }
+    } else if (f.state === 'fall') {
+      // Stocked from the sky: it waits out of sight, then drops straight in.
+      const p = clamp(f.t / 0.9, 0, 1);
+      depth = f.from.y + (f.to.y - f.from.y) * p * p;
+      f.wag += dt * 26;
+      if (p >= 1) {
+        fx.splash(f.x, f.z, 8);
+        fx.ring(f.x, f.z, 0.8, 1);
+        if (onScreen(f.x)) fx.snd.splash(0.4);
+        spook(f, rand(-Math.PI, 0), 3);
+      }
     }
-    f.y = approach(f.y, depth, f.state === 'leap' || f.state === 'held' || f.state === 'release' || f.state === 'hooked' ? 60 : 4, dt);
+    f.y = approach(f.y, depth, f.state === 'leap' || f.state === 'held' || f.state === 'release' || f.state === 'hooked' || f.state === 'fall' ? 60 : 4, dt);
   }
 }
 
 export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const tensionRef = useRef<HTMLSpanElement>(null);
+  const gaugeRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<() => void>(() => {});
   const releaseRef = useRef<() => void>(() => {});
   const poolRef = useRef<{ slug: string; title: string; images: string[] }[]>([]);
@@ -759,6 +775,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   const tieRef = useRef<(id: FlyId) => void>(() => {});
   const rockRef = useRef<() => void>(() => {});
   const putBackRef = useRef<() => void>(() => {});
+  const cheatRef = useRef<(code: string) => void>(() => {});
   const soundRef = useRef<Sound | null>(null);
   const logRef = useRef<Log>(loadLog());
   const openRef = useRef(false);
@@ -767,7 +784,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   const boardsRef = useRef<Boards | null>(null);
   const nameRef = useRef('');
   /** This visit: a fresh id per page load, and the running tally. */
-  const sessionRef = useRef({ id: '', count: 0, inches: 0 });
+  const sessionRef = useRef({ id: '', count: 0, inches: 0, cheated: false });
 
   const [hint, setHint] = useState<string>(HINT.cast);
   const [count, setCount] = useState(0);
@@ -787,6 +804,8 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   const [name, setName] = useState('');
   /** The name the server settled on, for spotting your own rows. */
   const [you, setYou] = useState('');
+  /** The chat line, Age of Mythology style: Enter opens it, and that's where cheats go. */
+  const [chat, setChat] = useState<string | null>(null);
   const cardRef = useRef<HTMLElement>(null);
   openRef.current = !!card;
   logOpenRef.current = !!pane || !!under;
@@ -824,8 +843,8 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
   /** Post whatever this catch and this visit earned. Resolves to the card's badge. */
   async function postScore(p: { species: SpeciesId; fly: FlyId; inches: number }, as: string) {
     const b = boardsRef.current;
-    if (!b || !as) return undefined;
     const s = sessionRef.current;
+    if (!b || !as || s.cheated) return undefined;
     const fish = makes(b.fish, (r) => p.inches > r.inches);
     const session = makes(b.sessions, (r) => s.count > r.count || (s.count === r.count && s.inches > r.inches));
     if (!fish && !session) return undefined;
@@ -1451,7 +1470,7 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
         visit.count += 1;
         visit.inches += p.inches;
         // Make the board: post under the saved name, or ask for one on the card.
-        const b = boardsRef.current;
+        const b = visit.cheated ? null : boardsRef.current;
         if (b && !nameRef.current) {
           c.ask = makes(b.fish, (r) => p.inches > r.inches) || makes(b.sessions, (r) => visit.count > r.count || (visit.count === r.count && visit.inches > r.inches));
         } else if (b) {
@@ -1586,6 +1605,53 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
       cb.note(`tied on a #${f.size} ${f.name}`);
     };
 
+    // Cheats. Fun, but they keep this visit off the high scores.
+    const cheated = (h: string) => {
+      const first = !sessionRef.current.cheated;
+      sessionRef.current.cheated = true;
+      cb.note(first ? `${h} · no high scores this visit` : h);
+      holdUntil = world.time + 3.5;
+    };
+    cheatRef.current = (raw) => {
+      const code = raw.trim().replace(/\s+/g, ' ').toUpperCase();
+      if (code === 'KONAMI') {
+        // Every trout in the river turns golden, the rare one.
+        let i = 0;
+        for (const f of world.fish) {
+          if (f === world.hooked || f.species === 'golden' || f.state === 'leap' || f.state === 'held' || f.state === 'release') continue;
+          scene.remove(f.mesh.root);
+          f.mesh.root.traverse((o) => o instanceof THREE.Mesh && o.geometry.dispose());
+          f.species = 'golden';
+          f.mesh = buildFish(f.len, FISH_PALETTES.golden);
+          f.mesh.root.scale.setScalar(0.4);
+          scene.add(f.mesh.root);
+          fx.ring(f.x, f.z, 0.7, 1.2, i++ * 0.08);
+        }
+        sound.landed();
+        cheated('↑↑↓↓←→←→ · the river runs gold');
+      } else if (/^I WANT THE TROUT!*$/.test(code)) {
+        // After AoM's I WANT THE MONKEYS!!!!!: a dozen trout rain into the water on screen.
+        const n = Math.min(12, MAX_FISH - world.fish.length);
+        if (!n) return cb.note('the river is full');
+        const lo = Math.max(world.xMin, WALL_X + 0.6);
+        const hi = Math.min(world.xMax, LOGFALL_X - 0.6);
+        for (let i = 0; i < n; i++) {
+          const f = makeFish(scene);
+          f.x = rand(lo, hi);
+          f.z = laneZ(f.x, rand(-0.7, 0.7));
+          f.from.set(f.x, 14, f.z);
+          f.to.set(f.x, -0.26, f.z);
+          f.y = 14;
+          f.heading = rand(0, Math.PI * 2);
+          f.state = 'fall';
+          f.t = -rand(0, 1.4);
+          world.fish.push(f);
+        }
+        cheated('trout incoming');
+      } else if (/^I WANT THE MONKEYS!*$/.test(code)) cb.note('wrong game. try trout');
+      else if (code) cb.note(`“${raw.trim().slice(0, 40)}”`);
+    };
+
     // Turn a stone at the edge: he crouches, lifts it, and we get a close look.
     let crouch = 0;
     let stone: THREE.Object3D | null = null;
@@ -1666,12 +1732,26 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     el.addEventListener('pointerup', onUp);
     el.addEventListener('pointercancel', onUp);
 
-    // Keys: space works the rod, arrows walk, M and N mend, S feeds slack, V turns the view.
+    // Keys: space works the rod, arrows walk, M and N mend, S feeds slack, V turns the view, Enter chats.
     const typing = (e: KeyboardEvent) => (e.target as HTMLElement).closest('input, textarea, button, a, [contenteditable]');
+    const recent: string[] = [];
     const onKey = (e: KeyboardEvent) => {
       sound.unlock();
       if (openRef.current || typing(e) || e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key.toLowerCase();
+      if (!e.repeat) {
+        recent.push(k);
+        if (recent.length > 8) recent.shift();
+        if (recent.join(' ') === KONAMI) {
+          recent.length = 0;
+          cheatRef.current('konami');
+        }
+      }
+      if (k === 'enter' && !e.repeat) {
+        e.preventDefault();
+        setChat('');
+        return;
+      }
       if (/^[1-7]$/.test(k) && !e.repeat) {
         tieRef.current(FLIES[Number(k) - 1].id);
         return;
@@ -1855,6 +1935,13 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
         tensionRef.current.style.width = `${Math.round(world.tension * 100)}%`;
         tensionRef.current.style.background = world.tension > 0.7 ? '#ff5a4e' : 'var(--accent)';
       }
+      // The tension gauge rides just above the fish on the line.
+      const g = gaugeRef.current;
+      if (g && world.hooked) {
+        const f = world.hooked;
+        const p = probe.set(f.x, Math.max(0, f.y), f.z).project(camera);
+        g.style.transform = `translate(${((p.x + 1) / 2) * el.clientWidth}px, ${((1 - p.y) / 2) * el.clientHeight}px) translate(-50%, calc(-100% - 18px))`;
+      }
 
       // Angler pose.
       const aim = world.hooked ?? (L.state !== 'idle' ? (L.state === 'casting' ? { x: L.tx, z: L.tz } : L) : null);
@@ -1942,7 +2029,10 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
         const look = at ? clamp(Math.atan2(at.x - pup.x, at.z - dz) - pup.yaw, -0.9, 0.9) : Math.sin(t * 0.4) * 0.3;
         dog.head.rotation.y = approach(dog.head.rotation.y, pup.run ? 0 : look, 5, dt);
         dog.tongue.visible = pup.run || keen;
-        dog.pose(pup.sit, pup.run ? Math.sin(pup.stride) : 0, Math.sin(t * (keen ? 24 : 9)) * (keen ? 0.6 : 0.3));
+        // Reeling one in gets the full wag.
+        const reeling = L.state === 'fighting' && world.reeling;
+        const wag = reeling ? Math.sin(t * 32) * 0.95 : Math.sin(t * (keen ? 24 : 9)) * (keen ? 0.6 : 0.3);
+        dog.pose(pup.sit, pup.run ? Math.sin(pup.stride) : 0, wag);
         const hopUp = keen && !isHolding ? Math.max(0, Math.sin(t * 7)) * 0.05 : 0;
         dog.root.position.set(pup.x, BANK_Y + (pup.run ? Math.abs(Math.sin(pup.stride)) * 0.04 : 0) + hopUp, dz);
         dog.root.rotation.y = Math.PI + pup.yaw;
@@ -2152,17 +2242,43 @@ export default function FlyFishing({ posts }: { posts: FishPost[] }) {
     <div ref={hostRef} className="hp-fish" style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       <div style={pill} aria-live="polite">
         <span style={{ color: good ? 'var(--accent)' : undefined }}>{hint}</span>
-        {fighting && (
-          <span aria-hidden style={{ width: 48, height: 4, borderRadius: 2, background: 'var(--tile)', overflow: 'hidden' }}>
-            <span ref={tensionRef} style={{ display: 'block', height: '100%', width: 0, borderRadius: 2 }} />
-          </span>
-        )}
         {count > 0 && <span style={{ color: 'var(--fg-dim)' }}>{count} landed</span>}
       </div>
+      {fighting && (
+        <div ref={gaugeRef} aria-hidden style={{ ...pill, left: 0, top: 0, padding: 5, zIndex: 4, transform: 'translate(-999px, -999px)' }}>
+          <span style={{ display: 'block', width: 48, height: 4, borderRadius: 2, background: 'var(--tile)', overflow: 'hidden' }}>
+            <span ref={tensionRef} style={{ display: 'block', height: '100%', width: 0, borderRadius: 2 }} />
+          </span>
+        </div>
+      )}
       {clock && (
         <div style={{ ...pill, top: 52, padding: '4px 10px', fontSize: 11, color: 'var(--fg-dim)' }}>
           {clock}
         </div>
+      )}
+      {chat !== null && (
+        <form
+          style={{ ...pill, top: 'auto', bottom: 76, left: '50%', transform: 'translateX(-50%)', width: 'min(340px, calc(100% - 32px))', pointerEvents: 'auto', userSelect: 'auto', zIndex: 20 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            cheatRef.current(chat);
+            setChat(null);
+          }}
+        >
+          <span style={{ color: 'var(--fg-dim)' }}>chat</span>
+          <input
+            autoFocus
+            value={chat}
+            maxLength={60}
+            aria-label="chat"
+            spellCheck={false}
+            autoComplete="off"
+            onChange={(e) => setChat(e.target.value)}
+            onKeyDown={(e) => e.key === 'Escape' && setChat(null)}
+            onBlur={() => setChat(null)}
+            style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none', font: 'inherit', color: 'inherit', padding: 0 }}
+          />
+        </form>
       )}
 
       <div className="hp-fish-bar" style={{ position: 'absolute', left: 16, bottom: 16, zIndex: 15, display: 'flex', gap: 8 }}>

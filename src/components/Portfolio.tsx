@@ -2183,12 +2183,12 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
 
   feature(0);
   tiles.push({ key: 'about', size: '2x2', node: <AboutTile onOpenAbout={onOpenAbout} /> });
-  stack(0);
-  feature(1);
-  feature(2);
-  // The stream and the fishing tile pair up beside the wide feature.
+  // Right under the opening pair: fishing and the stream, beside the wide feature.
   tiles.push({ key: 'fish', size: '1x1', className: 'hp-tile-link', node: <FishTile /> });
   tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
+  feature(2);
+  stack(0);
+  feature(1);
   if (pile.length) tiles.push({ key: 'hathway', size: '2x1', className: 'hp-tile-link', node: <HathwayTile rows={pile} total={hathway.length} onOpenAll={() => setSheet('hathway')} /> });
   feature(3);
   tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
