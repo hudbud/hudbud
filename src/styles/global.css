@@ -408,6 +408,14 @@ img { max-width: 100%; display: block; }
   padding-bottom: 0;
 }
 
+.prose a:has(> img) img {
+  transition: opacity 0.15s ease;
+}
+
+.prose a:has(> img):hover img {
+  opacity: 0.85;
+}
+
 /* ---------- Hover tooltip (intro social links) ---------- */
 .hp-tip {
   position: relative;
