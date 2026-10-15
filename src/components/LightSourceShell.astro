@@ -51,12 +51,12 @@ const body = bodies[`../lightsource/${page}.html`];
     set();
   });
 
-  // Gallery: flip one card, or every card, between classic and Nova.
+  // Gallery: flip one card, or every card, between legacy and the redesign.
   const gallery = document.getElementById('gallery-grid');
   if (gallery) {
     const flip = (frame: Element, isNew: boolean) => {
       frame.classList.toggle('show-new', isNew);
-      frame.querySelector('.tag')!.textContent = isNew ? 'Nova' : 'Classic';
+      frame.querySelector('.tag')!.textContent = isNew ? 'Redesign' : 'Legacy';
     };
     const setAll = (isNew: boolean) => {
       gallery.querySelectorAll('.frame').forEach((f) => flip(f, isNew));
