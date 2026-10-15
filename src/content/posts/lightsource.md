@@ -81,7 +81,13 @@ It shipped opt-in, so real buyers could steer it before it became the default.
 
 ## Team
 
-It started with me. Now two more designers and about twenty engineers work from the same small set of patterns, and the feedback got sharper once more thought went in before anything shipped. Here's Erin Scott sketching the quote-format builder, and a bid comparison worked out on glass.
+It started with me.
+
+<div style="margin:12px 0">
+<img src="https://media.hudbud.net/lightsource/team/desk.webp" alt="At my desk in the LightSource office" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+</div>
+
+Now two more designers and about twenty engineers work from the same small set of patterns, and the feedback got sharper once more thought went in before anything shipped. Here's Erin Scott sketching the quote-format builder, and a bid comparison worked out on glass.
 
 <div style="display:grid;grid-template-columns:4fr 3fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/lightsource/whiteboards/IMG_5509.webp" alt="Erin Scott sketching the quote-format builder" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
