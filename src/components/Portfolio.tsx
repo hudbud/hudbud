@@ -1638,6 +1638,9 @@ const FEATURED_WORK: { slug: string; size: TileSize; dated?: false }[] = [
   { slug: 'carvanads', size: '2x2', dated: false },
   { slug: 'dave-and-busters', size: '2x1', dated: false },
   { slug: 'ladle', size: '2x2' },
+  { slug: 'dennys', size: '2x1', dated: false },
+  { slug: 'blaze', size: '2x1', dated: false },
+  { slug: 'red-robin', size: '2x1', dated: false },
 ];
 
 const PHOTO_MOSAIC_COUNT = 6;
@@ -1671,15 +1674,15 @@ const WEBSITES: { name: string; key: string; slug?: string; url?: string; year?:
 ];
 const STACK_HAND = 4;
 
-// Client work from Hathway in sheet order; the rest pile up as cover cards.
-// Dave & Buster's has its own feature tile, so it sits in the sheet but not
-// the pile.
+// Client work from Hathway; the pile tile opens the Hathway post, which links
+// every client. The strongest have feature tiles of their own, so they stay
+// out of the pile.
 const HATHWAY: { slug: string; inPile?: false }[] = [
   { slug: 'dave-and-busters', inPile: false },
-  { slug: 'dennys' },
+  { slug: 'dennys', inPile: false },
+  { slug: 'blaze', inPile: false },
+  { slug: 'red-robin', inPile: false },
   { slug: 'dutch-bros' },
-  { slug: 'blaze' },
-  { slug: 'red-robin' },
   { slug: 'pieology' },
   { slug: 'pandaexpress' },
   { slug: 'arbys' },
@@ -2043,10 +2046,10 @@ function WebsitesTile({ rows, onOpenAll }: { rows: Row[]; onOpenAll: () => void 
 
 // The client covers dropped in a loose pile; hover fans them into a hand.
 // The middle card sits on top so the fan opens from the center.
-function HathwayTile({ rows, total, onOpenAll }: { rows: Row[]; total: number; onOpenAll: () => void }) {
+function HathwayTile({ rows, total, post }: { rows: Row[]; total: number; post: Row }) {
   const mid = (rows.length - 1) / 2;
   return (
-    <button onClick={onOpenAll} className="hp-cover-pile-tile" aria-label={`hathway, all ${total}`}>
+    <AppLink row={post} className="hp-cover-pile-tile">
       <span className="hp-cover-pile" aria-hidden>
         {rows.map((row, i) => (
           <img
@@ -2063,7 +2066,7 @@ function HathwayTile({ rows, total, onOpenAll }: { rows: Row[]; total: number; o
         <span>hathway</span>
         <span className="post-spec-cell hp-tile-arrow">all {total} →</span>
       </span>
-    </button>
+    </AppLink>
   );
 }
 
@@ -2120,7 +2123,7 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   scrollRef?: React.Ref<HTMLDivElement>;
   isMobile: boolean;
 }) {
-  const [sheet, setSheet] = useState<'photos' | 'websites' | 'hathway' | null>(null);
+  const [sheet, setSheet] = useState<'photos' | 'websites' | null>(null);
   const [dealt, setDealt] = useState(WORK_BATCH);
   const moreRef = useRef<HTMLDivElement>(null);
   const sections = useMemo(() => buildSections({ feed }), [feed]);
@@ -2189,13 +2192,18 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   feature(2);
   stack(0);
   feature(1);
-  if (pile.length) tiles.push({ key: 'hathway', size: '2x1', className: 'hp-tile-link', node: <HathwayTile rows={pile} total={hathway.length} onOpenAll={() => setSheet('hathway')} /> });
+  // Under CarvanaDS, a band of Hathway: the best three clients and the pile
+  // of the rest, which opens the systems post.
+  feature(4);
+  feature(5);
+  if (pile.length && hathwayPost) tiles.push({ key: 'hathway', size: '2x1', className: 'hp-tile-link', node: <HathwayTile rows={pile} total={hathway.length} post={hathwayPost} /> });
+  feature(6);
   feature(3);
   tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
   if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
   tiles.push({ key: 'websites', size: '2x1', className: 'hp-tile-link', node: <WebsitesTile rows={sites} onOpenAll={() => setSheet('websites')} /> });
   for (let i = 1; i < appStacks.length; i++) stack(i);
-  for (let i = 4; i < featured.length; i++) feature(i);
+  for (let i = 7; i < featured.length; i++) feature(i);
   const dealtFrom = tiles.length;
   let bigs = 0;
   for (const row of archive.slice(0, dealt)) {
@@ -2247,19 +2255,6 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
             <span style={{ display: 'block', fontSize: 14, color: 'var(--fg-dim)', margin: '36px 0 12px' }}>past portfolios</span>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
               {pastSites.map((v) => <PastSiteCard key={v.label} version={v} onOpen={() => onTimeTravel(v)} />)}
-            </div>
-          </BentoSheet>
-        )}
-        {sheet === 'hathway' && (
-          <BentoSheet key="hathway" title={`hathway · ${hathway.length}`} onClose={() => setSheet(null)}>
-            {hathwayPost && (
-              <p style={{ margin: '0 0 24px', maxWidth: '60ch', fontSize: 15, lineHeight: 1.6, color: 'var(--fg-dim)' }}>
-                {hathwayPost.desc}{' '}
-                <AppLink row={hathwayPost} style={{ color: 'var(--fg)' }}><span className="hp-name-link">the systems work →</span></AppLink>
-              </p>
-            )}
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: isMobile ? 12 : 16 }}>
-              {hathway.map((h, i) => <GridCard key={h.row.key} row={h.row} index={i} isMobile={isMobile} />)}
             </div>
           </BentoSheet>
         )}

@@ -61,7 +61,7 @@ const { title, pageTitle, description, image, spec = [], lede, hero, heroCaption
 
 <script>
   const images = Array.from(
-    document.querySelectorAll<HTMLImageElement>('.prose img')
+    document.querySelectorAll<HTMLImageElement>('.prose img:not(a img)')
   );
   const fullscreenBtn = document.getElementById('fullscreen-btn');
 

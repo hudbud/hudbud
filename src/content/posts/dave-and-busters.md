@@ -82,26 +82,32 @@ For this, I created and maintained two interlaced design systems, creating a flu
 
 <div style="margin:12px 0"><video src="https://media.hudbud.net/posts/47/main.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:800/450;height:auto;border-radius:2px;display:block;background:#000"></video></div>
 
-![](https://media.hudbud.net/posts/47/dingdingding-7.webp)
+### Rewards app
 
-![](https://media.hudbud.net/posts/47/db-prototype-1.webp)
+Chips to play, challenges to win, and a game card that lives on your phone.
 
-![](https://media.hudbud.net/posts/47/db-prototype-2.webp)
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/dingdingding-7.webp" alt="D&B Rewards on a phone: Afternoon, Ary! and a Ding Ding Ding! banner" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-![](https://media.hudbud.net/posts/47/frame-235.webp)
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-235.webp" alt="Rewards app screens next to a phone showing a 250 chip game card with Recharge Card" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-![](https://media.hudbud.net/posts/47/frame-236.webp)
+### Ordering
 
-![](https://media.hudbud.net/posts/47/frame-237.webp)
+Sit down, scan the table, and the menu knows where you are: "Hey Player! You're sitting at Table #50." Build the order, pay, tip, done.
 
-![](https://media.hudbud.net/posts/47/frame-238.webp)
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-240.webp" alt="The Build Your Order menu on a phone, with full-length menu pages" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-![](https://media.hudbud.net/posts/47/frame-239.webp)
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-241.webp" alt="Ordering screens over the menu at full size" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-![](https://media.hudbud.net/posts/47/frame-240.webp)
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-242.webp" alt="Helluva Old Fashioned product page with whiskey and garnish choices" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-![](https://media.hudbud.net/posts/47/frame-241.webp)
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-243.webp" alt="Your Bag, checkout, payment with tip, and the Ding Ding Ding! order confirmation" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-![](https://media.hudbud.net/posts/47/frame-242.webp)
+### Two systems
 
-![](https://media.hudbud.net/posts/47/frame-243.webp)
+Rewards and xDine ordering each got a toolkit, built on the same colors, type and motion so both apps feel like the same arcade.
+
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-236.webp" alt="The D&B Rewards toolkit laid out at an angle: atoms, cards, chips and motion" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/47/frame-239.webp" alt="The D&B xDine toolkit laid out at an angle: color, type, buttons and product cards" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+One of eight clients from my time at [Hathway](/posts/hathway).
