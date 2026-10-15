@@ -24,6 +24,7 @@ Classic, then Nova. Same page, same data.
 Fifteen oranges to one. The company asked for a design system and had a PNG logo and a near-empty Notion page for guidelines, so the brand came first: no sense encoding a palette into hundreds of components and changing it later. One #FF4B00, Wasa for display, Inter for everything else, a 27-page book, a new site and every piece of sales material.
 
 <div style="display:grid;gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/lightsource/figma/brand-book.webp" alt="The brand book, every page, in Figma" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 <img src="https://media.hudbud.net/lightsource/figma/brand-canvas.webp" alt="Brand guidelines working canvas in Figma" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 <img src="https://media.hudbud.net/lightsource/figma/black-study.webp" alt="Black and neutral ramp study in Figma" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 </div>
