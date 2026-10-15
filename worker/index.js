@@ -200,9 +200,10 @@ async function postFishScore(request, env) {
 }
 
 // ---------- /lightsource: password-gated case study ----------
-// A simple password wall, not real security: the pages are ordinary static
-// assets and the images are public on media.hudbud.net. The cookie is a hash
-// of the password, so changing it signs everyone out.
+// /lightsource itself is the public highlights page; everything under it sits
+// behind a simple password wall, not real security: the pages are ordinary
+// static assets and the images are public on media.hudbud.net. The cookie is
+// a hash of the password, so changing it signs everyone out.
 //
 //   npx wrangler secret put LIGHTSOURCE_PASSWORD
 
@@ -223,12 +224,13 @@ async function lsAuthed(request, password) {
 /** Where to land after unlocking: only ever a /lightsource page. */
 function lsNext(raw) {
   const next = String(raw ?? '');
-  return /^\/lightsource(\/[a-z-]*)?\/?$/.test(next) ? next : '/lightsource';
+  return /^\/lightsource(\/[a-z-]*)?\/?$/.test(next) ? next : '/lightsource/overview';
 }
 
 async function lightsource(request, env, url) {
   const password = env.LIGHTSOURCE_PASSWORD;
   const sub = url.pathname.slice('/lightsource'.length).replace(/^\/|\/$/g, '');
+  if (sub === '') return env.ASSETS.fetch(request);
 
   if (sub === 'unlock' && request.method === 'POST') {
     const form = await request.formData().catch(() => null);

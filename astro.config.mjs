@@ -38,7 +38,7 @@ export default defineConfig({
   redirects: {
     '/posts/about-me': '/about',
   },
-  integrations: [react(), sitemap({ filter: (page) => !page.includes('/lightsource') && !page.includes('/admin') })],
+  integrations: [react(), sitemap({ filter: (page) => !/\/lightsource\/./.test(page) && !page.includes('/admin') })],
   markdown: {
     rehypePlugins: [rehypeLazyImages, rehypeExternalLinks],
   },

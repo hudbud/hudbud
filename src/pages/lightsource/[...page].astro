@@ -4,7 +4,8 @@ import LightSourceShell from '../../components/LightSourceShell.astro';
 
 export function getStaticPaths() {
   return [
-    { params: { page: undefined }, props: { page: 'index', title: 'Redesigning LightSource' } },
+    { params: { page: undefined }, props: { page: 'highlights', title: 'Head of Design at LightSource' } },
+    { params: { page: 'overview' }, props: { page: 'overview', title: 'Redesigning LightSource' } },
     { params: { page: 'rebrand' }, props: { page: 'rebrand', title: 'The LightSource rebrand' } },
     { params: { page: 'system' }, props: { page: 'system', title: 'Design system and navigation' } },
     { params: { page: 'sourcing' }, props: { page: 'sourcing', title: 'Sourcing projects redesign' } },
