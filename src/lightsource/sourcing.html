@@ -2,17 +2,17 @@
   <div>
     <div class="eyebrow">Case study 3 — late 2025 to 2026</div>
     <h1>Rethinking the workflow, <em>not just the screens</em></h1>
-    <p class="lede">A sourcing project is the whole ecosystem for sending and receiving quotes, and it's where LightSource buyers spend most of their day. In classic, all of it lived on one Overview page. We rebuilt it as a workspace: Overview as mission control, items and suppliers promoted to first-class citizens, an analysis toolkit, and nothing that spits you out of the project.</p>
+    <p class="lede">A sourcing project is the whole ecosystem for sending and receiving quotes, and it's where LightSource buyers spend most of their day. In the legacy UI, all of it lived on one Overview page. We rebuilt it as a workspace: Overview as mission control, items and suppliers promoted to first-class citizens, an analysis toolkit, and nothing that spits you out of the project.</p>
   </div>
   <dl class="facts">
     <div><dt>Role</dt><dd>Design lead. Workflow rethink, information architecture, every screen in the project shell, customer sessions, engineering collaboration.</dd></div>
     <div><dt>Before</dt><dd>Items, suppliers, RFQ status, milestones, contracts and pricing stacked on one Overview. Analysis in a standalone full-screen tool.</dd></div>
     <div><dt>After</dt><dd>Overview, Items, Suppliers, Quote format and Award as tabs. Supplier detail in a side panel. Analysis becoming its own tab.</dd></div>
-    <div><dt>Shipped</dt><dd>Opt-in on production in 2026, per browser, alongside classic. Analysis toolkit in beta under Suppliers.</dd></div>
+    <div><dt>Shipped</dt><dd>Opt-in on production in 2026, per browser, alongside the legacy UI. Analysis toolkit in beta under Suppliers.</dd></div>
   </dl>
   <div>
-    <div class="ba" data-ba><img width="1440" height="900" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Classic overview"><img width="1440" height="900" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-overview.webp" alt="Nova overview"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
-    <p class="hint">Drag to compare. Ocean FCL, an in-progress project with 33 items and four suppliers, in classic and Nova.</p>
+    <div class="ba" data-ba><img width="1440" height="900" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Legacy overview"><img width="1440" height="900" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-overview.webp" alt="Redesigned overview"><span class="tag l">Legacy</span><span class="tag r">Redesign</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <p class="hint">Drag to compare. Ocean FCL, an in-progress project with 33 items and four suppliers, legacy and redesigned.</p>
   </div>
 </header>
 
@@ -59,7 +59,7 @@
   </div>
   <div class="qrow">
     <blockquote class="q pain"><span class="kind">What we heard</span><p>You literally never see this part, so you're not prompted to update it.</p><cite>Sourcing manager, customer team, on project details buried below the fold</cite></blockquote>
-    <blockquote class="q pain"><span class="kind">What we heard</span><p>I'm not even sure what this is showing.</p><cite>Sourcing manager, customer team, on the classic cost breakdown chart</cite></blockquote>
+    <blockquote class="q pain"><span class="kind">What we heard</span><p>I'm not even sure what this is showing.</p><cite>Sourcing manager, customer team, on the legacy cost breakdown chart</cite></blockquote>
     <blockquote class="q pain"><span class="kind">What we heard</span><p>Comparing quotes meant scrolling back and forth. Comfort with the tool: 4 out of 5, with the comparison screen as the main friction.</p><cite>Buyer, customer team, summarized from a usability session</cite></blockquote>
   </div>
 </section>
@@ -71,26 +71,26 @@
   <article class="moment">
     <div class="head">
       <div><h3>Items</h3><div class="route">(on Overview) → /items</div><div class="chips"><span class="chip">New tab</span><span class="chip">First-class</span></div></div>
-      <div class="prose"><p>In classic the items table was one block among many on the Overview, with its own edit mode and a horizontal scroll. In Nova it's a full page with the shared table pattern: search, filter, columns, expand, and the primary action in the same place as every other list in the product.</p></div>
+      <div class="prose"><p>In the legacy UI the items table was one block among many on the Overview, with its own edit mode and a horizontal scroll. In the redesign it's a full page with the shared table pattern: search, filter, columns, expand, and the primary action in the same place as every other list in the product.</p></div>
     </div>
-    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Classic overview with the items table"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-items.webp" alt="Nova items tab"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Legacy overview with the items table"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-items.webp" alt="Redesigned items tab"><span class="tag l">Legacy</span><span class="tag r">Redesign</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
   </article>
 
   <article class="moment">
     <div class="head">
       <div><h3>Suppliers and supplier detail</h3><div class="route">/quote-package/… → /suppliers/review/…</div><div class="chips"><span class="chip">New tab</span><span class="chip">Side panel</span></div></div>
-      <div class="prose"><p>Classic had an RFQ timeline on the Overview and opened each supplier's quote package as a full page. Nova has a Suppliers tab with participation, response rate and quote status up top, and opens the supplier in a panel over the list. <strong>We had too much, and I wanted to keep the user in the project.</strong> Too many places in the old UI spat you out into a random part of the app; the rolodex is for managing suppliers globally, not in the context of this project. The panel previews everything without leaving the page.</p></div>
+      <div class="prose"><p>The legacy UI had an RFQ timeline on the Overview and opened each supplier's quote package as a full page. The redesign has a Suppliers tab with participation, response rate and quote status up top, and opens the supplier in a panel over the list. <strong>We had too much, and I wanted to keep the user in the project.</strong> Too many places in the old UI spat you out into a random part of the app; the rolodex is for managing suppliers globally, not in the context of this project. The panel previews everything without leaving the page.</p></div>
     </div>
-    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-supplier-quote-package.webp" alt="Classic supplier quote package page"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-supplier-review-panel.webp" alt="Nova supplier review panel"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-supplier-quote-package.webp" alt="Legacy supplier quote package page"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-supplier-review-panel.webp" alt="Redesigned supplier review panel"><span class="tag l">Legacy</span><span class="tag r">Redesign</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
   </article>
 
   <article class="moment">
     <div class="head">
       <div><h3>Analysis</h3><div class="route">/bid-comparison/details → /suppliers/analyze/…</div><div class="chips"><span class="chip">Toolkit, not a tool</span><span class="chip">Beta</span></div></div>
-      <div class="prose"><p>Classic bid comparison was sloppy UI in a standalone full-screen tool. Bringing it up to the new design language and making it scannable was table stakes. The bigger change is what it's becoming: <strong>an analysis toolkit rather than a fixed report.</strong> Bid comparison, bid ranking, flattened view and data explorer are the named views today, but the point is that you can generate any slice of the data your company needs, by asking the AI or by building it manually. It's under Suppliers while we beta test it; it's getting its own tab.</p>
+      <div class="prose"><p>The legacy bid comparison was sloppy UI in a standalone full-screen tool. Bringing it up to the new design language and making it scannable was table stakes. The bigger change is what it's becoming: <strong>an analysis toolkit rather than a fixed report.</strong> Bid comparison, bid ranking, flattened view and data explorer are the named views today, but the point is that you can generate any slice of the data your company needs, by asking the AI or by building it manually. It's under Suppliers while we beta test it; it's getting its own tab.</p>
       <blockquote class="aside-q"><p>100% would be useful.</p><cite>Senior buyer, aerospace manufacturer, reacting to the heat-mapped comparison prototype</cite></blockquote></div>
     </div>
-    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-bid-comparison.webp" alt="Classic bid comparison"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-bid-comparison.webp" alt="Nova analysis"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-bid-comparison.webp" alt="Legacy bid comparison"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-bid-comparison.webp" alt="Redesigned analysis"><span class="tag l">Legacy</span><span class="tag r">Redesign</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
   </article>
 
   <article class="moment">
@@ -98,7 +98,7 @@
       <div><h3>Award</h3><div class="route">/overview/awards → /award</div><div class="chips"><span class="chip">Scenarios</span><span class="chip">Manual or AI</span></div></div>
       <div class="prose"><p>Award scenarios let a buyer compare ways to split a project across suppliers before committing. The whiteboards below are where we worked out how many paths into an award there really are: from the Overview, from a scenario tab, manual across several suppliers, AI-generated across several suppliers, and a pre-existing award with an approval flow.</p></div>
     </div>
-    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-award-scenarios.webp" alt="Classic award scenarios"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-award.webp" alt="Nova award"><span class="tag l">Classic</span><span class="tag r">Nova</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
+    <div class="ba" data-ba><img width="1440" height="900" loading="lazy" decoding="async" class="before" src="https://media.hudbud.net/lightsource/screenshots/old-sp-award-scenarios.webp" alt="Legacy award scenarios"><img width="1440" height="900" loading="lazy" decoding="async" class="after" src="https://media.hudbud.net/lightsource/screenshots/new-sp-award.webp" alt="Redesigned award"><span class="tag l">Legacy</span><span class="tag r">Redesign</span><input type="range" min="0" max="100" value="50" aria-label="Reveal before and after"><div class="handle" aria-hidden="true"></div></div>
   </article>
 </section>
 
@@ -136,7 +136,7 @@
   <div class="qrow">
     <blockquote class="q"><span class="kind">Prototype reaction</span><p>It eliminates the four or five clicks that frustrate me daily.</p><cite>Senior buyer, aerospace manufacturer, on one-click item details. Lightly paraphrased.</cite></blockquote>
     <blockquote class="q"><span class="kind">Prototype reaction</span><p>Really big. Awesome.</p><cite>Senior buyer, aerospace manufacturer, on custom analysis and TCO tools</cite></blockquote>
-    <blockquote class="q"><span class="kind">Prototype reaction</span><p>It's better than the current one.</p><cite>Senior buyer, aerospace manufacturer, comparing the redesign to classic</cite></blockquote>
+    <blockquote class="q"><span class="kind">Prototype reaction</span><p>It's better than the current one.</p><cite>Senior buyer, aerospace manufacturer, comparing the redesign to the legacy UI</cite></blockquote>
   </div>
 </section>
 

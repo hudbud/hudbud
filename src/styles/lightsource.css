@@ -492,7 +492,7 @@
   color: var(--fg-dim);
 }
 
-/* ---------- Gallery: every page, classic or Nova ---------- */
+/* ---------- Gallery: every page, legacy or redesigned ---------- */
 .ls .toggle-all {
   display: flex;
   gap: var(--space-2);

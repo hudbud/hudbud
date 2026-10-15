@@ -12,7 +12,7 @@ feature_image: "https://media.hudbud.net/lightsource/neon-sign.webp"
 
 A three-year-old procurement platform, nineteen engineers, no designer. I came in first. Eighteen months later it had a brand, a design system, a rebuilt core workflow, and a design team that works the same way.
 
-Classic, then Nova. Same page, same data.
+Legacy, then the redesign. Same page, same data.
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/lightsource/screenshots/old-sp-overview.webp" alt="Sourcing project overview, before" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
@@ -81,11 +81,11 @@ It shipped opt-in, so real buyers could steer it before it became the default.
 
 ## Team
 
-It started with me. Now two more designers and about twenty engineers work from the same small set of patterns, and the feedback got sharper once more thought went in before anything shipped. Here's Erin Scott sketching the quote-format builder, next to the roadmap that put the redesign at the top.
+It started with me. Now two more designers and about twenty engineers work from the same small set of patterns, and the feedback got sharper once more thought went in before anything shipped. Here's Erin Scott sketching the quote-format builder, and a bid comparison worked out on glass.
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0">
+<div style="display:grid;grid-template-columns:4fr 3fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/lightsource/whiteboards/IMG_5509.webp" alt="Erin Scott sketching the quote-format builder" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/lightsource/whiteboards/IMG_2498.webp" alt="Roadmap board" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/lightsource/whiteboards/glass-bid-comp.webp" alt="A bid comparison sketched on glass" loading="lazy" style="width:100%;height:auto;border-radius:2px;display:block">
 </div>
 
 The full case studies for the brand, the system and sourcing are [behind a password](/lightsource). Need access? [hudbud@gmail.com](mailto:hudbud@gmail.com).
