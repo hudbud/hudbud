@@ -5,9 +5,9 @@ dateLabel: "2022 – 2025"
 tags: ["work"]
 category: "portfolio"
 discipline: "product design"
-summary: "Unifying Carvana under one design system"
+summary: "Unifying 430 engineers and 35 designers under 1 design system"
 excerpt: "Four products, four design languages, one big mess — unifying Carvana under a single design system, then getting a 10,000-person company to actually adopt it."
-feature_image: "https://media.hudbud.net/posts/68/cover.webp"
+feature_image: "https://media.hudbud.net/posts/68/carvana-tower.webp"
 roles: "Senior Product Designer, Design Systems"
 tools: "Figma"
 ---
