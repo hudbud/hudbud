@@ -4,17 +4,16 @@ import Layout from '../../layouts/Layout.astro';
 ---
 <Layout title="LightSource — Hudson Paine" description="LightSource case study by Hudson Paine. Password protected." robots="noindex, nofollow">
   <main class="unlock hp-page hp-grid">
-    <a class="back hp-rail" href="/lightsource">← highlights</a>
+    <a class="back hp-rail" href="/">← back</a>
     <header>
       <h1>LightSource</h1>
       <p class="lede">
-        Brand, design system and the core sourcing workflow, 2025 to 2026. The full case studies
-        show the product from the inside, so they're behind a password. The
-        <a class="hp-bio-link" href="/lightsource">highlights</a> are open to all.
+        Brand, design system and the core sourcing workflow, 2025 to 2026. It shows the product
+        from the inside, so it's behind a password.
       </p>
     </header>
     <form method="post" action="/lightsource/unlock">
-      <input type="hidden" name="next" value="/lightsource/overview" />
+      <input type="hidden" name="next" value="/lightsource" />
       <label>
         <span class="label">password</span>
         <input type="password" name="password" autocomplete="current-password" required autofocus />

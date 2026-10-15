@@ -1,21 +1,19 @@
 ---
 /** Shell for the LightSource case study. Page bodies live in
-    src/lightsource/<page>.html. The highlights page at /lightsource is
-    public; the Worker puts the case studies under it behind a password
-    (worker/index.js). Images are on media.hudbud.net/lightsource/. */
+    src/lightsource/<page>.html; the Worker puts /lightsource behind a
+    password (worker/index.js). Images are on media.hudbud.net/lightsource/. */
 import Layout from '../layouts/Layout.astro';
 import '../styles/lightsource.css';
 
 interface Props {
-  page: 'highlights' | 'overview' | 'rebrand' | 'system' | 'sourcing';
+  page: 'index' | 'rebrand' | 'system' | 'sourcing';
   title: string;
 }
 
 const { page, title } = Astro.props;
-const isPublic = page === 'highlights';
 
 const NAV = [
-  { page: 'overview', href: '/lightsource/overview', label: 'Overview' },
+  { page: 'index', href: '/lightsource', label: 'Overview' },
   { page: 'rebrand', href: '/lightsource/rebrand', label: 'Rebrand' },
   { page: 'system', href: '/lightsource/system', label: 'Design system and navigation' },
   { page: 'sourcing', href: '/lightsource/sourcing', label: 'Sourcing projects' },
@@ -24,27 +22,18 @@ const NAV = [
 const bodies = import.meta.glob<string>('../lightsource/*.html', { query: '?raw', import: 'default', eager: true });
 const body = bodies[`../lightsource/${page}.html`];
 ---
-<Layout
-  title={`${title} — Hudson Paine`}
-  description={isPublic
-    ? 'Hudson Paine, Head of Design at LightSource: the brand, the design system and the core sourcing workflow.'
-    : 'LightSource case study by Hudson Paine. Password protected.'}
-  image={isPublic ? 'https://media.hudbud.net/lightsource/og.jpg' : undefined}
-  robots={isPublic ? undefined : 'noindex, nofollow'}
->
-  <main class:list={['ls hp-page hp-grid hp-framed', { lsh: isPublic }]} data-dev={import.meta.env.DEV ? '' : undefined}>
+<Layout title={`${title} — Hudson Paine`} description="LightSource case study by Hudson Paine. Password protected." robots="noindex, nofollow">
+  <main class="ls hp-page hp-grid hp-framed" data-dev={import.meta.env.DEV ? '' : undefined}>
     <div class="ls-top">
       <a class="hp-glass-pill" href="/">← back</a>
-      {!isPublic && (
-        <nav class="ls-nav" aria-label="Case studies">
-          {NAV.map((n) => <a href={n.href} aria-current={n.page === page ? 'page' : undefined}>{n.label}</a>)}
-        </nav>
-      )}
+      <nav class="ls-nav" aria-label="Case studies">
+        {NAV.map((n) => <a href={n.href} aria-current={n.page === page ? 'page' : undefined}>{n.label}</a>)}
+      </nav>
     </div>
     <Fragment set:html={body} />
     <footer class="ls-footer">
-      <span>Hudson Paine. {isPublic ? 'Head of Design' : 'Product design'} at LightSource, 2025 to 2026. Screens captured from the live product.</span>
-      {!isPublic && <a href="/lightsource/lock">lock</a>}
+      <span>Hudson Paine. Product design at LightSource, 2025 to 2026. Screens captured from the live product.</span>
+      <a href="/lightsource/lock">lock</a>
     </footer>
   </main>
   <dialog class="ls-lb" aria-label="Image">
