@@ -1641,6 +1641,7 @@ const FEATURED_WORK: { slug: string; size: TileSize; dated?: false }[] = [
   { slug: 'dennys', size: '2x1', dated: false },
   { slug: 'blaze', size: '2x1', dated: false },
   { slug: 'red-robin', size: '2x1', dated: false },
+  { slug: 'paine-pacific', size: '2x2' },
 ];
 
 const PHOTO_MOSAIC_COUNT = 6;
@@ -2190,7 +2191,8 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   tiles.push({ key: 'fish', size: '1x1', className: 'hp-tile-link', node: <FishTile /> });
   tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
   feature(2);
-  stack(0);
+  // Two brand pieces side by side: Paine Pacific and CarvanaDS.
+  feature(7);
   feature(1);
   // Under CarvanaDS, a band of Hathway: the best three clients and the pile
   // of the rest, which opens the systems post.
@@ -2202,8 +2204,8 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
   if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
   tiles.push({ key: 'websites', size: '2x1', className: 'hp-tile-link', node: <WebsitesTile rows={sites} onOpenAll={() => setSheet('websites')} /> });
-  for (let i = 1; i < appStacks.length; i++) stack(i);
-  for (let i = 7; i < featured.length; i++) feature(i);
+  for (let i = 0; i < appStacks.length; i++) stack(i);
+  for (let i = 8; i < featured.length; i++) feature(i);
   const dealtFrom = tiles.length;
   let bigs = 0;
   for (const row of archive.slice(0, dealt)) {

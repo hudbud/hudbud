@@ -5,7 +5,7 @@ tags: ["work"]
 discipline: "brand design, web design"
 summary: "A new logo and website for a Portland M&A firm"
 excerpt: "A new logo, brand and website for Paine Pacific, a Portland M&A and consulting firm."
-feature_image: "https://media.hudbud.net/posts/paine-pacific/site-home.webp"
+feature_image: "https://media.hudbud.net/posts/paine-pacific/hood-cover.webp"
 roles: "Brand Identity, Web Design"
 tools: "Figma, Framer"
 agency: "Cosmo Studio"
@@ -33,20 +33,12 @@ When I first came on, their site was built on Wix, with an outlined PP logo and 
 
 </details>
 
-In 2019 I redrew the original logo and gave it a circle to anchor the leaning P shapes. The client was very connected to the nature photos on their old site, so we leaned into it and set the new one in the forest.
+In 2019 I redrew the original logo, gave it a circle to anchor the leaning P shapes, and redesigned the website. The client was very connected to the nature photos on their old site, so we leaned into it and set the new one in the forest.
 
-<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/36/c7b0003c-772c-4753-b69c-9ba92d33d323_rw_1200.webp" alt="The 2019 homepage: Reaching Business Objectives over a dark forest" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
-
-<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/old-card.webp" alt="The 2019 business card, front and back, with the boxed PP over ocean water" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/36/c7b0003c-772c-4753-b69c-9ba92d33d323_rw_1200.webp" alt="The 2019 homepage: Reaching Business Objectives over a dark forest, with the circled PP in the nav" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
 <details class="more">
-<summary>All of 2019</summary>
-
-<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/2019-marks.webp" alt="The 2019 PP in navy, orange, black and a water texture" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
-
-<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/2019-boxes.webp" alt="The boxed PP over Paine Pacific, LLC in navy, orange, grey and black" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
-
-<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/2019-lockups.webp" alt="Horizontal Paine Pacific, LLC lockups in navy, orange, grey and black" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+<summary>The whole forest site</summary>
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/36/322dd77a-7945-475b-b2b4-3a3099a283bc_rw_1200.webp" alt="2019 About page: Business and Financial Advisory Services over a forest stair" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -57,22 +49,40 @@ In 2019 I redrew the original logo and gave it a circle to anchor the leaning P 
 <img src="https://media.hudbud.net/posts/36/230266d7-14a4-46f9-a3e5-4a3712e253d2_rw_1200.webp" alt="2019 Never Miss an Update signup modal" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0">
-<img src="https://media.hudbud.net/posts/36/flatlay-perspective.webp" alt="2019 stationery flat lay: letterhead, envelope, cards and pens" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/posts/36/stationery-mockup-free-version5.webp" alt="2019 business cards for Nels Paine" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
-<img src="https://media.hudbud.net/posts/36/indoor-signage-mockup.webp" alt="2019 boxed PP as an acrylic wall sign" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
+<div style="margin:12px auto;max-width:560px"><img src="https://media.hudbud.net/posts/36/screenshot_2019-12-18-hudson-paine-paine-pacific-site-redesign.webp" alt="The forest site beside the Wix site it replaced, page for page" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+</details>
+
+## A bolder PP
+
+After that we redesigned the logo itself. It became a more modern and bold take on the overlapping PP, with a sans-serif logotype.
+
+<div style="display:grid;grid-template-columns:1000fr 1333fr;gap:8px;margin:12px 0">
+<video src="https://media.hudbud.net/posts/36/pp-rebrand-animation-gif.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1;height:auto;border-radius:2px;display:block;background:#000"></video>
+<img src="https://media.hudbud.net/posts/36/flatlay-perspective.webp" alt="Stationery flat lay with the bold PP: letterhead, envelope, cards and pens" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
 </div>
 
-<div style="display:grid;grid-template-columns:1000fr 529fr;gap:8px;margin:12px 0">
-<video src="https://media.hudbud.net/posts/36/pp-rebrand-animation-gif.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:720/720;height:auto;border-radius:2px;display:block;background:#000"></video>
-<img src="https://media.hudbud.net/posts/36/screenshot_2019-12-18-hudson-paine-paine-pacific-site-redesign.webp" alt="The 2019 site beside the Wix site it replaced, page for page" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/2019-marks.webp" alt="The bold PP in navy, orange, black and a water texture" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+<details class="more">
+<summary>The rest of the bold PP</summary>
+
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/2019-boxes.webp" alt="The boxed PP over Paine Pacific, LLC in navy, orange, grey and black" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/2019-lockups.webp" alt="Horizontal Paine Pacific, LLC lockups in navy, orange, grey and black" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+<div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/old-card.webp" alt="Business card, front and back, with the boxed PP over ocean water" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
+
+<div style="display:grid;grid-template-columns:1333fr 1429fr;gap:8px;margin:12px 0">
+<img src="https://media.hudbud.net/posts/36/stationery-mockup-free-version5.webp" alt="Business cards for Nels Paine with the bold PP" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/36/indoor-signage-mockup.webp" alt="The bold PP as an acrylic wall sign" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
 </div>
 
 </details>
 
 ## Keeping the PP
 
-In 2022 it was time to mature the brand and website. The PP had been with them a long time, so we started there, with the 2019 logo, a few versions in between, and a stacked wordmark.
+In 2022 it was time to mature the brand and website. I went back to a serif for the brand typeface to give it a more refined, human and trustworthy look. The PP had been with them a long time, so we started there, with serif versions of the original logo, a few in between, and a stacked wordmark.
 
 <div style="display:grid;grid-template-columns:1000fr 1174fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/monogram-board.webp" alt="PP monogram studies in white on black: old logo, something in between, newer design" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -83,7 +93,7 @@ In 2022 it was time to mature the brand and website. The PP had been with them a
 <summary>The presentation</summary>
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0">
-<img src="https://media.hudbud.net/posts/paine-pacific/pres-old-logo.webp" alt="Deck slide: the 2019 PP and its variations" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
+<img src="https://media.hudbud.net/posts/paine-pacific/pres-old-logo.webp" alt="Deck slide: the original PP and its variations" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
 <img src="https://media.hudbud.net/posts/paine-pacific/pres-monogram-a.webp" alt="Deck slide: three PP monograms with sample copy" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
 <img src="https://media.hudbud.net/posts/paine-pacific/pres-monogram-b.webp" alt="Deck slide: three more PP monograms with sample copy" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
 <img src="https://media.hudbud.net/posts/paine-pacific/pres-type.webp" alt="Deck slide: the type pairing on a sample page" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
