@@ -52,9 +52,10 @@ export default function PixelTrout() {
       const sun = new THREE.DirectionalLight('#fff4e0', 2.1);
       sun.position.set(-2, 3, 3);
       scene.add(sun);
-      const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
-      camera.position.set(0, 0.75, 3.05);
-      camera.lookAt(0, 0.02, 0);
+      // Framed off-center so the tail has room at full bend and he sits low.
+      const camera = new THREE.PerspectiveCamera(30, 1, 1, 10);
+      camera.position.set(0.05, 1, 4);
+      camera.lookAt(0.05, 0.38, 0);
 
       const geo = new THREE.BoxGeometry(1, 1, 1);
       const mats = new Map<string, THREE.Material>();
@@ -72,21 +73,30 @@ export default function PixelTrout() {
       };
 
       // One segment's slab of fish, centered `cx` along its joint's x (nose is +x).
+      // The color bands stack without overlapping, bottom to top, so no two
+      // faces ever share a plane and fight over the same pixels.
+      const BANDS: [keyof typeof INK, number, number, number][] = [
+        ['belly', -0.5, -0.18, 0.86],
+        ['side', -0.18, -0.03, 1],
+        ['stripe', -0.03, 0.11, 1.08],
+        ['side', 0.11, 0.24, 1],
+        ['back', 0.24, 0.5, 0.9],
+      ];
       const flesh = (g: THREE.Group, i: number, cx: number) => {
         const { l, h, w } = SEGS[i];
-        box(g, INK.side, l, h * 0.5, w, cx, 0, 0);
-        box(g, INK.back, l, h * 0.3, w * 0.92, cx, h * 0.36, 0);
-        box(g, INK.belly, l, h * 0.26, w * 0.88, cx, -h * 0.36, 0);
-        box(g, i === 1 ? INK.cheek : INK.stripe, l * 1.001, h * 0.14, w + 0.01, cx, h * 0.04, 0);
+        for (const [c, y0, y1, k] of BANDS) {
+          box(g, INK[c === 'stripe' && i === 1 ? 'cheek' : c], l, (y1 - y0) * h, w * k, cx, ((y0 + y1) / 2) * h, 0);
+        }
         if (i >= 2) {
           for (const s of [-1, 1]) {
-            for (const [dx, dy] of [[-0.3, 0.3], [0.25, 0.4], [0.05, 0.2], [-0.15, -0.12]]) {
+            for (const [dx, dy] of [[-0.3, 0.32], [0.25, 0.4], [0.05, 0.18], [-0.15, -0.1]]) {
               if (dy < 0 && i < 4) continue;
-              box(g, INK.spot, 0.035, 0.035, 0.01, cx + l * dx, h * dy, s * (w / 2 + 0.006));
+              const k = BANDS.find(([, y0, y1]) => dy >= y0 && dy < y1)![3];
+              box(g, INK.spot, 0.035, 0.035, 0.012, cx + l * dx, h * dy, s * ((w * k) / 2 + 0.008));
             }
           }
-          box(g, INK.spot, 0.035, 0.01, 0.035, cx + l * 0.1, h * 0.51 + 0.003, w * 0.18);
-          box(g, INK.spot, 0.035, 0.01, 0.035, cx - l * 0.25, h * 0.51 + 0.003, -w * 0.2);
+          box(g, INK.spot, 0.035, 0.012, 0.035, cx + l * 0.1, h * 0.5 + 0.008, w * 0.18);
+          box(g, INK.spot, 0.035, 0.012, 0.035, cx - l * 0.25, h * 0.5 + 0.008, -w * 0.2);
         }
       };
 
@@ -108,12 +118,13 @@ export default function PixelTrout() {
       const head = front[front.length - 1];
       {
         const { l, h, w } = SEGS[0];
-        box(head, INK.side, 0.07, h * 0.62, w * 0.72, l + 0.03, -0.01, 0);
-        box(head, INK.back, 0.07, h * 0.2, w * 0.66, l + 0.03, h * 0.2, 0);
-        box(head, INK.mouth, 0.09, 0.025, w * 0.74, l + 0.025, -h * 0.12, 0);
+        // The snout steps down in length and width so no two faces line up.
+        box(head, INK.side, 0.06, h * 0.5, w * 0.72, l + 0.03, -h * 0.05, 0);
+        box(head, INK.back, 0.045, h * 0.16, w * 0.6, l + 0.0225, h * 0.28, 0);
+        box(head, INK.mouth, 0.05, 0.025, w * 0.8, l + 0.045, -h * 0.15, 0);
         for (const s of [-1, 1]) {
-          box(head, INK.eye, 0.075, 0.075, 0.02, l * 0.5, h * 0.12, s * (w / 2 + 0.008));
-          box(head, INK.glint, 0.025, 0.025, 0.012, l * 0.5 + 0.015, h * 0.12 + 0.018, s * (w / 2 + 0.02));
+          box(head, INK.eye, 0.075, 0.075, 0.02, l * 0.5, h * 0.12, s * (w * 0.54 + 0.012));
+          box(head, INK.glint, 0.025, 0.025, 0.012, l * 0.5 + 0.015, h * 0.12 + 0.018, s * (w * 0.54 + 0.027));
         }
       }
       // Back chain, out to the tail.
@@ -137,7 +148,7 @@ export default function PixelTrout() {
       box(tail, INK.fin, 0.3, 0.14, 0.03, -0.18, 0.15, 0, -0.45);
       box(tail, INK.fin, 0.3, 0.14, 0.03, -0.18, -0.15, 0, 0.45);
       for (const [x, y] of [[-0.12, 0.12], [-0.2, 0.17], [-0.1, -0.1], [-0.19, -0.16], [-0.05, 0.03]]) {
-        for (const s of [-1, 1]) box(tail, INK.spot, 0.03, 0.03, 0.01, x, y, s * 0.02);
+        for (const s of [-1, 1]) box(tail, INK.spot, 0.03, 0.03, 0.012, x, y, s * 0.023);
       }
       // Fins: dorsal, adipose, pectorals, pelvics, anal.
       const seg = (i: number) => (i === MID ? pivot : i < MID ? front[MID - 1 - i] : back[i - MID - 1]);
