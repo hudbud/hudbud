@@ -267,4 +267,19 @@ const { title, pageTitle, description, image, spec = [], lede, hero, heroCaption
     color: var(--fg);
     margin: 1.6em 0 0.6em;
   }
+  /* <details class="more">: the rest of a section, one click away. */
+  .prose :global(details.more) { margin: 4px 0 20px; }
+  .prose :global(details.more > summary) {
+    display: inline-flex;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 14px;
+    color: var(--fg-dim);
+    user-select: none;
+  }
+  .prose :global(details.more > summary::-webkit-details-marker) { display: none; }
+  .prose :global(details.more > summary::before) { content: '+'; width: 1ch; }
+  .prose :global(details.more[open] > summary::before) { content: '−'; }
+  .prose :global(details.more > summary:hover) { color: var(--accent); }
 </style>

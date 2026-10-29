@@ -1668,7 +1668,7 @@ const WEBSITES: { name: string; key: string; slug?: string; url?: string; year?:
   { name: 'CPI Hamilton', key: 'cpi-hamilton' },
   { name: 'CPP Transactions', key: 'cpp-transactions' },
   { name: 'Pacific Bay Financial', key: 'pacific-bay-financial' },
-  { name: 'Paine Pacific', key: 'paine-pacific', slug: 'painepacificgallery' },
+  { name: 'Paine Pacific', key: 'paine-pacific', slug: 'paine-pacific', url: 'https://painepacific.com', year: '2024' },
   { name: 'Zib', key: 'zib', slug: 'zib' },
   { name: 'In-App Chat', key: 'in-app-chat', slug: 'inappchat' },
 ];
