@@ -7,6 +7,7 @@ import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 import { type Post } from '../data/posts';
 import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, ShuffleButton, FONT_FAMILY, GLASS, applyThemeVars, randomLook, type FontId } from './chrome';
 import ThoughtsModal, { ThoughtsButton } from './ThoughtsModal';
+import PixelTrout from './PixelTrout';
 import { Shuffle, CaretUp, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, ListDashes, Image as ImageIcon, MagnifyingGlass, PersonArmsSpread, SquaresFour } from '@phosphor-icons/react';
 
 // The feed is grouped into labeled sections rather than one flat filtered
@@ -1822,73 +1823,6 @@ function WatercolorPortrait() {
       <img src={PORTRAIT} alt="Hudson Paine" decoding="async" />
       <canvas ref={canvasRef} aria-hidden="true" />
     </div>
-  );
-}
-
-// A pixel rainbow trout in the corner of the intro. His pupil steps toward
-// the cursor anywhere on the page and he tips his head a few degrees after
-// it. Clicking him goes fishing.
-const TROUT = [
-  '...............kkk......................',
-  '..............ktttk...................kk',
-  '.............ktssttk.................ksk',
-  '........kkkkksdsddsk................kssk',
-  '.....kkkdddddsssddddkkk............ksssk',
-  '...kkdddgdggggggggggsddkkk.kk.....ktttsk',
-  '..kdyyygggdggggggssgsggddsksdkkkkkttsttk',
-  '.kggyyygggdggggsgggsggggggggggsgggtsttk.',
-  '.kgoyyygoodrrrrrrrrrrrrgrrgsrrrrrrsttk..',
-  '.kkkoooooodppppppppspsprwwrrllllllsstk..',
-  '.kllwwwwwwdwwwwwwwwwwwwwllllkkkkkkstttk.',
-  '..kklllwwdwwwwwwwwwwllllkwwk......kstttk',
-  '....kkklllllllllllllkkkk.ktk......ksttsk',
-  '.......kkwwwkkkkkwwk......kk.......ktttk',
-  '.........ktk.....ktk................ktsk',
-  '..........kkk.....kk.................ktk',
-  '......................................kk',
-];
-const TROUT_INK: Record<string, string> = {
-  k: '#2b3527', d: '#566f3c', g: '#7d9752', s: '#1d2419', t: '#8d9e5e', p: '#e58a98',
-  r: '#cf5c72', o: '#ec9a8f', w: '#f1f2ee', l: '#c9d1cb', y: '#e2b44a',
-};
-/** The pupil's resting pixel, centered in the 3x3 eye. */
-const TROUT_EYE = { x: 5, y: 7 };
-// One path per color, so the sprite is a dozen nodes instead of 500.
-const TROUT_PATHS = Object.entries(TROUT_INK).map(([c, fill]) => {
-  let d = '';
-  TROUT.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === c) d += `M${x} ${y}h1v1h-1z`; }));
-  return { fill, d };
-});
-
-function PixelTrout() {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const [look, setLook] = useState({ x: 0, y: 0, tilt: 0 });
-  useEffect(() => {
-    const move = (e: PointerEvent) => {
-      const el = ref.current?.querySelector('svg');
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const px = r.width / TROUT[0].length;
-      const dx = e.clientX - (r.left + (TROUT_EYE.x + 0.5) * px);
-      const dy = e.clientY - (r.top + (TROUT_EYE.y + 0.5) * px);
-      const far = Math.hypot(dx, dy) > px * 2;
-      const a = Math.atan2(dy, dx);
-      setLook({
-        x: far ? Math.round(Math.cos(a)) : 0,
-        y: far ? Math.round(Math.sin(a)) : 0,
-        tilt: Math.max(-4, Math.min(4, -dy / 60)),
-      });
-    };
-    window.addEventListener('pointermove', move, { passive: true });
-    return () => window.removeEventListener('pointermove', move);
-  }, []);
-  return (
-    <a ref={ref} href="/fish" className="hp-trout" aria-label="Go fishing" title="go fishing">
-      <svg viewBox={`0 0 ${TROUT[0].length} ${TROUT.length}`} shapeRendering="crispEdges" style={{ transform: `rotate(${look.tilt}deg)` }} aria-hidden="true">
-        {TROUT_PATHS.map((p) => <path key={p.fill} d={p.d} fill={p.fill} />)}
-        <rect x={TROUT_EYE.x + look.x} y={TROUT_EYE.y + look.y} width="1" height="1" fill="#111" />
-      </svg>
-    </a>
   );
 }
 
