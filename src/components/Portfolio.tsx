@@ -1715,6 +1715,117 @@ function yearOf(row: Row): string {
   return isPlainDate ? String(new Date(row.dateValue).getFullYear()) : row.date;
 }
 
+// Black and white until the cursor passes over. Each move drops a wash of
+// pigment into a mask: a few offset lobes that bloom outward, pool a little
+// darker at the edge like a tide line, then dry back to grey. The mask cuts
+// the color photo out of a canvas laid over the grey one.
+const PORTRAIT = 'https://media.hudbud.net/images/hudson-portrait.webp';
+const WASH_LIFE = 2600;
+const WASH_BLOOM = 900;
+const WASH_HOLD = 1100;
+
+type Wash = { x: number; y: number; t0: number; r: number; lobes: { a: number; d: number; s: number }[] };
+
+function WatercolorPortrait() {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const reduce = useReducedMotion();
+
+  useEffect(() => {
+    if (reduce) return;
+    const box = boxRef.current, canvas = canvasRef.current;
+    if (!box || !canvas) return;
+    const out = canvas.getContext('2d')!;
+    const mask = document.createElement('canvas');
+    const m = mask.getContext('2d')!;
+    const color = new Image();
+    color.src = PORTRAIT;
+    let dpr = 1, w = 0, h = 0, raf = 0;
+    let washes: Wash[] = [];
+    let hover = false, lastX = 0, lastY = 0, lastSpawn = 0;
+
+    const size = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.width = mask.width = Math.round(box.clientWidth * dpr);
+      h = canvas.height = mask.height = Math.round(box.clientHeight * dpr);
+    };
+    size();
+    const ro = new ResizeObserver(size);
+    ro.observe(box);
+
+    const spawn = (x: number, y: number, now: number) => {
+      const lobes = Array.from({ length: 4 + Math.floor(Math.random() * 3) }, () => ({
+        a: Math.random() * Math.PI * 2, d: 0.15 + Math.random() * 0.35, s: 0.55 + Math.random() * 0.4,
+      }));
+      washes.push({ x, y, t0: now, r: (30 + Math.random() * 26) * dpr, lobes });
+      if (washes.length > 160) washes.shift();
+      lastSpawn = now;
+    };
+
+    const frame = (now: number) => {
+      // A still cursor keeps the pool spreading.
+      if (hover && now - lastSpawn > 160) spawn(lastX + (Math.random() - 0.5) * 12 * dpr, lastY + (Math.random() - 0.5) * 12 * dpr, now);
+      washes = washes.filter((d) => now - d.t0 < WASH_LIFE);
+      m.clearRect(0, 0, w, h);
+      for (const d of washes) {
+        const age = now - d.t0;
+        const grow = 1 - Math.pow(1 - Math.min(1, age / WASH_BLOOM), 3);
+        const fade = age < WASH_HOLD ? 1 : Math.pow(1 - (age - WASH_HOLD) / (WASH_LIFE - WASH_HOLD), 1.6);
+        const r = d.r * (0.3 + 0.7 * grow);
+        for (const l of d.lobes) {
+          const cx = d.x + Math.cos(l.a) * l.d * r * (0.6 + 0.6 * grow);
+          const cy = d.y + Math.sin(l.a) * l.d * r * (0.6 + 0.6 * grow);
+          const rr = r * l.s;
+          const g = m.createRadialGradient(cx, cy, 0, cx, cy, rr);
+          g.addColorStop(0, `rgba(0,0,0,${0.42 * fade})`);
+          g.addColorStop(0.72, `rgba(0,0,0,${0.5 * fade})`);
+          g.addColorStop(0.9, `rgba(0,0,0,${0.72 * fade})`);
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          m.fillStyle = g;
+          m.beginPath();
+          m.arc(cx, cy, rr, 0, Math.PI * 2);
+          m.fill();
+        }
+      }
+      out.globalCompositeOperation = 'copy';
+      out.drawImage(mask, 0, 0);
+      out.globalCompositeOperation = 'source-in';
+      if (color.complete) out.drawImage(color, 0, 0, w, h);
+      raf = washes.length || hover ? requestAnimationFrame(frame) : 0;
+    };
+    const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+    const move = (e: PointerEvent) => {
+      const b = box.getBoundingClientRect();
+      const x = (e.clientX - b.left) * dpr, y = (e.clientY - b.top) * dpr;
+      const now = performance.now();
+      if (Math.hypot(x - lastX, y - lastY) > 10 * dpr || !hover) spawn(x, y, now);
+      lastX = x; lastY = y; hover = true;
+      wake();
+    };
+    const leave = () => { hover = false; };
+    box.addEventListener('pointermove', move);
+    box.addEventListener('pointerdown', move);
+    box.addEventListener('pointerleave', leave);
+    box.addEventListener('pointercancel', leave);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      box.removeEventListener('pointermove', move);
+      box.removeEventListener('pointerdown', move);
+      box.removeEventListener('pointerleave', leave);
+      box.removeEventListener('pointercancel', leave);
+    };
+  }, [reduce]);
+
+  return (
+    <div ref={boxRef} className={`hp-portrait${reduce ? ' is-still' : ''}`}>
+      <img src={PORTRAIT} alt="Hudson Paine" decoding="async" />
+      <canvas ref={canvasRef} aria-hidden="true" />
+    </div>
+  );
+}
+
 // Name, then the thesis as a second line; the bio lives in the about tile.
 // The mark is the easter egg: the page opens monochrome and each click rolls
 // a color theme. It's also a fidget spinner.
@@ -1739,6 +1850,9 @@ function BentoIntro({ onRollTheme, onOpenAbout }: { onRollTheme: () => void; onO
         />
         <SwapLine a="exploration" b="creativity" />
       </motion.h1>
+      <motion.div {...fade(0.3)} className="hp-portrait-slot">
+        <WatercolorPortrait />
+      </motion.div>
     </div>
   );
 }
