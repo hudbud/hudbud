@@ -554,11 +554,13 @@ html.hp-a11y *::after {
   height: 100%;
   display: block;
 }
-.hp-portrait img { object-fit: cover; filter: grayscale(1) contrast(1.04); }
+/* Washed out at rest so it sits quietly beside the headline; the canvas
+   paints full color over it. */
+.hp-portrait img { object-fit: cover; filter: grayscale(1) contrast(0.8); opacity: 0.4; }
 .hp-portrait canvas { pointer-events: none; }
 /* Reduced motion: no washes, just a slow fade to color. */
-.hp-portrait.is-still img { transition: filter 0.8s ease; }
-.hp-portrait.is-still:hover img { filter: none; }
+.hp-portrait.is-still img { transition: filter 0.8s ease, opacity 0.8s ease; }
+.hp-portrait.is-still:hover img { filter: none; opacity: 1; }
 @media (max-width: 1079px) {
   .hp-bento-intro {
     grid-template-columns: repeat(3, minmax(0, 1fr));

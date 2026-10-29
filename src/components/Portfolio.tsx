@@ -1777,9 +1777,9 @@ function WatercolorPortrait() {
           const cy = d.y + Math.sin(l.a) * l.d * r * (0.6 + 0.6 * grow);
           const rr = r * l.s;
           const g = m.createRadialGradient(cx, cy, 0, cx, cy, rr);
-          g.addColorStop(0, `rgba(0,0,0,${0.42 * fade})`);
-          g.addColorStop(0.72, `rgba(0,0,0,${0.5 * fade})`);
-          g.addColorStop(0.9, `rgba(0,0,0,${0.72 * fade})`);
+          g.addColorStop(0, `rgba(0,0,0,${0.62 * fade})`);
+          g.addColorStop(0.72, `rgba(0,0,0,${0.7 * fade})`);
+          g.addColorStop(0.9, `rgba(0,0,0,${0.88 * fade})`);
           g.addColorStop(1, 'rgba(0,0,0,0)');
           m.fillStyle = g;
           m.beginPath();
