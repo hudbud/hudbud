@@ -3,19 +3,19 @@ title: "Paine Pacific"
 date: "2024-03-18"
 tags: ["work"]
 discipline: "brand design, web design"
-summary: "Mt. Hood over the Pacific, for a Portland M&A firm"
-excerpt: "A new mark, color, type, print and website for Paine Pacific, a Portland M&A and consulting firm, in its 26th year."
+summary: "A new logo and website for a Portland M&A firm"
+excerpt: "A new logo, brand and website for Paine Pacific, a Portland M&A and consulting firm."
 feature_image: "https://media.hudbud.net/posts/paine-pacific/site-home.webp"
 roles: "Brand Identity, Web Design"
 tools: "Figma, Framer"
 agency: "Cosmo Studio"
 ---
 
-They've done M&A, consulting and investment banking since 1998, under one PP monogram or another. For year 26 they wanted a mark about where they work: Mt. Hood, the Pacific, and the climb in between. [Visit painepacific.com](https://painepacific.com).
+Paine Pacific is a Portland firm that has been doing M&A, consulting and investment banking since 1998. I've worked on their brand and website a few times over the years, and this is the latest round. [Visit painepacific.com](https://painepacific.com).
 
 ## Before
 
-Year 20 ran on Wix: an outlined PP, a Celebrating 20 Years ribbon, and a stock photo behind every page.
+When I first came on, their site was built on Wix, with an outlined PP logo and a different stock photo behind every page.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/36/behance-00.webp" alt="The Wix-era homepage: Reaching Business Objectives over a black and white coastline" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
@@ -33,7 +33,7 @@ Year 20 ran on Wix: an outlined PP, a Celebrating 20 Years ribbon, and a stock p
 
 </details>
 
-In 2019 the PP got a box, the palette went navy and orange, and the site moved into the forest.
+In 2019 I redrew the original logo and gave it a circle to anchor the leaning P shapes. The client was very connected to the nature photos on their old site, so we leaned into it and set the new one in the forest.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/36/c7b0003c-772c-4753-b69c-9ba92d33d323_rw_1200.webp" alt="The 2019 homepage: Reaching Business Objectives over a dark forest" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
@@ -72,7 +72,7 @@ In 2019 the PP got a box, the palette went navy and orange, and the site moved i
 
 ## Keeping the PP
 
-The first round stayed with the letters: the 2019 box, something in between, a newer cut, and two P's stacked into a wordmark.
+In 2022 it was time to mature the brand and website. The PP had been with them a long time, so we started there, with the 2019 logo, a few versions in between, and a stacked wordmark.
 
 <div style="display:grid;grid-template-columns:1000fr 1174fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/monogram-board.webp" alt="PP monogram studies in white on black: old logo, something in between, newer design" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -80,7 +80,7 @@ The first round stayed with the letters: the 2019 box, something in between, a n
 </div>
 
 <details class="more">
-<summary>The deck</summary>
+<summary>The presentation</summary>
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/pres-old-logo.webp" alt="Deck slide: the 2019 PP and its variations" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -93,13 +93,13 @@ The first round stayed with the letters: the 2019 box, something in between, a n
 
 ## Dropping the letters
 
-Eight directions, each on light and dark: trees, a single leaf, Hood and water, a rising swoop, a trout, a lab, Hood and ocean, and Hood alone.
+None of the PP versions felt like enough of a step forward, so I tried marks without the letters. I put together eight directions on light and dark backgrounds, including trees, a leaf, a trout and a few takes on Mt. Hood.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/directions.webp" alt="Eight logo directions in navy and white: trees, tree derivative, hood and water, rise, trout, lab, hood and ocean, hood" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
-## Hood
+## Mt. Hood
 
-Hood won. It got tried as a dome, with and without water, in a square and in a ring.
+We went with Mt. Hood. I tried it as a simple dome, with and without water, and inside a square and a circle.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/hood-round.webp" alt="Ten Hood lockups on white cards, as a dome and with water below" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
@@ -114,13 +114,13 @@ Hood won. It got tried as a dome, with and without water, in a square and in a r
 
 </details>
 
-The final puts the water back: Hood rising out of the Pacific, simple enough to survive a matchbook.
+For the final we put the water back under the mountain, since Portland sits right between Hood and the Pacific.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/mark.webp" alt="The final Paine Pacific mark, Mt. Hood over three waves, black on white and white on black" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
 ## System
 
-Six colors named for home: Primer, Space, Pacific, Northwest, Dirk and Cloud. Libre Caslon Text sets the headlines and Open Sans does the rest. Lockups come horizontal, stacked, and with a line for each practice.
+The palette has six colors, called Primer, Space, Pacific, Northwest, Dirk and Cloud. Headlines are set in Libre Caslon Text and everything else is in Open Sans. The logo comes in horizontal and stacked versions, plus one with a line underneath for each part of the business.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/colors-a.webp" alt="The palette as tall bars: Primer, Space, Pacific, Northwest, Dirk and Cloud" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
@@ -143,7 +143,7 @@ Six colors named for home: Primer, Space, Pacific, Northwest, Dirk and Cloud. Li
 
 ## Print
 
-Cards for the team, letterhead notepads, a #10 envelope and an email signature.
+I designed business cards for the team, letterhead notepads, an envelope and an email signature.
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/cards.webp" alt="Business cards: the mark on the front, and backs for Nels Paine, Tara Gordon and Ramez Attia" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
@@ -152,7 +152,7 @@ Cards for the team, letterhead notepads, a #10 envelope and an email signature.
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/paine-pacific/envelope-signature.webp" alt="A #10 envelope and the Nels Paine email signature" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
 <details class="more">
-<summary>Every signature, and the print template</summary>
+<summary>More signatures and the print template</summary>
 
 <div style="display:grid;grid-template-columns:726fr 1606fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/print-template.webp" alt="Notepad print template with bleed, trim and safe zone marked" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -161,7 +161,7 @@ Cards for the team, letterhead notepads, a #10 envelope and an email signature.
 
 </details>
 
-Then the fun stuff: Yetis and matchbooks.
+We also made some merch, like Yeti tumblers and matchbooks.
 
 <div style="display:grid;grid-template-columns:1596fr 1766fr;gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/yeti-photo.webp" alt="Navy and grey Yeti tumblers etched with the stacked lockup" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -169,7 +169,7 @@ Then the fun stuff: Yetis and matchbooks.
 </div>
 
 <details class="more">
-<summary>Matchbook flats and corkscrew proofs</summary>
+<summary>Matchbook art and corkscrew proofs</summary>
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/matches-front.webp" alt="Matchbook flat: the horizontal lockup on navy" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -185,7 +185,7 @@ Then the fun stuff: Yetis and matchbooks.
 
 ## Social
 
-Share cards, all cut from the same photo of Hood.
+I made share cards for the site and social, all using the same photo of Mt. Hood.
 
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/og-370.webp" alt="Share card: Driving Business to Realize Success on white" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -194,7 +194,7 @@ Share cards, all cut from the same photo of Hood.
 </div>
 
 <details class="more">
-<summary>Every card, and the profiles</summary>
+<summary>More share cards and the social profiles</summary>
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/og-378.webp" alt="Share card: headline over a faded Hood, mark at the corner" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -220,7 +220,7 @@ Share cards, all cut from the same photo of Hood.
 
 ## Site
 
-Designed and built in Framer through [Cosmo Studio](/posts/cosmo-studio). Hood sits up top, live deals come up front, each active client gets its own login, and the footer closes on dark water.
+I designed and built the site in Framer through [Cosmo Studio](/posts/cosmo-studio). Mt. Hood is at the top of the homepage, current deals are easy to find, and each active client gets their own login.
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0">
 <img src="https://media.hudbud.net/posts/paine-pacific/site-about.webp" alt="About: We are people impacting remarkable businesses to realize their potential" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
@@ -246,7 +246,7 @@ Designed and built in Framer through [Cosmo Studio](/posts/cosmo-studio). Hood s
 </div>
 
 <details class="more">
-<summary>Figma comps, and an earlier ocean pass</summary>
+<summary>Figma comps and an earlier ocean concept</summary>
 
 <div style="display:grid;grid-template-columns:1105fr 423fr;gap:8px;margin:12px 0;align-items:start">
 <img src="https://media.hudbud.net/posts/paine-pacific/site-comps-f.webp" alt="Figma comps for every page, desktop and mobile" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block">
