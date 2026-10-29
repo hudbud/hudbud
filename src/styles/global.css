@@ -517,21 +517,28 @@ html.hp-a11y *::after {
   margin: 0 auto;
   padding: var(--page-top) var(--page-x) var(--space-9);
 }
-/* The intro shares the bento's columns so the portrait lands exactly over
-   the last one. */
+/* The intro shares the bento's columns so the portrait sits over the last
+   one. It never sets the height: it spans from the top of the mark to the
+   bottom of the headline, square, flush right. */
 .hp-bento-intro {
   padding-top: var(--space-5);
   margin-bottom: var(--space-8);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-areas: "mark mark mark photo" "head head head photo";
-  grid-template-rows: auto 1fr;
   column-gap: var(--space-3);
   align-items: start;
 }
 .hp-bento-intro > .hp-mark-roll { grid-area: mark; justify-self: start; }
 .hp-bento-intro > .hp-bento-headline { grid-area: head; }
-.hp-portrait-slot { grid-area: photo; }
+/* Lifted by the headline's descender room so the bottom meets the baseline. */
+.hp-portrait-slot {
+  grid-area: photo;
+  align-self: stretch;
+  position: relative;
+  margin-bottom: calc(0.2 * clamp(30px, 4vw, 50px));
+}
+.hp-portrait-slot > .hp-portrait { position: absolute; top: 0; right: 0; height: 100%; max-width: 100%; }
 .hp-portrait {
   position: relative;
   aspect-ratio: 1;
@@ -562,12 +569,12 @@ html.hp-a11y *::after {
   .hp-bento-intro {
     grid-template-columns: minmax(0, 1fr) 104px;
     grid-template-areas: "mark photo" "head head";
-    grid-template-rows: auto auto;
     column-gap: var(--space-2);
   }
   .hp-bento-intro > .hp-mark-roll { align-self: end; }
   /* Clears the search pill pinned to the corner. */
   .hp-portrait-slot { margin: 44px 0 var(--space-5); }
+  .hp-portrait-slot > .hp-portrait { position: relative; height: auto; width: 100%; }
 }
 .hp-bento-headline {
   margin: 0;
