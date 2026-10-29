@@ -5,13 +5,15 @@ tags: ["work"]
 discipline: "brand design, web design"
 summary: "A new logo and website for a Portland M&A firm"
 excerpt: "A new logo, brand and website for Paine Pacific, a Portland M&A and consulting firm."
-feature_image: "https://media.hudbud.net/posts/paine-pacific/hood-cover.webp"
+feature_image: "https://media.hudbud.net/posts/paine-pacific/hood-mark-cover.webp"
 roles: "Brand Identity, Web Design"
 tools: "Figma, Framer"
 agency: "Cosmo Studio"
 ---
 
-Paine Pacific is a Portland firm that has been doing M&A, consulting and investment banking since 1998. I've worked on their brand and website a few times over the years, and this is the latest round. [Visit painepacific.com](https://painepacific.com).
+Okay, this is a bit of an epic. I've been working on this brand (in spurts) for about a decade. Here are all the rebrands and redesigns I've done for them. Doing design work for your dad is no easy feat... haha, but I'm glad about where we ultimately ended up, all these years later!
+
+Paine Pacific is a Portland firm that has been doing M&A, consulting and investment banking since 1998. [Visit painepacific.com](https://painepacific.com).
 
 ## Before
 
@@ -34,6 +36,8 @@ When I first came on, their site was built on Wix, with an outlined PP logo and 
 </details>
 
 In 2019 I redrew the original logo, gave it a circle to anchor the leaning P shapes, and redesigned the website. The client was very connected to the nature photos on their old site, so we leaned into it and set the new one in the forest.
+
+<div style="margin:12px auto;max-width:640px"><img src="https://media.hudbud.net/posts/paine-pacific/pp-origins.webp" alt="The original PP in a black box over a blue gradient, ringed by six redraws: in a box, current, old reconstructed, old bold, part of a box, and new" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
 <div style="margin:12px 0"><img src="https://media.hudbud.net/posts/36/c7b0003c-772c-4753-b69c-9ba92d33d323_rw_1200.webp" alt="The 2019 homepage: Reaching Business Objectives over a dark forest, with the circled PP in the nav" loading="lazy" style="width:100%;height:auto;margin:0;border-radius:2px;display:block"></div>
 
