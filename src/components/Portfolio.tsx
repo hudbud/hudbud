@@ -1631,16 +1631,15 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
 // lands somewhere — new projects become 1x1 tiles, new work joins the index.
 type TileSize = '1x1' | '2x1' | '1x2' | '2x2';
 
-// Portfolio pieces promoted to feature tiles, in grid order. dated: false
-// drops the year chip where the date adds nothing.
-const FEATURED_WORK: { slug: string; size: TileSize; dated?: false }[] = [
+// Portfolio pieces promoted to feature tiles, in grid order.
+const FEATURED_WORK: { slug: string; size: TileSize }[] = [
   { slug: 'lightsource', size: '2x2' },
-  { slug: 'carvanads', size: '2x2', dated: false },
-  { slug: 'dave-and-busters', size: '2x1', dated: false },
+  { slug: 'carvanads', size: '2x2' },
+  { slug: 'dave-and-busters', size: '2x1' },
   { slug: 'ladle', size: '2x2' },
-  { slug: 'dennys', size: '2x1', dated: false },
-  { slug: 'blaze', size: '2x1', dated: false },
-  { slug: 'red-robin', size: '2x1', dated: false },
+  { slug: 'dennys', size: '2x1' },
+  { slug: 'blaze', size: '2x1' },
+  { slug: 'red-robin', size: '2x1' },
   { slug: 'paine-pacific', size: '2x2' },
 ];
 
@@ -1826,6 +1825,73 @@ function WatercolorPortrait() {
   );
 }
 
+// A pixel rainbow trout in the corner of the intro. His pupil steps toward
+// the cursor anywhere on the page and he tips his head a few degrees after
+// it. Clicking him goes fishing.
+const TROUT = [
+  '...............kkk......................',
+  '..............ktttk...................kk',
+  '.............ktssttk.................ksk',
+  '........kkkkksdsddsk................kssk',
+  '.....kkkdddddsssddddkkk............ksssk',
+  '...kkdddgdggggggggggsddkkk.kk.....ktttsk',
+  '..kdyyygggdggggggssgsggddsksdkkkkkttsttk',
+  '.kggyyygggdggggsgggsggggggggggsgggtsttk.',
+  '.kgoyyygoodrrrrrrrrrrrrgrrgsrrrrrrsttk..',
+  '.kkkoooooodppppppppspsprwwrrllllllsstk..',
+  '.kllwwwwwwdwwwwwwwwwwwwwllllkkkkkkstttk.',
+  '..kklllwwdwwwwwwwwwwllllkwwk......kstttk',
+  '....kkklllllllllllllkkkk.ktk......ksttsk',
+  '.......kkwwwkkkkkwwk......kk.......ktttk',
+  '.........ktk.....ktk................ktsk',
+  '..........kkk.....kk.................ktk',
+  '......................................kk',
+];
+const TROUT_INK: Record<string, string> = {
+  k: '#2b3527', d: '#566f3c', g: '#7d9752', s: '#1d2419', t: '#8d9e5e', p: '#e58a98',
+  r: '#cf5c72', o: '#ec9a8f', w: '#f1f2ee', l: '#c9d1cb', y: '#e2b44a',
+};
+/** The pupil's resting pixel, centered in the 3x3 eye. */
+const TROUT_EYE = { x: 5, y: 7 };
+// One path per color, so the sprite is a dozen nodes instead of 500.
+const TROUT_PATHS = Object.entries(TROUT_INK).map(([c, fill]) => {
+  let d = '';
+  TROUT.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === c) d += `M${x} ${y}h1v1h-1z`; }));
+  return { fill, d };
+});
+
+function PixelTrout() {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [look, setLook] = useState({ x: 0, y: 0, tilt: 0 });
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      const el = ref.current?.querySelector('svg');
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const px = r.width / TROUT[0].length;
+      const dx = e.clientX - (r.left + (TROUT_EYE.x + 0.5) * px);
+      const dy = e.clientY - (r.top + (TROUT_EYE.y + 0.5) * px);
+      const far = Math.hypot(dx, dy) > px * 2;
+      const a = Math.atan2(dy, dx);
+      setLook({
+        x: far ? Math.round(Math.cos(a)) : 0,
+        y: far ? Math.round(Math.sin(a)) : 0,
+        tilt: Math.max(-4, Math.min(4, -dy / 60)),
+      });
+    };
+    window.addEventListener('pointermove', move, { passive: true });
+    return () => window.removeEventListener('pointermove', move);
+  }, []);
+  return (
+    <a ref={ref} href="/fish" className="hp-trout" aria-label="Go fishing" title="go fishing">
+      <svg viewBox={`0 0 ${TROUT[0].length} ${TROUT.length}`} shapeRendering="crispEdges" style={{ transform: `rotate(${look.tilt}deg)` }} aria-hidden="true">
+        {TROUT_PATHS.map((p) => <path key={p.fill} d={p.d} fill={p.fill} />)}
+        <rect x={TROUT_EYE.x + look.x} y={TROUT_EYE.y + look.y} width="1" height="1" fill="#111" />
+      </svg>
+    </a>
+  );
+}
+
 // Name, then the thesis as a second line; the bio lives in the about tile.
 // The mark is the easter egg: the page opens monochrome and each click rolls
 // a color theme. It's also a fidget spinner.
@@ -1851,7 +1917,7 @@ function BentoIntro({ onRollTheme, onOpenAbout }: { onRollTheme: () => void; onO
         <SwapLine a="exploration" b="creativity" />
       </motion.h1>
       <motion.div {...fade(0.3)} className="hp-portrait-slot">
-        <WatercolorPortrait />
+        <PixelTrout />
       </motion.div>
     </div>
   );
@@ -1924,6 +1990,7 @@ function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
   return (
     <div onClick={onOpenAbout} style={{ display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer' }}>
       <div className="hp-tile-pad" style={{ flex: 1 }}>
+        <div className="hp-about-portrait"><WatercolorPortrait /></div>
         <span className="post-spec-cell" style={{ display: 'block', color: 'var(--fg-dim)', marginBottom: 14 }}>about</span>
         {paras.map((para, i) => (
           <p key={i} style={{ margin: 0, marginBottom: 12, fontSize: 15, lineHeight: 1.6, letterSpacing: '-0.006em', color: i === 0 ? 'var(--fg)' : 'var(--fg-dim)' }}>
@@ -1946,12 +2013,12 @@ function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
 }
 
 // Full-bleed cover with the caption laid over a bottom scrim.
-function FeatureTile({ row, big, dated = true }: { row: Row; big: boolean; dated?: boolean }) {
+function FeatureTile({ row, big }: { row: Row; big: boolean }) {
   return (
     <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
       {row.image && <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />}
       <span className="hp-tile-scrim" />
-      {dated && <YearChip row={row} />}
+      <StatusChip row={row} />
       <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 18, display: 'flex', flexDirection: 'column', gap: 2, textShadow: '0 1px 12px rgba(0, 0, 0, 0.4)' }}>
         <span style={{ fontSize: big ? 22 : 17, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>
           {row.title}{row.external ? ' ↗' : ''}
@@ -2104,7 +2171,6 @@ function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
     return (
       <AppLink row={row} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <span className="hp-tile-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <span className="post-spec-cell hp-tile-hover-reveal" style={{ color: 'var(--fg-faint)' }}>{yearOf(row)}</span>
           <span className="hp-tile-title" style={{ marginTop: 'auto', fontSize: big ? 22 : 17, fontWeight: 500, letterSpacing: '-0.01em' }}>{row.title}</span>
           {(row.summary ?? row.desc) && (
             <span style={{ marginTop: 2, fontSize: 13, lineHeight: 1.5, color: 'var(--fg-dim)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{row.summary ?? row.desc}</span>
@@ -2117,7 +2183,7 @@ function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
     <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
       <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />
       <span className="hp-tile-scrim" />
-      <YearChip row={row} />
+      <StatusChip row={row} />
       <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 16, display: 'flex', flexDirection: 'column', gap: 2, textShadow: big ? '0 1px 12px rgba(0, 0, 0, 0.4)' : undefined }}>
         <span style={{ fontSize: big ? 22 : 15, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>{row.title}{row.external ? ' ↗' : ''}</span>
         {big && (row.summary ?? row.desc) && (
@@ -2128,10 +2194,9 @@ function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
   );
 }
 
-// Years stay out of the way until hover; status labels like "active" stay up.
-function YearChip({ row }: { row: Row }) {
-  const label = yearOf(row);
-  return <span className={`post-spec-cell hp-tile-chip${/\d{4}/.test(label) ? ' hp-tile-hover-reveal' : ''}`}>{label}</span>;
+// Tiles carry no dates; only status labels like "active" show.
+function StatusChip({ row }: { row: Row }) {
+  return /^[a-z][a-z ]*$/i.test(row.date) ? <span className="post-spec-cell hp-tile-chip">{row.date}</span> : null;
 }
 
 // Site screenshots tucked in a folder; on hover the front flap tips open and
@@ -2296,7 +2361,7 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   };
   const feature = (i: number) => {
     const f = featured[i];
-    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} dated={f.dated} /> });
+    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} /> });
   };
 
   feature(0);
