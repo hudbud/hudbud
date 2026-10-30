@@ -34,9 +34,10 @@ function rehypeExternalLinks() {
 export default defineConfig({
   output: 'static',
   site: 'https://hudbud.net',
-  // /about is the one about page; the old about-me post points there.
+  // Retired posts point at the ones that replaced them.
   redirects: {
     '/posts/about-me': '/about',
+    '/posts/painepacificgallery': '/posts/paine-pacific',
   },
   integrations: [react(), sitemap({ filter: (page) => !page.includes('/lightsource') && !page.includes('/admin') })],
   markdown: {

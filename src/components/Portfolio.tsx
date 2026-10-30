@@ -7,6 +7,7 @@ import { MT_THEMES, SAFE_THEME_NAMES } from '../data/themes';
 import { type Post } from '../data/posts';
 import { GlassBloom, GlassPanelItem, GlassSectionLabel, FontPanelBody, ThemePanelBody, ShuffleButton, FONT_FAMILY, GLASS, applyThemeVars, randomLook, type FontId } from './chrome';
 import ThoughtsModal, { ThoughtsButton } from './ThoughtsModal';
+import PixelTrout from './PixelTrout';
 import { Shuffle, CaretUp, Sparkle, ClockCounterClockwise, BookOpen, LinkSimple, Palette, ListDashes, Image as ImageIcon, MagnifyingGlass, PersonArmsSpread, SquaresFour } from '@phosphor-icons/react';
 
 // The feed is grouped into labeled sections rather than one flat filtered
@@ -1631,16 +1632,16 @@ function LeftColumn({ onOpenBioModal, onHome, onWatchStream, onOpenAbout, feed, 
 // lands somewhere — new projects become 1x1 tiles, new work joins the index.
 type TileSize = '1x1' | '2x1' | '1x2' | '2x2';
 
-// Portfolio pieces promoted to feature tiles, in grid order. dated: false
-// drops the year chip where the date adds nothing.
-const FEATURED_WORK: { slug: string; size: TileSize; dated?: false }[] = [
+// Portfolio pieces promoted to feature tiles, in grid order.
+const FEATURED_WORK: { slug: string; size: TileSize }[] = [
   { slug: 'lightsource', size: '2x2' },
-  { slug: 'carvanads', size: '2x2', dated: false },
-  { slug: 'dave-and-busters', size: '2x1', dated: false },
+  { slug: 'carvanads', size: '2x2' },
+  { slug: 'dave-and-busters', size: '2x1' },
   { slug: 'ladle', size: '2x2' },
-  { slug: 'dennys', size: '2x1', dated: false },
-  { slug: 'blaze', size: '2x1', dated: false },
-  { slug: 'red-robin', size: '2x1', dated: false },
+  { slug: 'dennys', size: '2x1' },
+  { slug: 'blaze', size: '2x1' },
+  { slug: 'red-robin', size: '2x1' },
+  { slug: 'paine-pacific', size: '2x2' },
 ];
 
 const PHOTO_MOSAIC_COUNT = 6;
@@ -1668,7 +1669,7 @@ const WEBSITES: { name: string; key: string; slug?: string; url?: string; year?:
   { name: 'CPI Hamilton', key: 'cpi-hamilton' },
   { name: 'CPP Transactions', key: 'cpp-transactions' },
   { name: 'Pacific Bay Financial', key: 'pacific-bay-financial' },
-  { name: 'Paine Pacific', key: 'paine-pacific', slug: 'painepacificgallery' },
+  { name: 'Paine Pacific', key: 'paine-pacific', slug: 'paine-pacific', url: 'https://painepacific.com', year: '2024' },
   { name: 'Zib', key: 'zib', slug: 'zib' },
   { name: 'In-App Chat', key: 'in-app-chat', slug: 'inappchat' },
 ];
@@ -1714,6 +1715,117 @@ function yearOf(row: Row): string {
   return isPlainDate ? String(new Date(row.dateValue).getFullYear()) : row.date;
 }
 
+// Black and white until the cursor passes over. Each move drops a wash of
+// pigment into a mask: a few offset lobes that bloom outward, pool a little
+// darker at the edge like a tide line, then dry back to grey. The mask cuts
+// the color photo out of a canvas laid over the grey one.
+const PORTRAIT = 'https://media.hudbud.net/images/hudson-portrait.webp';
+const WASH_LIFE = 2600;
+const WASH_BLOOM = 900;
+const WASH_HOLD = 1100;
+
+type Wash = { x: number; y: number; t0: number; r: number; lobes: { a: number; d: number; s: number }[] };
+
+function WatercolorPortrait() {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const reduce = useReducedMotion();
+
+  useEffect(() => {
+    if (reduce) return;
+    const box = boxRef.current, canvas = canvasRef.current;
+    if (!box || !canvas) return;
+    const out = canvas.getContext('2d')!;
+    const mask = document.createElement('canvas');
+    const m = mask.getContext('2d')!;
+    const color = new Image();
+    color.src = PORTRAIT;
+    let dpr = 1, w = 0, h = 0, raf = 0;
+    let washes: Wash[] = [];
+    let hover = false, lastX = 0, lastY = 0, lastSpawn = 0;
+
+    const size = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.width = mask.width = Math.round(box.clientWidth * dpr);
+      h = canvas.height = mask.height = Math.round(box.clientHeight * dpr);
+    };
+    size();
+    const ro = new ResizeObserver(size);
+    ro.observe(box);
+
+    const spawn = (x: number, y: number, now: number) => {
+      const lobes = Array.from({ length: 4 + Math.floor(Math.random() * 3) }, () => ({
+        a: Math.random() * Math.PI * 2, d: 0.15 + Math.random() * 0.35, s: 0.55 + Math.random() * 0.4,
+      }));
+      washes.push({ x, y, t0: now, r: (30 + Math.random() * 26) * dpr, lobes });
+      if (washes.length > 160) washes.shift();
+      lastSpawn = now;
+    };
+
+    const frame = (now: number) => {
+      // A still cursor keeps the pool spreading.
+      if (hover && now - lastSpawn > 160) spawn(lastX + (Math.random() - 0.5) * 12 * dpr, lastY + (Math.random() - 0.5) * 12 * dpr, now);
+      washes = washes.filter((d) => now - d.t0 < WASH_LIFE);
+      m.clearRect(0, 0, w, h);
+      for (const d of washes) {
+        const age = now - d.t0;
+        const grow = 1 - Math.pow(1 - Math.min(1, age / WASH_BLOOM), 3);
+        const fade = age < WASH_HOLD ? 1 : Math.pow(1 - (age - WASH_HOLD) / (WASH_LIFE - WASH_HOLD), 1.6);
+        const r = d.r * (0.3 + 0.7 * grow);
+        for (const l of d.lobes) {
+          const cx = d.x + Math.cos(l.a) * l.d * r * (0.6 + 0.6 * grow);
+          const cy = d.y + Math.sin(l.a) * l.d * r * (0.6 + 0.6 * grow);
+          const rr = r * l.s;
+          const g = m.createRadialGradient(cx, cy, 0, cx, cy, rr);
+          g.addColorStop(0, `rgba(0,0,0,${0.62 * fade})`);
+          g.addColorStop(0.72, `rgba(0,0,0,${0.7 * fade})`);
+          g.addColorStop(0.9, `rgba(0,0,0,${0.88 * fade})`);
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          m.fillStyle = g;
+          m.beginPath();
+          m.arc(cx, cy, rr, 0, Math.PI * 2);
+          m.fill();
+        }
+      }
+      out.globalCompositeOperation = 'copy';
+      out.drawImage(mask, 0, 0);
+      out.globalCompositeOperation = 'source-in';
+      if (color.complete) out.drawImage(color, 0, 0, w, h);
+      raf = washes.length || hover ? requestAnimationFrame(frame) : 0;
+    };
+    const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };
+
+    const move = (e: PointerEvent) => {
+      const b = box.getBoundingClientRect();
+      const x = (e.clientX - b.left) * dpr, y = (e.clientY - b.top) * dpr;
+      const now = performance.now();
+      if (Math.hypot(x - lastX, y - lastY) > 10 * dpr || !hover) spawn(x, y, now);
+      lastX = x; lastY = y; hover = true;
+      wake();
+    };
+    const leave = () => { hover = false; };
+    box.addEventListener('pointermove', move);
+    box.addEventListener('pointerdown', move);
+    box.addEventListener('pointerleave', leave);
+    box.addEventListener('pointercancel', leave);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      box.removeEventListener('pointermove', move);
+      box.removeEventListener('pointerdown', move);
+      box.removeEventListener('pointerleave', leave);
+      box.removeEventListener('pointercancel', leave);
+    };
+  }, [reduce]);
+
+  return (
+    <div ref={boxRef} className={`hp-portrait${reduce ? ' is-still' : ''}`}>
+      <img src={PORTRAIT} alt="Hudson Paine" decoding="async" />
+      <canvas ref={canvasRef} aria-hidden="true" />
+    </div>
+  );
+}
+
 // Name, then the thesis as a second line; the bio lives in the about tile.
 // The mark is the easter egg: the page opens monochrome and each click rolls
 // a color theme. It's also a fidget spinner.
@@ -1738,6 +1850,9 @@ function BentoIntro({ onRollTheme, onOpenAbout }: { onRollTheme: () => void; onO
         />
         <SwapLine a="exploration" b="creativity" />
       </motion.h1>
+      <motion.div {...fade(0.3)} className="hp-portrait-slot">
+        <PixelTrout />
+      </motion.div>
     </div>
   );
 }
@@ -1809,6 +1924,7 @@ function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
   return (
     <div onClick={onOpenAbout} style={{ display: 'flex', flexDirection: 'column', height: '100%', cursor: 'pointer' }}>
       <div className="hp-tile-pad" style={{ flex: 1 }}>
+        <div className="hp-about-portrait"><WatercolorPortrait /></div>
         <span className="post-spec-cell" style={{ display: 'block', color: 'var(--fg-dim)', marginBottom: 14 }}>about</span>
         {paras.map((para, i) => (
           <p key={i} style={{ margin: 0, marginBottom: 12, fontSize: 15, lineHeight: 1.6, letterSpacing: '-0.006em', color: i === 0 ? 'var(--fg)' : 'var(--fg-dim)' }}>
@@ -1831,12 +1947,12 @@ function AboutTile({ onOpenAbout }: { onOpenAbout: () => void }) {
 }
 
 // Full-bleed cover with the caption laid over a bottom scrim.
-function FeatureTile({ row, big, dated = true }: { row: Row; big: boolean; dated?: boolean }) {
+function FeatureTile({ row, big }: { row: Row; big: boolean }) {
   return (
     <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
       {row.image && <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />}
       <span className="hp-tile-scrim" />
-      {dated && <YearChip row={row} />}
+      <StatusChip row={row} />
       <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 18, display: 'flex', flexDirection: 'column', gap: 2, textShadow: '0 1px 12px rgba(0, 0, 0, 0.4)' }}>
         <span style={{ fontSize: big ? 22 : 17, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>
           {row.title}{row.external ? ' ↗' : ''}
@@ -1989,7 +2105,6 @@ function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
     return (
       <AppLink row={row} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <span className="hp-tile-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <span className="post-spec-cell hp-tile-hover-reveal" style={{ color: 'var(--fg-faint)' }}>{yearOf(row)}</span>
           <span className="hp-tile-title" style={{ marginTop: 'auto', fontSize: big ? 22 : 17, fontWeight: 500, letterSpacing: '-0.01em' }}>{row.title}</span>
           {(row.summary ?? row.desc) && (
             <span style={{ marginTop: 2, fontSize: 13, lineHeight: 1.5, color: 'var(--fg-dim)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{row.summary ?? row.desc}</span>
@@ -2002,7 +2117,7 @@ function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
     <AppLink row={row} style={{ display: 'block', position: 'absolute', inset: 0 }}>
       <img src={row.image} alt="" loading="lazy" className="hp-tile-cover" />
       <span className="hp-tile-scrim" />
-      <YearChip row={row} />
+      <StatusChip row={row} />
       <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: big ? 24 : 16, display: 'flex', flexDirection: 'column', gap: 2, textShadow: big ? '0 1px 12px rgba(0, 0, 0, 0.4)' : undefined }}>
         <span style={{ fontSize: big ? 22 : 15, fontWeight: 500, color: '#fff', letterSpacing: '-0.01em' }}>{row.title}{row.external ? ' ↗' : ''}</span>
         {big && (row.summary ?? row.desc) && (
@@ -2013,10 +2128,9 @@ function WorkTile({ row, big = false }: { row: Row; big?: boolean }) {
   );
 }
 
-// Years stay out of the way until hover; status labels like "active" stay up.
-function YearChip({ row }: { row: Row }) {
-  const label = yearOf(row);
-  return <span className={`post-spec-cell hp-tile-chip${/\d{4}/.test(label) ? ' hp-tile-hover-reveal' : ''}`}>{label}</span>;
+// Tiles carry no dates; only status labels like "active" show.
+function StatusChip({ row }: { row: Row }) {
+  return /^[a-z][a-z ]*$/i.test(row.date) ? <span className="post-spec-cell hp-tile-chip">{row.date}</span> : null;
 }
 
 // Site screenshots tucked in a folder; on hover the front flap tips open and
@@ -2181,7 +2295,7 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   };
   const feature = (i: number) => {
     const f = featured[i];
-    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} dated={f.dated} /> });
+    if (f) tiles.push({ key: f.row.key, size: f.size, className: 'hp-tile-link hp-tile-image', node: <FeatureTile row={f.row} big={f.size === '2x2'} /> });
   };
 
   feature(0);
@@ -2190,7 +2304,8 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   tiles.push({ key: 'fish', size: '1x1', className: 'hp-tile-link', node: <FishTile /> });
   tiles.push({ key: 'stream', size: '1x1', className: 'hp-tile-link', node: <StreamTile onOpen={onWatchStream} /> });
   feature(2);
-  stack(0);
+  // Two brand pieces side by side: Paine Pacific and CarvanaDS.
+  feature(7);
   feature(1);
   // Under CarvanaDS, a band of Hathway: the best three clients and the pile
   // of the rest, which opens the systems post.
@@ -2202,8 +2317,8 @@ function BentoColumn({ feed, onRollTheme, onWatchStream, onOpenAbout, onTimeTrav
   tiles.push({ key: 'photos', size: '2x2', node: <PhotosTile rows={photos} onOpenAll={() => setSheet('photos')} /> });
   if (bench.length) tiles.push({ key: 'bench', size: '1x2', node: <BenchTile rows={bench} /> });
   tiles.push({ key: 'websites', size: '2x1', className: 'hp-tile-link', node: <WebsitesTile rows={sites} onOpenAll={() => setSheet('websites')} /> });
-  for (let i = 1; i < appStacks.length; i++) stack(i);
-  for (let i = 7; i < featured.length; i++) feature(i);
+  for (let i = 0; i < appStacks.length; i++) stack(i);
+  for (let i = 8; i < featured.length; i++) feature(i);
   const dealtFrom = tiles.length;
   let bigs = 0;
   for (const row of archive.slice(0, dealt)) {
