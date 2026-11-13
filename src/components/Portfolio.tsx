@@ -190,7 +190,8 @@ function LifeImage({ color, seed = 0, height = 140 }: { color: string; seed?: nu
 // portfolio subscriptions lapsed), so the time machine replays Wayback Machine
 // snapshots instead. The `if_` timestamp modifier serves the raw archived page
 // without the Wayback toolbar, and replay pages send no frame-blocking
-// headers, so they load cleanly in the overlay iframe.
+// headers, so they load cleanly in the overlay iframe. The 2025 Framer site
+// is still published, so it loads straight from framer.app.
 interface SiteVersion {
   label: string;
   url: string;
@@ -198,6 +199,10 @@ interface SiteVersion {
   pageUrl?: string;
   /** Screenshot for the websites sheet. */
   image?: string;
+  /** Still published, so it loads live instead of from the Wayback Machine. */
+  live?: boolean;
+  /** Domain it lived at, for the websites sheet. Defaults to paine.design. */
+  domain?: string;
 }
 
 function wayback(timestamp: string, original: string): Pick<SiteVersion, 'url' | 'pageUrl'> {
@@ -209,6 +214,7 @@ function wayback(timestamp: string, original: string): Pick<SiteVersion, 'url' |
 
 const SITE_VERSIONS: SiteVersion[] = [
   { label: '2026 (current)', url: '' },
+  { label: '2025', url: 'https://spiky-tours-701867.framer.app/', pageUrl: 'https://spiky-tours-701867.framer.app/', image: 'https://media.hudbud.net/posts/websites/paine-design-2025.webp', live: true, domain: 'hudbud.co' },
   { label: '2023', ...wayback('20230907005627', 'https://www.paine.design/'), image: 'https://media.hudbud.net/posts/websites/paine-design-2023.webp' },
   { label: '2022', ...wayback('20220405235635', 'https://www.paine.design/') },
   { label: '2020', ...wayback('20201101080101', 'https://www.paine.design/'), image: 'https://media.hudbud.net/posts/websites/paine-design-2020.webp' },
@@ -2194,7 +2200,7 @@ function PastSiteCard({ version, onOpen }: { version: SiteVersion; onOpen: () =>
           : <ClockCounterClockwise size={22} color="var(--fg-dim)" weight="fill" />}
       </span>
       <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 14 }}>
-        <span className="hp-tile-title">paine.design</span>
+        <span className="hp-tile-title">{version.domain ?? 'paine.design'}</span>
         <span className="post-spec-cell" style={{ color: 'var(--fg-dim)' }}>{version.label}</span>
       </span>
     </button>
@@ -2523,7 +2529,7 @@ function TimeTravelOverlay({ version, onClose }: { version: SiteVersion; onClose
         <span style={{ fontSize: 11, color: 'var(--fg-dim)', display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
           <ClockCounterClockwise size={13} weight="fill" style={{ flexShrink: 0 }} />
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {version.label} — via the wayback machine
+            {version.label} — {version.live ? 'still up on framer' : 'via the wayback machine'}
           </span>
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -2536,7 +2542,7 @@ function TimeTravelOverlay({ version, onClose }: { version: SiteVersion; onClose
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
             >
-              open on archive.org ↗
+              {version.live ? 'open site' : 'open on archive.org'} ↗
             </a>
           )}
           <button
